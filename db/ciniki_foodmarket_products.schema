@@ -1,0 +1,58 @@
+#
+# Description
+# -----------
+# The products the foodmarket produces.
+#
+# Fields
+# ------
+# id:                   The ID assigned to the product.
+# uuid:                 The Universal Unique ID.
+# business_id:          The business the product is attached to.
+#
+# name:                 The name for the product.
+# permalink:            The permalink for the product, to be used on the website.
+#
+# status:               The current status of the product.
+#
+#                           10 - Active, available to website, order etc depending on other flags
+#                           90 - Archived, still on previous orders, but no longer visible on website
+#
+# flags:                The options for the product.
+#
+#                           0x01 - Visible on website
+#                           0x02 - 
+#                           0x04 - 
+#                           0x08 - 
+#
+# category:             The internal organizational category, not used on the website.
+# 
+# primary_image_id:     The ID of the image to be used as the main image for the product.
+# synopsis:             The synopsis of the product.
+# description:          The full description of the product.
+# ingredients:          The ingredient list for the product (optional).
+#
+# supplier_id:          The ID of the supplier for this product.
+#
+# date_added:           The UTC date and time the record was added.
+# last_updated:         The UTC date and time the record was last updated.
+#
+create table ciniki_foodmarket_products (
+    id int not null auto_increment,
+    uuid char(36) not null,
+    business_id int not null,
+    name varchar(250) not null,
+    permalink varchar(250) not null,
+    status tinyint unsigned not null,
+    flags tinyint unsigned not null,
+    category varchar(150) not null,
+    primary_image_id int not null,
+    synopsis varchar(1000) not null,
+    description text not null,
+    ingredients text not null,
+    supplier_id int not null,
+    date_added datetime not null,
+    last_updated datetime not null,
+    primary key (id),
+    unique index (uuid),
+    index sync (business_id, uuid, last_updated)
+) ENGINE='InnoDB', COMMENT='v1.01';
