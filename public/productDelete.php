@@ -51,7 +51,7 @@ function ciniki_foodmarket_productDelete(&$ciniki) {
         return $rc;
     }
     if( !isset($rc['product']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3612', 'msg'=>'Product does not exist.'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.14', 'msg'=>'Product does not exist.'));
     }
     $product = $rc['product'];
 
@@ -69,7 +69,7 @@ function ciniki_foodmarket_productDelete(&$ciniki) {
         return $rc;
     }
     if( $rc['num'] > 0 ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3628', 'msg'=>'You still have ' . $rc['num'] . ' child categor' . ($rc['num']>1?'ies':'y') . '.'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.15', 'msg'=>'You still have ' . $rc['num'] . ' child categor' . ($rc['num']>1?'ies':'y') . '.'));
     }
 
     //

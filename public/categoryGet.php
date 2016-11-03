@@ -91,10 +91,10 @@ function ciniki_foodmarket_categoryGet($ciniki) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQuery');
         $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.foodmarket', 'category');
         if( $rc['stat'] != 'ok' ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3623', 'msg'=>'Category not found', 'err'=>$rc['err']));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.8', 'msg'=>'Category not found', 'err'=>$rc['err']));
         }
         if( !isset($rc['category']) ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3624', 'msg'=>'Unable to find Category'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.9', 'msg'=>'Unable to find Category'));
         }
         $category = $rc['category'];
 
@@ -109,7 +109,7 @@ function ciniki_foodmarket_categoryGet($ciniki) {
                 . "";
             $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(array('container'=>'children', 'fname'=>'id', 'fields'=>array('id', 'name'))));
             if( $rc['stat'] != 'ok' ) {
-                return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3635', 'msg'=>'Children not found', 'err'=>$rc['err']));
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.10', 'msg'=>'Children not found', 'err'=>$rc['err']));
             }
             if( isset($rc['children']) ) {
                 $category['children'] = $rc['children'];
@@ -132,7 +132,7 @@ function ciniki_foodmarket_categoryGet($ciniki) {
             . "";
         $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(array('container'=>'parents', 'fname'=>'id', 'fields'=>array('id', 'name'))));
         if( $rc['stat'] != 'ok' ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3641', 'msg'=>'Parents not found', 'err'=>$rc['err']));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.11', 'msg'=>'Parents not found', 'err'=>$rc['err']));
         }
         if( isset($rc['parents']) ) {
             $rsp['parents'] = $rc['parents'];

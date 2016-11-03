@@ -55,7 +55,7 @@ function ciniki_foodmarket_productSearchField($ciniki) {
     // Reject if an unknown field
     //
     if( $args['field'] != 'category') {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3633', 'msg'=>'Unvalid search field'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.18', 'msg'=>'Unvalid search field'));
     }
     //
     // Get the number of faqs in each status for the business, 

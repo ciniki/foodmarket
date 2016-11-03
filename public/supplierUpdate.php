@@ -62,7 +62,7 @@ function ciniki_foodmarket_supplierUpdate(&$ciniki) {
             return $rc;
         }
         if( $rc['num_rows'] > 0 ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3620', 'msg'=>'You already have an supplier with this name, please choose another.'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.29', 'msg'=>'You already have an supplier with this name, please choose another.'));
         }
     }
 

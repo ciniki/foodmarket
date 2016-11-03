@@ -98,10 +98,10 @@ function ciniki_foodmarket_productGet($ciniki) {
             . "";
         $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.foodmarket', 'product');
         if( $rc['stat'] != 'ok' ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3613', 'msg'=>'Product not found', 'err'=>$rc['err']));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.16', 'msg'=>'Product not found', 'err'=>$rc['err']));
         }
         if( !isset($rc['product']) ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3614', 'msg'=>'Unable to find Product'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.17', 'msg'=>'Unable to find Product'));
         }
         $product = $rc['product'];
 

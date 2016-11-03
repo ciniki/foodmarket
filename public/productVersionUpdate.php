@@ -69,7 +69,7 @@ function ciniki_foodmarket_productVersionUpdate(&$ciniki) {
             return $rc;
         }
         if( $rc['num_rows'] > 0 ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3640', 'msg'=>'You already have an product version with this name, please choose another.'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.24', 'msg'=>'You already have an product version with this name, please choose another.'));
         }
     }
 

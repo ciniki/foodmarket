@@ -95,10 +95,10 @@ function ciniki_foodmarket_supplierGet($ciniki) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQuery');
         $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.foodmarket', 'supplier');
         if( $rc['stat'] != 'ok' ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3618', 'msg'=>'Supplier not found', 'err'=>$rc['err']));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.27', 'msg'=>'Supplier not found', 'err'=>$rc['err']));
         }
         if( !isset($rc['supplier']) ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3619', 'msg'=>'Unable to find Supplier'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.28', 'msg'=>'Unable to find Supplier'));
         }
         $supplier = $rc['supplier'];
     }

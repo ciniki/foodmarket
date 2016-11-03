@@ -51,7 +51,7 @@ function ciniki_foodmarket_productVersionDelete(&$ciniki) {
         return $rc;
     }
     if( !isset($rc['version']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3637', 'msg'=>'Product Version does not exist.'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.21', 'msg'=>'Product Version does not exist.'));
     }
     $version = $rc['version'];
 

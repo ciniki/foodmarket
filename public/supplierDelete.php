@@ -51,7 +51,7 @@ function ciniki_foodmarket_supplierDelete(&$ciniki) {
         return $rc;
     }
     if( !isset($rc['supplier']) ) {
-        return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3617', 'msg'=>'Supplier does not exist.'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.26', 'msg'=>'Supplier does not exist.'));
     }
     $supplier = $rc['supplier'];
 

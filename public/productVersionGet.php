@@ -109,10 +109,10 @@ function ciniki_foodmarket_productVersionGet($ciniki) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQuery');
         $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.foodmarket', 'version');
         if( $rc['stat'] != 'ok' ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3638', 'msg'=>'Product Version not found', 'err'=>$rc['err']));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.22', 'msg'=>'Product Version not found', 'err'=>$rc['err']));
         }
         if( !isset($rc['version']) ) {
-            return array('stat'=>'fail', 'err'=>array('pkg'=>'ciniki', 'code'=>'3639', 'msg'=>'Unable to find Product Version'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.23', 'msg'=>'Unable to find Product Version'));
         }
         $version = $rc['version'];
         
