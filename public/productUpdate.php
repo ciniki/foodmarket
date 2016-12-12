@@ -21,6 +21,7 @@ function ciniki_foodmarket_productUpdate(&$ciniki) {
         'name'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Name'),
         'permalink'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Permalink'),
         'status'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Status'),
+        'ptype'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Type'),
         'flags'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Options'),
         'category'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Category'),
         'primary_image_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Primary Image'),
@@ -45,6 +46,23 @@ function ciniki_foodmarket_productUpdate(&$ciniki) {
         return $rc;
     }
 
+    //
+    // Get the current product
+    //
+    $strsql = "SELECT id, ptype, name, permalink "
+        . "FROM ciniki_foodmarket_products "
+        . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "AND id = '" . ciniki_core_dbQuote($ciniki, $args['product_id']) . "' "
+        . "";
+    $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.foodmarket', 'product');
+    if( $rc['stat'] != 'ok' ) { 
+        return $rc;
+    }
+    if( !isset($rc['product']) ) {
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.30', 'msg'=>'Product does not exist'));
+    }
+    $product = $rc['product'];
+
     if( isset($args['name']) ) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'makePermalink');
         $args['permalink'] = ciniki_core_makePermalink($ciniki, $args['name']);
@@ -65,6 +83,8 @@ function ciniki_foodmarket_productUpdate(&$ciniki) {
             return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.19', 'msg'=>'You already have an product with this name, please choose another.'));
         }
     }
+
+    $ptype = (isset($args['ptype']) ? $args['ptype'] : $product['ptype']);
 
     //
     // Start transaction
@@ -98,6 +118,48 @@ function ciniki_foodmarket_productUpdate(&$ciniki) {
             ciniki_core_dbTransactionRollback($ciniki, 'ciniki.foodmarket');
             return $rc;
         }
+    }
+
+    //
+    // Update the inputs and outputs for the product
+    //
+    if( $ptype == '10' ) {
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'private', 'productSuppliedUpdate');
+        $rc = ciniki_foodmarket_productSuppliedUpdate($ciniki, $args['business_id'], $args['product_id'], $ciniki['request']['args']);
+        if( $rc['stat'] != 'ok' ) {
+            ciniki_core_dbTransactionRollback($ciniki, 'ciniki.foodmarket');
+            return $rc;
+        }
+    }
+
+    //
+    // Add just an output for a basket
+    //
+    elseif( $ptype == '70' ) {
+        //
+        // FIXME: Setup the basket output args
+        //
+/*        $basket_output = array(
+            'product_id'=>$product_id,
+            'input_id'=>0,
+            'name'=>$args['name'],
+            'permalink'=>$args['permalink'],
+            'status'=>(isset($args['status']) ? $args['status'] : 10),
+            'otype'=>70,
+            'units'=>'30',
+            'flags'=>0x901,
+            'sequence'=>1,
+            'wholesale_price'=>(isset($args['basket_wholesale_price']) ? $args['basket_wholesale_price'] : 0),
+            'wholesale_taxtype_id'=>(isset($args['basket_wholesale_taxtype_id']) ? $args['basket_wholesale_taxtype_id'] : 0),
+            'retail_price'=>(isset($args['basket_retail_price']) ? $args['basket_retail_price'] : 0),
+            'retail_taxtype_id'=>(isset($args['basket_retail_taxtype_id']) ? $args['basket_retail_taxtype_id'] : 0),
+            );
+        $rc = ciniki_core_objectAdd($ciniki, $args['business_id'], 'ciniki.foodmarket.output', $basket_output, 0x04);
+        if( $rc['stat'] != 'ok' ) {
+            ciniki_core_dbTransactionRollback($ciniki, 'ciniki.foodmarket');
+            return $rc;
+        }
+        $output_id = $rc['id']; */
     }
 
     //

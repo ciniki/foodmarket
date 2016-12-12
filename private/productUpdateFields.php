@@ -1,0 +1,270 @@
+<?php
+//
+// Description
+// ===========
+// This function calculates the prices for outputs based on specified percents. It also sets up the
+// display name used when the outputs are pulled for standing orders, queued and favourites.
+//
+// Arguments
+// ---------
+// ciniki:
+// business_id:         The ID of the business the product is attached to.
+// product_id:          The ID of the product to get the details for.
+// args:                Typically the $ciniki['request']['args'] variable should be passed here.
+//
+// Returns
+// -------
+//
+function ciniki_foodmarket_productUpdateFields(&$ciniki, $business_id, $product_id) {
+
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'makePermalink');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'private', 'convertWeightPrice');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'private', 'unitsText');
+
+    //
+    // Get the product details from the products table
+    //
+    $strsql = "SELECT ciniki_foodmarket_products.id, "
+        . "ciniki_foodmarket_products.name, "
+        . "ciniki_foodmarket_products.permalink, "
+        . "ciniki_foodmarket_products.status, "
+        . "ciniki_foodmarket_products.ptype, "
+        . "ciniki_foodmarket_products.flags, "
+        . "ciniki_foodmarket_products.category, "
+        . "ciniki_foodmarket_products.primary_image_id, "
+        . "ciniki_foodmarket_products.synopsis, "
+        . "ciniki_foodmarket_products.description, "
+        . "ciniki_foodmarket_products.ingredients, "
+        . "ciniki_foodmarket_products.supplier_id "
+        . "FROM ciniki_foodmarket_products "
+        . "WHERE ciniki_foodmarket_products.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND ciniki_foodmarket_products.id = '" . ciniki_core_dbQuote($ciniki, $product_id) . "' "
+        . "";
+    $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.foodmarket', 'product');
+    if( $rc['stat'] != 'ok' ) {
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.36', 'msg'=>'Product not found', 'err'=>$rc['err']));
+    }
+    if( !isset($rc['product']) ) {
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.37', 'msg'=>'Unable to find Product'));
+    }
+    $product = $rc['product'];
+
+    //
+    // Load the inputs and their outputs
+    //
+    $strsql = "SELECT ciniki_foodmarket_product_inputs.id, "
+        . "ciniki_foodmarket_product_inputs.name, "
+        . "ciniki_foodmarket_product_inputs.itype, "
+        . "ciniki_foodmarket_product_inputs.units, "
+        . "ciniki_foodmarket_product_inputs.flags, "
+        . "ciniki_foodmarket_product_inputs.case_cost, "
+        . "ciniki_foodmarket_product_inputs.half_cost, "
+        . "ciniki_foodmarket_product_inputs.unit_cost, "
+        . "ciniki_foodmarket_product_inputs.case_units "
+        . "FROM ciniki_foodmarket_product_inputs "
+        . "WHERE ciniki_foodmarket_product_inputs.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND ciniki_foodmarket_product_inputs.product_id = '" . ciniki_core_dbQuote($ciniki, $product_id) . "' "
+        . "ORDER BY sequence, name "
+        . "";
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
+    $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.foodmarket', array(
+        array('container'=>'inputs', 'fname'=>'id', 
+            'fields'=>array('id', 'name', 'itype', 'units', 'flags', 'case_cost', 'half_cost', 'unit_cost', 'case_units')),
+        ));
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+    if( isset($rc['inputs']) ) {
+        $inputs = $rc['inputs'];
+    } else {
+        $inputs = array();
+    }
+
+    //
+    // Get the outputs for the product
+    //
+    $strsql = "SELECT ciniki_foodmarket_product_outputs.id, "
+        . "ciniki_foodmarket_product_outputs.input_id, "
+        . "ciniki_foodmarket_product_outputs.name, "
+        . "ciniki_foodmarket_product_outputs.pio_name, "
+        . "ciniki_foodmarket_product_outputs.io_name, "
+        . "ciniki_foodmarket_product_outputs.otype, "
+        . "ciniki_foodmarket_product_outputs.units, "
+        . "ciniki_foodmarket_product_outputs.flags, "
+        . "ciniki_foodmarket_product_outputs.wholesale_percent, "
+        . "ciniki_foodmarket_product_outputs.wholesale_price, "
+        . "ciniki_foodmarket_product_outputs.retail_percent, "
+        . "ciniki_foodmarket_product_outputs.retail_price, "
+        . "ciniki_foodmarket_product_outputs.retail_price_text "
+        . "FROM ciniki_foodmarket_product_outputs "
+        . "WHERE ciniki_foodmarket_product_outputs.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND ciniki_foodmarket_product_outputs.product_id = '" . ciniki_core_dbQuote($ciniki, $product_id) . "' "
+        . "ORDER BY sequence, name "
+        . "";
+    $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.foodmarket', array(
+        array('container'=>'outputs', 'fname'=>'id', 
+            'fields'=>array('id', 'input_id', 'name', 'pio_name', 'io_name', 'otype', 'units', 'flags', 
+                'wholesale_percent', 'wholesale_price', 'retail_percent', 'retail_price', 'retail_price_text')),
+        ));
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+    if( isset($rc['outputs']) ) {
+        $outputs = $rc['outputs'];
+    } else {
+        $outputs = array();
+    }
+
+    //
+    // Run the calculations for the inputs
+    //
+    foreach($inputs as $input_id => $input) {
+        if( $input['itype'] == 50 ) {
+            if( $input['case_cost'] != 0 && $input['case_units'] != 0 ) {
+                // Round the number to 4 digits, same as database storage
+                $input['unit_cost'] = number_format(bcdiv($input['case_cost'], $input['case_units'], 6), 4);
+            } else {
+                $input['unit_cost'] = 0;
+            }
+        } else {
+            $input['case_cost'] = 0;
+            $input['half_cost'] = 0;
+        }
+        //
+        // Check for changed fields and build array of fields to update, and update the $inputs array
+        //
+        $update_args = array();
+        foreach(['case_cost', 'unit_cost'] as $field) {
+            if( $input[$field] != $inputs[$input_id][$field] ) {
+                $update_args[$field] = $input[$field];
+                $inputs[$input_id][$field] = $input[$field];
+            }
+        }
+        if( count($update_args) > 0 ) {
+            $rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.foodmarket.input', $input_id, $update_args, 0x04);
+            if( $rc['stat'] != 'ok' ) {
+                return $rc;
+            }
+        }
+    }
+
+    //
+    // Run the calculations for outputs
+    //
+    foreach($outputs as $output_id => $output) {
+        if( $output['input_id'] > 0 && isset($inputs[$output['input_id']]) ) {
+            $input = $inputs[$output['input_id']];
+        } else {
+            $input = array();
+        }
+
+        $case_text = 'case';
+        if( isset($input['units']) && ($input['units']&0x020000) == 0x020000) {
+            $case_text = 'bushel';
+        }
+        $output['io_name'] = '';
+        if( isset($input['name']) && $input['name'] != '' ) {
+            if( $output['otype'] == 50 ) {
+                $output['io_name'] .= ($output['io_name'] != '' ? ' - ' : '') . ($output['name'] != '' ? $output['name'] : $case_text) . ' (' . $input['case_units'] . 'x' . $input['name'] . ')';
+            } elseif( $output['otype'] == 52 ) {
+                $output['io_name'] .= ($output['io_name'] != '' ? ' - ' : '') . ($output['name'] != '' ? $output['name'] : '1/2 ' . $case_text) . ' (' . bcdiv($input['case_units'], 2, 0) . 'x' . $input['name'] . ')';
+            } elseif( $output['otype'] == 53 ) {
+                $output['io_name'] .= ($output['io_name'] != '' ? ' - ' : '') . ($output['name'] != '' ? $output['name'] : '1/3 ' . $case_text) . ' (' . bcdiv($input['case_units'], 3, 0) . 'x' . $input['name'] . ')';
+            } elseif( $output['otype'] == 54 ) {
+                $output['io_name'] .= ($output['io_name'] != '' ? ' - ' : '') . ($output['name'] != '' ? $output['name'] : '1/4 ' . $case_text) . ' (' . bcdiv($input['case_units'], 4, 0) . 'x' . $input['name'] . ')';
+            } elseif( $output['otype'] == 55 ) {
+                $output['io_name'] .= ($output['io_name'] != '' ? ' - ' : '') . ($output['name'] != '' ? $output['name'] : '1/5 ' . $case_text) . ' (' . bcdiv($input['case_units'], 5, 0) . 'x' . $input['name'] . ')';
+            } elseif( $output['otype'] == 55 ) {
+                $output['io_name'] .= ($output['io_name'] != '' ? ' - ' : '') . ($output['name'] != '' ? $output['name'] : '1/6 ' . $case_text) . ' (' . bcdiv($input['case_units'], 6, 0) . 'x' . $input['name'] . ')';
+            } else {
+                $output['io_name'] .= ($output['io_name'] != '' ? ' - ' : '') . $input['name'];
+            }
+        } else {
+            if( $output['otype'] == 50 ) {
+                $output['io_name'] .= ($output['io_name'] != '' ? ' - ' : '') . ($output['name'] != '' ? $output['name'] : $case_text) . ' (' . $input['case_units'] . ')';
+            } elseif( $output['otype'] == 52 ) {
+                $output['io_name'] .= ($output['io_name'] != '' ? ' - ' : '') . ($output['name'] != '' ? $output['name'] : '1/2 ' . $case_text) . ' (' . bcdiv($input['case_units'], 2, 0) . ')';
+            } elseif( $output['otype'] == 53 ) {
+                $output['io_name'] .= ($output['io_name'] != '' ? ' - ' : '') . ($output['name'] != '' ? $output['name'] : '1/3 ' . $case_text) . ' (' . bcdiv($input['case_units'], 3, 0) . ')';
+            } elseif( $output['otype'] == 54 ) {
+                $output['io_name'] .= ($output['io_name'] != '' ? ' - ' : '') . ($output['name'] != '' ? $output['name'] : '1/4 ' . $case_text) . ' (' . bcdiv($input['case_units'], 4, 0) . ')';
+            } elseif( $output['otype'] == 55 ) {
+                $output['io_name'] .= ($output['io_name'] != '' ? ' - ' : '') . ($output['name'] != '' ? $output['name'] : '1/5 ' . $case_text) . ' (' . bcdiv($input['case_units'], 5, 0) . ')';
+            } elseif( $output['otype'] == 55 ) {
+                $output['io_name'] .= ($output['io_name'] != '' ? ' - ' : '') . ($output['name'] != '' ? $output['name'] : '1/6 ' . $case_text) . ' (' . bcdiv($input['case_units'], 6, 0) . ')';
+            } 
+        }
+        if( $output['io_name'] == '' ) {
+            $output['io_name'] = $product['name'];
+            $output['pio_name'] = $product['name'];
+        } else {
+            $output['pio_name'] = $product['name'] . ' - ' . $output['io_name'];
+        }
+
+        //
+        // Calculate for supplied products
+        //
+        if( ($output['otype'] == 10 || $output['otype'] == 20 || $output['otype'] == '71' ) && isset($input['unit_cost']) && isset($input['units']) ) {
+            $rc = ciniki_foodmarket_convertWeightPrice($ciniki, $business_id, $input['unit_cost'], ($input['units']&0xff), ($output['units']&0xff));
+            if( $rc['stat'] != 'ok' ) {
+                return $rc;
+            }
+            $auc = $rc['price'];
+            $output['retail_price'] = bcmul($auc, bcadd(1, $output['retail_percent'], 6), 6);
+            $output['retail_price_text'] = '$' . number_format($output['retail_price'], 2, '.', ',') 
+                . ciniki_foodmarket_unitsText($ciniki, $business_id, ($output['units']&0xff));
+        } 
+        elseif( ($output['otype'] == 30 || $output['otype'] == 72 ) && isset($input['unit_cost']) && isset($input['units']) ) {
+            $output['retail_price'] = bcmul($input['unit_cost'], bcadd(1, $output['retail_percent'], 6), 6);
+            $output['retail_price_text'] = '$' . number_format($output['retail_price'], 2, '.', ',') 
+                . ciniki_foodmarket_unitsText($ciniki, $business_id, ($output['units']&0xff00));
+        } 
+        elseif( $output['otype'] == 50 && isset($input['case_cost']) ) {
+            $output['retail_price'] = bcmul($input['case_cost'], bcadd(1, $output['retail_percent'], 6), 6);
+            $output['retail_price_text'] = '$' . number_format($output['retail_price'], 2, '.', ',')  . '/' . $case_text;
+        }
+        elseif( $output['otype'] == 52 && isset($input['case_cost']) ) {
+            $output['retail_price'] = bcmul(bcdiv($input['case_cost'], 2, 6), bcadd(1, $output['retail_percent'], 6), 6);
+            $output['retail_price_text'] = '$' . number_format($output['retail_price'], 2, '.', ',') . ' per 1/2 ' . $case_text;
+        }
+        elseif( $output['otype'] == 53 && isset($input['case_cost']) ) {
+            $output['retail_price'] = bcmul(bcdiv($input['case_cost'], 3, 6), bcadd(1, $output['retail_percent'], 6), 6);
+            $output['retail_price_text'] = '$' . number_format($output['retail_price'], 2, '.', ',') . ' per 1/3 ' . $case_text;
+        }
+        elseif( $output['otype'] == 54 && isset($input['case_cost']) ) {
+            $output['retail_price'] = bcmul(bcdiv($input['case_cost'], 4, 6), bcadd(1, $output['retail_percent'], 6), 6);
+            $output['retail_price_text'] = '$' . number_format($output['retail_price'], 2, '.', ',') . ' per 1/4 ' . $case_text;
+        }
+        elseif( $output['otype'] == 55 && isset($input['case_cost']) ) {
+            $output['retail_price'] = bcmul(bcdiv($input['case_cost'], 5, 6), bcadd(1, $output['retail_percent'], 6), 6);
+            $output['retail_price_text'] = '$' . number_format($output['retail_price'], 2, '.', ',') . ' per 1/5 ' . $case_text;
+        }
+        elseif( $output['otype'] == 56 && isset($input['case_cost']) ) {
+            $output['retail_price'] = bcmul(bcdiv($input['case_cost'], 6, 6), bcadd(1, $output['retail_percent'], 6), 6);
+            $output['retail_price_text'] = '$' . number_format($output['retail_price'], 2, '.', ',') . ' per 1/6 ' . $case_text;
+        }
+
+        //
+        // Check for changed fields and build array of fields to update, and update the $outputs array
+        //
+        $update_args = array();
+        foreach(['pio_name', 'io_name', 'wholesale_price', 'retail_price', 'retail_price_text'] as $field) {
+            if( isset($output[$field]) && $output[$field] != $outputs[$output_id][$field] ) {
+                $update_args[$field] = $output[$field];
+                $outputs[$output_id][$field] = $output[$field];
+            }
+        }
+        if( count($update_args) > 0 ) {
+            $rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.foodmarket.output', $output_id, $update_args, 0x04);
+            if( $rc['stat'] != 'ok' ) {
+                return $rc;
+            }
+        }
+    }
+
+    return array('stat'=>'ok');
+}
+?>

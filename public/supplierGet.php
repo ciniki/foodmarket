@@ -60,6 +60,7 @@ function ciniki_foodmarket_supplierGet($ciniki) {
         $supplier = array('id'=>0,
             'name'=>'',
             'permalink'=>'',
+            'code'=>'',
             'flags'=>'0',
             'category'=>'',
             'primary_image_id'=>'0',
@@ -79,6 +80,7 @@ function ciniki_foodmarket_supplierGet($ciniki) {
         $strsql = "SELECT ciniki_foodmarket_suppliers.id, "
             . "ciniki_foodmarket_suppliers.name, "
             . "ciniki_foodmarket_suppliers.permalink, "
+            . "ciniki_foodmarket_suppliers.code, "
             . "ciniki_foodmarket_suppliers.flags, "
             . "ciniki_foodmarket_suppliers.category, "
             . "ciniki_foodmarket_suppliers.primary_image_id, "

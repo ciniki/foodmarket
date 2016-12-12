@@ -28,7 +28,7 @@ function ciniki_foodmarket_flags($ciniki, $modules) {
 //        array('flag'=>array('bit'=>'11', 'name'=>'')),
 //        array('flag'=>array('bit'=>'12', 'name'=>'')),
         // 0x1000
-//        array('flag'=>array('bit'=>'13', 'name'=>'')),
+        array('flag'=>array('bit'=>'13', 'name'=>'Produce Baskets')),
 //        array('flag'=>array('bit'=>'14', 'name'=>'')),
 //        array('flag'=>array('bit'=>'15', 'name'=>'')),
 //        array('flag'=>array('bit'=>'16', 'name'=>'')),

@@ -55,10 +55,50 @@ function ciniki_foodmarket_productGet($ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'datetimeFormat');
     $datetime_format = ciniki_users_datetimeFormat($ciniki, 'php');
 
+    //
+    // Load maps
+    //
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'private', 'maps');
+    $rc = ciniki_foodmarket_maps($ciniki);
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+    $maps = $rc['maps'];
+
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQuery');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQueryList');
 
+    $defaults = array(
+        'input1_id'=>'0',
+        'input1_itype'=>'0',
+        'input1_units'=>0x010102,
+        'input1_case_cost'=>'',
+        'input1_case_units'=>'',
+        'input1_10_units'=>0x0002,
+        'input1_10_flags'=>0x0100,
+        'input1_10_retail_percent'=>'0.50',
+        'input1_20_units'=>0x0102,
+        'input1_20_flags'=>0x0100,
+        'input1_20_retail_percent'=>'0.50',
+        'input1_30_units'=>0x0100,
+        'input1_30_flags'=>0x0100,
+        'input1_30_retail_percent'=>'0.50',
+        'input1_50_flags'=>0x0100,
+        'input1_50_retail_percent'=>'0.10',
+        'input1_52_flags'=>0x0400,
+        'input1_52_retail_percent'=>'0.20',
+        'input1_53_flags'=>0x0400,
+        'input1_53_retail_percent'=>'0.25',
+        'input1_54_flags'=>0x0400,
+        'input1_54_retail_percent'=>'0.30',
+        'input1_55_flags'=>0x0400,
+        'input1_55_retail_percent'=>'0.40',
+        'input1_56_flags'=>0x0400,
+        'input1_56_retail_percent'=>'0.50',
+        'input1_71_retail_discount'=>'0.10',
+        'input1_72_retail_discount'=>'0.10',
+        );
     //
     // Return default for new Product
     //
@@ -67,7 +107,8 @@ function ciniki_foodmarket_productGet($ciniki) {
             'name'=>'',
             'permalink'=>'',
             'status'=>'10',
-            'flags'=>'0',
+            'ptype'=>'0',
+            'flags'=>'1',
             'category'=>'',
             'primary_image_id'=>'0',
             'synopsis'=>'',
@@ -81,101 +122,25 @@ function ciniki_foodmarket_productGet($ciniki) {
     // Get the details for an existing Product
     //
     else {
-        $strsql = "SELECT ciniki_foodmarket_products.id, "
-            . "ciniki_foodmarket_products.name, "
-            . "ciniki_foodmarket_products.permalink, "
-            . "ciniki_foodmarket_products.status, "
-            . "ciniki_foodmarket_products.flags, "
-            . "ciniki_foodmarket_products.category, "
-            . "ciniki_foodmarket_products.primary_image_id, "
-            . "ciniki_foodmarket_products.synopsis, "
-            . "ciniki_foodmarket_products.description, "
-            . "ciniki_foodmarket_products.ingredients, "
-            . "ciniki_foodmarket_products.supplier_id "
-            . "FROM ciniki_foodmarket_products "
-            . "WHERE ciniki_foodmarket_products.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
-            . "AND ciniki_foodmarket_products.id = '" . ciniki_core_dbQuote($ciniki, $args['product_id']) . "' "
-            . "";
-        $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.foodmarket', 'product');
-        if( $rc['stat'] != 'ok' ) {
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.16', 'msg'=>'Product not found', 'err'=>$rc['err']));
-        }
-        if( !isset($rc['product']) ) {
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.17', 'msg'=>'Unable to find Product'));
-        }
-        $product = $rc['product'];
-
         //
-        // Get the list of categories the product is in
+        // Load the product
         //
-        $strsql = "SELECT category_id "
-            . "FROM ciniki_foodmarket_category_items "
-            . "WHERE ciniki_foodmarket_category_items.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
-            . "AND ciniki_foodmarket_category_items.ref_object = 'ciniki.foodmarket.product' "
-            . "AND ciniki_foodmarket_category_items.ref_id = '" . ciniki_core_dbQuote($ciniki, $args['product_id']) . "' "
-            . "";
-        $rc = ciniki_core_dbQueryList($ciniki, $strsql, 'ciniki.foodmarket', 'categories', 'category_id');
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'private', 'productLoad');
+        $rc = ciniki_foodmarket_productLoad($ciniki, $args['business_id'], $args['product_id']);
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }
-        if( isset($rc['categories']) ) {
-            $product['categories'] = implode(',', $rc['categories']);
+        if( isset($rc['product']) ) {
+            $product = $rc['product'];
         } else {
-            $product['categories'] = '';
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.16', 'msg'=>'Unable to find product requested'));
         }
-
-        //
-        // Get the versions of the product
-        //
-        $strsql = "SELECT ciniki_foodmarket_product_versions.id, "
-            . "ciniki_foodmarket_product_versions.product_id, "
-            . "ciniki_foodmarket_product_versions.name, "
-            . "ciniki_foodmarket_product_versions.permalink, "
-            . "ciniki_foodmarket_product_versions.status, "
-            . "ciniki_foodmarket_product_versions.flags, "
-            . "ciniki_foodmarket_product_versions.recipe_id, "
-            . "ciniki_foodmarket_product_versions.recipe_quantity, "
-            . "ciniki_foodmarket_product_versions.container_id, "
-            . "ciniki_foodmarket_product_versions.materials_cost_per_container, "
-            . "ciniki_foodmarket_product_versions.time_cost_per_container, "
-            . "ciniki_foodmarket_product_versions.total_cost_per_container, "
-            . "ciniki_foodmarket_product_versions.total_time_per_container, "
-            . "ciniki_foodmarket_product_versions.inventory, "
-            . "ciniki_foodmarket_product_versions.supplier_price, "
-            . "ciniki_foodmarket_product_versions.wholesale_price, "
-            . "ciniki_foodmarket_product_versions.basket_price, "
-            . "ciniki_foodmarket_product_versions.retail_price "
-            . "FROM ciniki_foodmarket_product_versions "
-            . "WHERE ciniki_foodmarket_product_versions.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
-            . "AND ciniki_foodmarket_product_versions.product_id = '" . ciniki_core_dbQuote($ciniki, $args['product_id']) . "' "
-            . "ORDER BY sequence, name "
-            . "";
-        ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
-        $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(
-            array('container'=>'versions', 'fname'=>'id', 
-                'fields'=>array('id', 'product_id', 'name', 'permalink', 'status', 'flags', 'recipe_id', 'recipe_quantity', 'container_id', 
-                    'materials_cost_per_container', 'time_cost_per_container', 'total_cost_per_container', 'total_time_per_container', 'inventory', 
-                    'supplier_price', 'wholesale_price', 'basket_price', 'retail_price')),
-            ));
-        if( $rc['stat'] != 'ok' ) {
-            return $rc;
-        }
-        if( isset($rc['versions']) ) {
-            $product['versions'] = $rc['versions'];
-            foreach($product['versions'] as $vid => $version) {
-                $product['versions'][$vid]['materials_cost_per_container_display'] = numfmt_format_currency($intl_currency_fmt, $version['materials_cost_per_container'], $intl_currency);
-                $product['versions'][$vid]['time_cost_per_container_display'] = numfmt_format_currency($intl_currency_fmt, $version['time_cost_per_container'], $intl_currency);
-                $product['versions'][$vid]['total_cost_per_container_display'] = numfmt_format_currency($intl_currency_fmt, $version['total_cost_per_container'], $intl_currency);
-                $product['versions'][$vid]['supplier_price_display'] = ($version['supplier_price'] == 0 ? '' : numfmt_format_currency($intl_currency_fmt, $version['supplier_price'], $intl_currency));
-                $product['versions'][$vid]['wholesale_price_display'] = ($version['wholesale_price'] == 0 ? '' : numfmt_format_currency($intl_currency_fmt, $version['wholesale_price'], $intl_currency));
-                $product['versions'][$vid]['basket_price_display'] = ($version['basket_price'] == 0 ? '' : numfmt_format_currency($intl_currency_fmt, $version['basket_price'], $intl_currency));
-                $product['versions'][$vid]['retail_price_display'] = ($version['retail_price'] == 0 ? '' : numfmt_format_currency($intl_currency_fmt, $version['retail_price'], $intl_currency));
-            }
-        } else {
-            $product['versions'] = array();
-        }
-
     }
+
+    //
+    // Merge defaults
+    //
+    $product = array_merge($defaults, $product);
 
     $rsp = array('stat'=>'ok', 'product'=>$product);
 
@@ -205,8 +170,8 @@ function ciniki_foodmarket_productGet($ciniki) {
     //
     if( isset($args['categories']) && $args['categories'] == 'yes' ) {
         $strsql = "SELECT c1.id AS id, c1.name AS name, "
-            . "IFNULL(c2.id, 0) AS sub_id, "
-            . "IFNULL(c2.name, '') AS sub_name "
+            . "c2.id AS sub_id, "
+            . "c2.name AS sub_name "
             . "FROM ciniki_foodmarket_categories AS c1 "
             . "LEFT JOIN ciniki_foodmarket_categories AS c2 ON ("
                 . "c1.id = c2.parent_id "

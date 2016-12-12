@@ -20,6 +20,7 @@ function ciniki_foodmarket_supplierUpdate(&$ciniki) {
         'supplier_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Supplier'),
         'name'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Name'),
         'permalink'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Permalink'),
+        'code'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Code'),
         'flags'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Options'),
         'category'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Category'),
         'primary_image_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Image'),

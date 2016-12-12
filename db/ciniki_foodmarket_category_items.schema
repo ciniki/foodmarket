@@ -3,7 +3,7 @@
 # -----------
 # This table stores the items for each category or sub-category. The items must
 # be from the food market module but may be in different tables. The object field
-# is used to reference which tables/objects the items are in.
+# is used to reference which tables/objects are in the category.
 #
 # Fields
 # ------
@@ -29,5 +29,6 @@ create table ciniki_foodmarket_category_items (
     last_updated datetime not null,
     primary key (id),
     unique index (uuid),
+    unique index (category_id, ref_object, ref_id),
     index sync (business_id, uuid, last_updated)
 ) ENGINE='InnoDB', COMMENT='v1.01';

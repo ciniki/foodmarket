@@ -1,0 +1,142 @@
+#
+# Description
+# -----------
+# This tables stores how the food market sells the product. 
+#
+# Fields
+# ------
+# id:                   The ID assigned to the product.
+# uuid:                 The Universal Unique ID.
+# business_id:          The business the product output is attached to.
+#
+# product_id:           The ID of the product in the ciniki_foodmarket_products table.
+#
+# input_id:             The ID of the product input this output is connected to. Some outputs may not have an input,
+#                       as produce baskets are built internally.
+#
+# name:                 The name for the version of the product. This name will be
+#                       appended to the product name in ciniki_foodmarket_products table.
+#
+# permalink:            The permalink for the product, to be used on the website.
+#
+# pio_name:            The full product, input, output name combined to form the line that appears on invoices.
+#
+# io_name:              The input and output names combined for form the line to appear in the price list.
+#
+# status:               The status of this version of the product.
+#
+#                           05 - Inactive - Not currently an active product, but will be used again
+#                           10 - Private - Only available internally
+#                           40 - Public - Available internally and on the website
+#                           90 - Archived
+#
+# otype:                The method to sell this version of the product as. These are dealt with as mutually exclusive bit mask, which
+#                       allows a select by bitmask of 0xF000 to get all the case options.
+#
+#                       The following are supplied products
+#                           10 - Weight
+#                           20 - Weighted Units (sold by item by weight, weighted on checkout or previous, charged in lb)
+#                           30 - Units
+#                           50 - Case
+#                           52 - 1/2 Case
+#                           53 - 1/3 Case
+#                           54 - 1/4 Case
+#                           55 - 1/5 Case
+#                           56 - 1/6 Case
+#                           58 - 1/8 Case **future**
+#                           59 - 1/9 Case **future**
+#                           60 - 1/10 Case **future**
+#                           70 - Produce Basket
+#                           71 - Basket Units
+#                           72 - Basket Weight
+#
+#                       The followin are manufactured products
+#
+#                           100 - ??
+#
+# units:               The units for the product version.
+#
+#                           0x01 - 
+#                           0x02 - lb (pounds)
+#                           0x04 - oz (ounces)
+#                           0x08 - 
+#                           0x10 - 
+#                           0x20 - kg (kilograms)
+#                           0x40 - f (grams)
+#                           0x80 - 
+#                           0x0100 - Each
+#                           0x0200 - Pair
+#                           0x0400 - Bunch
+#                           0x0800 - Bag
+#                           0x1000 - 
+#                           0x2000 - 
+#                           0x4000 - 
+#                           0x8000 - 
+#
+# flags:                The options for the version.
+#
+#                           0x01 - 
+#                           0x02 - 
+#                           0x04 - 
+#                           0x08 - 
+#                           0x10 - Specials (List the output in the specials)
+#                           0x20 - 
+#                           0x40 - 
+#                           0x80 - 
+#                           0x0100 - Always Available (Can be ordered all the time, and placed in a standing order)
+#                           0x0200 - Date Specific (Must be made available for a specific order date, limited quantities, fresh produce, etc)
+#                           0x0400 - Queued Item (Can't be ordered for a date, will be put in a queue)
+#                           0x0800 - Limited Quantity, only available until inventory gone.
+#                           0x1000 - 
+#                           0x2000 - 
+#                           0x4000 - 
+#                           0x8000 - 
+#
+# sequence:             The order this version should be shown on the page. **future**
+#
+# start_date:           The first order date the product is available is flags is 0x0200 (Date Specific). 
+# end_date:             The last order date the product is available is flags is 0x0200 (Date Specific)
+#
+# wholesale_percent:    The percent used to calculate the wholesale price.
+# wholesale_price:      The wholesale price of the product charged to customers.
+# wholesale_taxtype_id: The ID of the tax type in ciniki.taxes to charge on this item.
+#
+# retail_percent:       The percent used to calculate the wholesale price.
+# retail_price:         The retail price of the product charged to customers.
+# retail_price_text:    The price and units formatted for display. eg: $2.50/lb, $4.00 each
+# retail_taxtype_id:    The ID of the tax type in ciniki.taxes to charge on this item.
+#
+# date_added:           The UTC date and time the record was added.
+# last_updated:         The UTC date and time the record was last updated.
+#
+create table ciniki_foodmarket_product_outputs (
+    id int not null auto_increment,
+    uuid char(36) not null,
+    business_id int not null,
+    product_id int not null,
+    input_id int not null,
+    name varchar(250) not null,
+    permalink varchar(250) not null,
+    pio_name varchar(250) not null,
+    io_name varchar(250) not null,
+    status tinyint unsigned not null,
+    otype tinyint unsigned not null,
+    units mediumint unsigned not null,
+    flags smallint unsigned not null,
+    sequence tinyint unsigned not null,
+    start_date date not null,
+    end_date date not null,
+    wholesale_percent decimal(9,6) not null,
+    wholesale_price decimal(19,6) not null,
+    wholesale_taxtype_id int not null,
+    retail_percent decimal(9,6) not null,
+    retail_price decimal(19,6) not null,
+    retail_price_text varchar(100) not null,
+    retail_taxtype_id int not null,
+    date_added datetime not null,
+    last_updated datetime not null,
+    primary key (id),
+    unique index (uuid),
+    index (product_id, input_id),
+    index sync (business_id, uuid, last_updated)
+) ENGINE='InnoDB', COMMENT='v1.01';

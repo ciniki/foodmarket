@@ -41,6 +41,7 @@ function ciniki_foodmarket_supplierList($ciniki) {
     $strsql = "SELECT ciniki_foodmarket_suppliers.id, "
         . "ciniki_foodmarket_suppliers.name, "
         . "ciniki_foodmarket_suppliers.permalink, "
+        . "ciniki_foodmarket_suppliers.code, "
         . "ciniki_foodmarket_suppliers.flags, "
         . "ciniki_foodmarket_suppliers.category, "
         . "ciniki_foodmarket_suppliers.contact_name, "
@@ -59,7 +60,7 @@ function ciniki_foodmarket_supplierList($ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(
         array('container'=>'suppliers', 'fname'=>'id', 
-            'fields'=>array('id', 'name', 'permalink', 'flags', 'category', 'contact_name', 'contact_email', 'contact_phone', 'contact_cell', 'num_products')),
+            'fields'=>array('id', 'name', 'permalink', 'code', 'flags', 'category', 'contact_name', 'contact_email', 'contact_phone', 'contact_cell', 'num_products')),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;

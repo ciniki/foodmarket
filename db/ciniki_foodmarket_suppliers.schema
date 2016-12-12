@@ -5,14 +5,16 @@
 #
 # Fields
 # ------
-# id:                   The ID assigned to the product.
+# id:                   The ID assigned to the supplier.
 # uuid:                 The Universal Unique ID.
-# business_id:          The business the product is attached to.
+# business_id:          The business the supplier is attached to.
 #
-# name:                 The name for the product.
-# permalink:            The permalink for the product, to be used on the website.
+# name:                 The name for the supplier.
+# permalink:            The permalink for the supplier, to be used on the website.
 #
-# flags:                The options for the product.
+# code:                 The supplier code or short name for use in short labels.
+#
+# flags:                The options for the supplier.
 #
 #                           0x01 - Visible on website **future**
 #                           0x02 - 
@@ -21,14 +23,16 @@
 #
 # category:             The internal organizational category, not used on the website.
 # 
-# primary_image_id:     The ID of the image to be used as the main image for the product.
-# synopsis:             The synopsis of the product.
-# description:          The full description of the product.
+# primary_image_id:     The ID of the image to be used as the main image for the supplier.
+# synopsis:             The synopsis of the supplier.
+# description:          The full description of the supplier.
 #
 # contact_name:         The name of the person to contact at the supplier.
 # contact_email:        The email address for the contact person.
 # contact_phone:        The Work phone for the contact person.
 # contact_cell:         The Cell phone of the contact person.
+#
+# minimum_amount:       The minimum order in dollars for this supplier. If zero, then no minimum.
 #
 # date_added:           The UTC date and time the record was added.
 # last_updated:         The UTC date and time the record was last updated.
@@ -39,6 +43,7 @@ create table ciniki_foodmarket_suppliers (
     business_id int not null,
     name varchar(250) not null,
     permalink varchar(250) not null,
+    code varchar(50) not null,
     flags tinyint unsigned not null,
     category varchar(150) not null,
     primary_image_id int not null,
@@ -48,6 +53,7 @@ create table ciniki_foodmarket_suppliers (
     contact_email varchar(250) not null,
     contact_phone varchar(250) not null,
     contact_cell varchar(250) not null,
+    minimum_amount decimal(19,4) not null,
     date_added datetime not null,
     last_updated datetime not null,
     primary key (id),
