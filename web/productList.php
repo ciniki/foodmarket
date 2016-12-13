@@ -15,7 +15,7 @@
 //
 function ciniki_foodmarket_web_productList($ciniki, $settings, $business_id, $args) {
 
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
 
     //
     // Select the products for a category
@@ -66,7 +66,7 @@ function ciniki_foodmarket_web_productList($ciniki, $settings, $business_id, $ar
     //
     // Get the specials
     //
-    if( isset($args['flags']) && is_int($args['flags']) ) ( {
+    if( isset($args['flags']) && is_int($args['flags']) ) {
         // Make sure it's an integer we're passing into the sql string.
         $flags = $args['flags']&0xFFFFFFFF;
         $strsql .= "AND ciniki_foodmarket_products.flags&$flags = $flags ";
