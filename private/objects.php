@@ -105,6 +105,7 @@ function ciniki_foodmarket_objects($ciniki) {
             'name'=>array('name'=>'Name'),
             'permalink'=>array('name'=>'Permalink'),
             'parent_id'=>array('name'=>'Parent Category', 'default'=>'0'),
+            'ctype'=>array('name'=>'Type', 'default'=>'0'),
             'sequence'=>array('name'=>'Order', 'default'=>'1'),
             'image_id'=>array('name'=>'Image', 'ref'=>'ciniki.images.image', 'default'=>'0'),
             'synopsis'=>array('name'=>'Synopsis', 'default'=>''),
@@ -120,8 +121,7 @@ function ciniki_foodmarket_objects($ciniki) {
         'table'=>'ciniki_foodmarket_category_items',
         'fields'=>array(
             'category_id'=>array('name'=>'Category'),
-            'ref_object'=>array('name'=>'Object'),
-            'ref_id'=>array('name'=>'ID'),
+            'product_id'=>array('name'=>'Product'),
             ),
         'history_table'=>'ciniki_foodmarket_history',
         );

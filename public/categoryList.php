@@ -42,6 +42,7 @@ function ciniki_foodmarket_categoryList($ciniki) {
         . "ciniki_foodmarket_categories.name, "
         . "ciniki_foodmarket_categories.permalink, "
         . "ciniki_foodmarket_categories.parent_id, "
+        . "ciniki_foodmarket_categories.ctype, "
         . "ciniki_foodmarket_categories.sequence, "
         . "ciniki_foodmarket_categories.image_id, "
         . "ciniki_foodmarket_categories.synopsis, "
@@ -52,7 +53,7 @@ function ciniki_foodmarket_categoryList($ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(
         array('container'=>'categories', 'fname'=>'id', 
-            'fields'=>array('id', 'name', 'permalink', 'parent_id', 'sequence', 'image_id', 'synopsis', 'description')),
+            'fields'=>array('id', 'name', 'permalink', 'parent_id', 'ctype', 'sequence', 'image_id', 'synopsis', 'description')),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;

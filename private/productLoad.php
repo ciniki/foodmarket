@@ -78,8 +78,7 @@ function ciniki_foodmarket_productLoad($ciniki, $business_id, $product_id) {
     $strsql = "SELECT category_id "
         . "FROM ciniki_foodmarket_category_items "
         . "WHERE ciniki_foodmarket_category_items.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
-        . "AND ciniki_foodmarket_category_items.ref_object = 'ciniki.foodmarket.product' "
-        . "AND ciniki_foodmarket_category_items.ref_id = '" . ciniki_core_dbQuote($ciniki, $product_id) . "' "
+        . "AND ciniki_foodmarket_category_items.product_id = '" . ciniki_core_dbQuote($ciniki, $product_id) . "' "
         . "";
     $rc = ciniki_core_dbQueryList($ciniki, $strsql, 'ciniki.foodmarket', 'categories', 'category_id');
     if( $rc['stat'] != 'ok' ) {
@@ -293,7 +292,7 @@ function ciniki_foodmarket_productLoad($ciniki, $business_id, $product_id) {
             //
             elseif( $product['ptype'] == 70 && $output['otype'] == 70 ) {
                 $product['basket_output_id'] = $output['id'];
-                $product['basket_retail_price'] = $output['retail_price'];
+                $product['basket_retail_price'] = number_format($output['retail_price'], 2, '.', '');
                 $product['basket_retail_taxtype_id'] = $output['retail_taxtype_id'];
             }
         }

@@ -1,0 +1,176 @@
+<?php
+//
+// Description
+// ===========
+// This function loads all the details for a product.
+//
+// Arguments
+// ---------
+// ciniki:
+// business_id:         The ID of the business the product is attached to.
+// product_id:          The ID of the product to get the details for.
+//
+// Returns
+// -------
+//
+function ciniki_foodmarket_web_prepareOutputs($ciniki, $settings, $business_id, $args) {
+
+    if( !isset($ciniki['session']['customer']['id']) || $ciniki['session']['customer']['id'] < 1 ) {
+        return array('stat'=>'ok', 'outputs'=>$args['outputs']);
+    }
+
+    //
+    // Load business settings
+    //
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');
+    $rc = ciniki_businesses_intlSettings($ciniki, $business_id);
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+    $intl_timezone = $rc['settings']['intl-default-timezone'];
+    $intl_currency_fmt = numfmt_create($rc['settings']['intl-default-locale'], NumberFormatter::CURRENCY);
+    $intl_currency = $rc['settings']['intl-default-currency'];
+
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'datetimeFormat');
+    $datetime_format = ciniki_users_datetimeFormat($ciniki, 'php');
+
+    //
+    // Get the object_ids
+    //
+    $output_ids = array();
+    foreach($args['outputs'] as $output) {
+        $output_ids[] = $output['id'];
+    }
+
+    //
+    // Load the items from the current order
+    //
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'poma', 'web', 'orderItemsByObjectID');
+    $rc = ciniki_poma_web_orderItemsByObjectID($ciniki, $business_id, array(
+        'customer_id'=>$ciniki['session']['customer']['id'],
+        'object'=>'ciniki.foodmarket.output',
+        'object_ids'=>$output_ids,
+        ));
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+    if( isset($rc['items']) ) {
+        $order_items = $rc['items'];
+    } else {
+        $order_items = array();
+    }
+
+    //
+    // Load the items the customer has favourited, repeat order, or queued
+    //
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'poma', 'hooks', 'customerItemsByType');
+    $rc = ciniki_poma_hooks_customerItemsByType($ciniki, $business_id, array(
+        'customer_id'=>$ciniki['session']['customer']['id'],
+        'object'=>'ciniki.foodmarket.output',
+        'object_ids'=>$output_ids,
+        ));
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+    if( isset($rc['types']) ) {
+        $item_types = $rc['types'];
+    } else {
+        $item_types = array();
+    }
+
+    $outputs = array();
+    foreach($args['outputs'] as $oid => $output) {
+        //
+        // Check if repeating order is available for this output
+        //
+        if( ($output['flags']&0x0100) == 0x0100 ) {
+            $output['repeat'] = 'yes';
+            $output['available'] = 'yes';
+        } else {
+            $output['repeat'] = 'no';
+            $output['available'] = 'no';
+        }
+
+        //
+        // Check if date specific
+        //
+        if( ($output['flags']&0x0200) == 0x0200 ) {
+            $output['available'] = 'no';
+            $output['repeat'] = 'no';
+            if( $output['start_date'] != '' && $output['start_date'] != '0000-00-00' 
+                && $output['end_date'] != '' && $output['end_date'] != '0000-00-00' 
+                && isset($ciniki['session']['ciniki.poma']['date']['order_dt'])
+                ) {
+                $sdt = new DateTime($output['start_date'] + ' 00:00:00', new DateTimezone($intl_timezone));
+                $edt = new DateTime($output['end_date'] + ' 23:59:59', new DateTimezone($intl_timezone));
+                //
+                // Check if start date is before current order date and end 
+                //
+                if( $sdt < $ciniki['session']['ciniki.poma']['date']['order_dt'] && $edt > $ciniki['session']['ciniki.poma']['date']['order_dt'] ) {
+                    $output['available'] = 'yes';
+                }
+            }
+        }
+
+        //
+        // Check if queue is available for this output
+        //
+        if( ($output['flags']&0x0400) == 0x0400 ) {
+            $output['queue'] = 'yes';
+            if( isset($item_types['queue']['items'][$output['id']]) ) {
+                $output['queue_quantity'] = $item_types['queue']['items'][$output['id']]['quantity'];
+            } else {
+                $output['queue_quantity'] = 0;
+            }
+        } else {
+            $output['queue'] = 'no';
+        }
+$output['queue'] = 'no';
+
+        //
+        // Check if limited
+        //
+        if( ($output['flags']&0x0800) == 0x0800 ) {
+            $output['repeat'] = 'no';
+            if( $output['inventory'] > 0 ) {
+                $output['available'] = 'yes';
+                $output['quantity_limit'] = $output['inventory'];
+            }
+        }
+
+        //
+        // Check if available and if already ordered
+        //
+        if( $output['available'] == 'yes' && isset($order_items[$output['id']]['quantity']) ) {
+            $output['order_quantity'] = $order_items[$output['id']]['quantity'];
+        } else {
+            $output['order_quantity'] = 0;
+        }
+
+        //
+        // Check if already in list of repeating items
+        //
+        if( $output['repeat'] == 'yes' && isset($item_types['repeat']['items'][$output['id']]['repeat_text']) ) {
+            $output['repeat_value'] = 'on';
+            $output['repeat_text'] = $item_types['repeat']['items'][$output['id']]['repeat_text'];
+            $output['repeat_quantity'] = $item_types['queue']['items'][$output['id']]['quantity'];
+        } else {
+            $output['repeat_value'] = 'off';
+            $output['repeat_quantity'] = 0;
+        }
+
+        //
+        // Always available as a favourite
+        //
+        $output['favourite'] = 'yes';
+        if( isset($item_types['favourite']['items'][$output['id']]) ) {
+            $output['favourite_value'] = 'on';
+        } else {
+            $output['favourite_value'] = 'off';
+        }
+        $outputs[] = $output;
+    }
+
+    return array('stat'=>'ok', 'outputs'=>$outputs);
+}
+?>

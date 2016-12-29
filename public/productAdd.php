@@ -36,6 +36,7 @@ function ciniki_foodmarket_productAdd(&$ciniki) {
         'basket_wholesale_taxtype_id'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'0', 'name'=>'Basket Wholesale Tax'),
         'basket_retail_price'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'0', 'name'=>'Basket Retail Price'),
         'basket_retail_taxtype_id'=>array('required'=>'no', 'blank'=>'yes', 'default'=>'0', 'name'=>'Basket Retail Tax'),
+        'categories'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'idlist', 'name'=>'Categories'),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
@@ -102,8 +103,8 @@ function ciniki_foodmarket_productAdd(&$ciniki) {
     // Add the categories
     //
     if( isset($args['categories']) ) {
-        ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'private', 'categoryItemsUpdate');
-        $rc = ciniki_foodmarket_categoryItemsUpdate($ciniki, $args['business_id'], 'ciniki.foodmarket.product', $product_id, $args['categories']);
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'private', 'productCategoriesUpdate');
+        $rc = ciniki_foodmarket_productCategoriesUpdate($ciniki, $args['business_id'], $product_id, $args['categories']);
         if( $rc['stat'] != 'ok' ) {
             ciniki_core_dbTransactionRollback($ciniki, 'ciniki.foodmarket');
             return $rc;

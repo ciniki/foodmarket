@@ -12,8 +12,7 @@
 # business_id:      The business the category item is attached to.
 #
 # category_id:      The ID of the category/sub-category.
-# ref_object:       The object in the foodmarket module attached to the category/sub-category.
-# ref_id:           The ID for the foodmarket object that is in the category/sub-category.
+# product_id:       The ID of the product in the category.
 #
 # date_added:       The UTC date and time the record was added.
 # last_updated:     The UTC date and time the record was last updated.
@@ -23,12 +22,11 @@ create table ciniki_foodmarket_category_items (
     uuid char(36) not null,
     business_id int not null,
     category_id int not null,
-    ref_object varchar(150) not null,
-    ref_id int not null,
+    product_id int not null,
     date_added datetime not null,
     last_updated datetime not null,
     primary key (id),
     unique index (uuid),
-    unique index (category_id, ref_object, ref_id),
+    unique index (category_id, product_id),
     index sync (business_id, uuid, last_updated)
 ) ENGINE='InnoDB', COMMENT='v1.01';

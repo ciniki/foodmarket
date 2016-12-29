@@ -64,6 +64,7 @@ function ciniki_foodmarket_categoryGet($ciniki) {
             'name'=>'',
             'permalink'=>'',
             'parent_id'=>'0',
+            'ctype'=>'0',
             'sequence'=>'1',
             'image_id'=>'0',
             'synopsis'=>'',
@@ -80,6 +81,7 @@ function ciniki_foodmarket_categoryGet($ciniki) {
             . "ciniki_foodmarket_categories.name, "
             . "ciniki_foodmarket_categories.permalink, "
             . "ciniki_foodmarket_categories.parent_id, "
+            . "ciniki_foodmarket_categories.ctype, "
             . "ciniki_foodmarket_categories.sequence, "
             . "ciniki_foodmarket_categories.image_id, "
             . "ciniki_foodmarket_categories.synopsis, "

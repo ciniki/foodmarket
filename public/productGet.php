@@ -24,6 +24,7 @@ function ciniki_foodmarket_productGet($ciniki) {
         'product_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Product'),
         'suppliers'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Suppliers'),
         'categories'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Categories'),
+        'category_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Category'),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
@@ -114,7 +115,7 @@ function ciniki_foodmarket_productGet($ciniki) {
             'synopsis'=>'',
             'description'=>'',
             'supplier_id'=>'0',
-            'categories'=>'',
+            'categories'=>(isset($args['category_id']) && $args['category_id'] > 0 ? $args['category_id'] : ''),
         );
     }
 
@@ -148,12 +149,12 @@ function ciniki_foodmarket_productGet($ciniki) {
     // Get the list of suppliers
     //
     if( isset($args['suppliers']) && $args['suppliers'] == 'yes' ) {
-        $strsql = "SELECT id, name "
+        $strsql = "SELECT id, code, name, CONCAT_WS(' - ', code, name) AS display_name "
             . "FROM ciniki_foodmarket_suppliers "
             . "WHERE ciniki_foodmarket_suppliers.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
             . "ORDER BY name "
             . "";
-        $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(array('container'=>'suppliers', 'fname'=>'id', 'fields'=>array('id', 'name'))));
+        $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(array('container'=>'suppliers', 'fname'=>'id', 'fields'=>array('id', 'name', 'display_name'))));
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }
@@ -179,6 +180,7 @@ function ciniki_foodmarket_productGet($ciniki) {
                 . ") "
             . "WHERE c1.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
             . "AND c1.parent_id = 0 "
+            . "AND c1.ctype < 10 "
             . "ORDER BY c1.name, c2.name "
             . "";
         $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(

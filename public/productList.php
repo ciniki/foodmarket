@@ -52,8 +52,7 @@ function ciniki_foodmarket_productList($ciniki) {
             . "IFNULL(ciniki_foodmarket_product_inputs.name, '') AS input_names "
             . "FROM ciniki_foodmarket_category_items "
             . "LEFT JOIN ciniki_foodmarket_products ON ("
-                . "ciniki_foodmarket_category_items.ref_object = 'ciniki.foodmarket.product' "
-                . "AND ciniki_foodmarket_category_items.ref_id = ciniki_foodmarket_products.id "
+                . "ciniki_foodmarket_category_items.product_id = ciniki_foodmarket_products.id "
                 . "AND ciniki_foodmarket_products.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
                 . ") "
             . "LEFT JOIN ciniki_foodmarket_product_inputs ON ("
@@ -79,8 +78,7 @@ function ciniki_foodmarket_productList($ciniki) {
             . "IFNULL(ciniki_foodmarket_product_inputs.name, '') AS input_names "
             . "FROM ciniki_foodmarket_products "
             . "LEFT JOIN ciniki_foodmarket_category_items ON ("
-                . "ciniki_foodmarket_products.id = ciniki_foodmarket_category_items.ref_id "
-                . "AND ciniki_foodmarket_category_items.ref_object = 'ciniki.foodmarket.product' "
+                . "ciniki_foodmarket_products.id = ciniki_foodmarket_category_items.product_id "
                 . "AND ciniki_foodmarket_category_items.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
                 . ") "
             . "LEFT JOIN ciniki_foodmarket_product_inputs ON ("
@@ -143,10 +141,9 @@ function ciniki_foodmarket_productList($ciniki) {
         //
         // Get the number of products in each category
         //
-        $strsql = "SELECT category_id, COUNT(ref_id) AS num "
+        $strsql = "SELECT category_id, COUNT(product_id) AS num "
             . "FROM ciniki_foodmarket_category_items "
             . "WHERE ciniki_foodmarket_category_items.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
-            . "AND ciniki_foodmarket_category_items.ref_object = 'ciniki.foodmarket.product' "
             . "GROUP BY category_id "
             . "";
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQueryList2');
@@ -210,8 +207,7 @@ function ciniki_foodmarket_productList($ciniki) {
         $strsql = "SELECT COUNT(ciniki_foodmarket_products.id) "
             . "FROM ciniki_foodmarket_products "
             . "LEFT JOIN ciniki_foodmarket_category_items ON ("
-                . "ciniki_foodmarket_products.id = ciniki_foodmarket_category_items.ref_id "
-                . "AND ciniki_foodmarket_category_items.ref_object = 'ciniki.foodmarket.product' "
+                . "ciniki_foodmarket_products.id = ciniki_foodmarket_category_items.product_id "
                 . "AND ciniki_foodmarket_category_items.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
                 . ") "
             . "WHERE ciniki_foodmarket_products.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "

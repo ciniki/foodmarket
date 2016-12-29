@@ -198,7 +198,6 @@ function ciniki_foodmarket_productUpdateFields(&$ciniki, $business_id, $product_
             } 
         }
         if( $output['io_name'] == '' ) {
-            $output['io_name'] = $product['name'];
             $output['pio_name'] = $product['name'];
         } else {
             $output['pio_name'] = $product['name'] . ' - ' . $output['io_name'];
@@ -224,27 +223,30 @@ function ciniki_foodmarket_productUpdateFields(&$ciniki, $business_id, $product_
         } 
         elseif( $output['otype'] == 50 && isset($input['case_cost']) ) {
             $output['retail_price'] = bcmul($input['case_cost'], bcadd(1, $output['retail_percent'], 6), 6);
-            $output['retail_price_text'] = '$' . number_format($output['retail_price'], 2, '.', ',')  . '/' . $case_text;
+            $output['retail_price_text'] = '$' . number_format($output['retail_price'], 2, '.', ','); //  . '/' . $case_text;
         }
         elseif( $output['otype'] == 52 && isset($input['case_cost']) ) {
             $output['retail_price'] = bcmul(bcdiv($input['case_cost'], 2, 6), bcadd(1, $output['retail_percent'], 6), 6);
-            $output['retail_price_text'] = '$' . number_format($output['retail_price'], 2, '.', ',') . ' per 1/2 ' . $case_text;
+            $output['retail_price_text'] = '$' . number_format($output['retail_price'], 2, '.', ','); // . ' per 1/2 ' . $case_text;
         }
         elseif( $output['otype'] == 53 && isset($input['case_cost']) ) {
             $output['retail_price'] = bcmul(bcdiv($input['case_cost'], 3, 6), bcadd(1, $output['retail_percent'], 6), 6);
-            $output['retail_price_text'] = '$' . number_format($output['retail_price'], 2, '.', ',') . ' per 1/3 ' . $case_text;
+            $output['retail_price_text'] = '$' . number_format($output['retail_price'], 2, '.', ','); // . ' per 1/3 ' . $case_text;
         }
         elseif( $output['otype'] == 54 && isset($input['case_cost']) ) {
             $output['retail_price'] = bcmul(bcdiv($input['case_cost'], 4, 6), bcadd(1, $output['retail_percent'], 6), 6);
-            $output['retail_price_text'] = '$' . number_format($output['retail_price'], 2, '.', ',') . ' per 1/4 ' . $case_text;
+            $output['retail_price_text'] = '$' . number_format($output['retail_price'], 2, '.', ','); // . ' per 1/4 ' . $case_text;
         }
         elseif( $output['otype'] == 55 && isset($input['case_cost']) ) {
             $output['retail_price'] = bcmul(bcdiv($input['case_cost'], 5, 6), bcadd(1, $output['retail_percent'], 6), 6);
-            $output['retail_price_text'] = '$' . number_format($output['retail_price'], 2, '.', ',') . ' per 1/5 ' . $case_text;
+            $output['retail_price_text'] = '$' . number_format($output['retail_price'], 2, '.', ','); // . ' per 1/5 ' . $case_text;
         }
         elseif( $output['otype'] == 56 && isset($input['case_cost']) ) {
             $output['retail_price'] = bcmul(bcdiv($input['case_cost'], 6, 6), bcadd(1, $output['retail_percent'], 6), 6);
-            $output['retail_price_text'] = '$' . number_format($output['retail_price'], 2, '.', ',') . ' per 1/6 ' . $case_text;
+            $output['retail_price_text'] = '$' . number_format($output['retail_price'], 2, '.', ','); // . ' per 1/6 ' . $case_text;
+        }
+        elseif( $output['otype'] == 70 ) {
+            $output['retail_price_text'] = '$' . number_format($output['retail_price'], 2, '.', ',');
         }
 
         //

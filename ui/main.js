@@ -47,7 +47,7 @@ function ciniki_foodmarket_main() {
             'sortTypes':['text', 'text', 'text'],
             'noData':'No Products',
             'addTxt':'Add Product',
-            'addFn':'M.ciniki_foodmarket_main.product.open(\'M.ciniki_foodmarket_main.products.open();\',0);',
+            'addFn':'M.ciniki_foodmarket_main.product.open(\'M.ciniki_foodmarket_main.products.open();\',0,null,null,M.ciniki_foodmarket_main.products.category_id);',
             },
         'productinputs':{'label':'Inventory', 'type':'simplegrid', 'num_cols':4, 'sortable':'yes',
             'visible':function() {return M.ciniki_foodmarket_main.products.sections._tabs.selected=='inventory'?'yes':'no';},
@@ -151,6 +151,10 @@ function ciniki_foodmarket_main() {
             if( rsp.nextprevlist != null ) {
                 p.nextPrevList = rsp.nextprevlist;
             }
+            p.delButton('edit');
+            if( p.category_id > 0 && p.sections._tabs.selected == 'products' ) {
+                p.addButton('edit', 'Edit', 'M.ciniki_foodmarket_main.category.open(\'M.ciniki_foodmarket_main.products.open();\',\'' + p.category_id + '\');');
+            }
             p.refresh();
             p.show(cb);
         });
@@ -184,7 +188,7 @@ function ciniki_foodmarket_main() {
         '_supplier':{'label':'Supplier', 'aside':'yes',
             'visible':function() { return M.ciniki_foodmarket_main.product.sections.ptype.selected == '10' ? 'yes' : 'hidden';},
             'fields':{
-                'supplier_id':{'label':'Supplier', 'hidelabel':'yes', 'type':'select', 'complex_options':{'name':'name', 'value':'id'}, 'options':{}},
+                'supplier_id':{'label':'Supplier', 'hidelabel':'yes', 'type':'select', 'complex_options':{'name':'display_name', 'value':'id'}, 'options':{}},
             }},
         'general':{'label':'Product', 'aside':'yes', 'fields':{
             'name':{'label':'Name', 'type':'text'},
@@ -885,12 +889,14 @@ function ciniki_foodmarket_main() {
         }
         this.showHideSection(s);
     }
-    this.product.open = function(cb, id, tab, list) {
+    this.product.open = function(cb, id, tab, list, cid) {
         this.reset();
         if( id != null ) { this.product_id = id; }
         if( tab != null ) { this.product.sections._tabs.selected = tab; }
         if( list != null ) { this.nextPrevList = list; }
-        M.api.getJSONCb('ciniki.foodmarket.productGet', {'business_id':M.curBusinessID, 'product_id':this.product_id, 'categories':'yes', 'suppliers':'yes'}, function(rsp) {
+        var args = {'business_id':M.curBusinessID, 'product_id':this.product_id, 'categories':'yes', 'suppliers':'yes'};
+        if( cid != null ) { args.category_id = cid; }
+        M.api.getJSONCb('ciniki.foodmarket.productGet', args, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;
@@ -980,7 +986,7 @@ function ciniki_foodmarket_main() {
     //
     // The panel for editing a category or child category
     //
-    this.category = new M.panel('Category', 'ciniki_foodmarket_main', 'category', 'mc', 'medium narrowaside', 'sectioned', 'ciniki.foodmarket.main.category');
+    this.category = new M.panel('Category', 'ciniki_foodmarket_main', 'category', 'mc', 'medium mediumaside', 'sectioned', 'ciniki.foodmarket.main.category');
     this.category.data = {};
     this.category.category_id = 0;
     this.category.sections = { 
@@ -1000,7 +1006,8 @@ function ciniki_foodmarket_main() {
         'general':{'label':'Product', 'aside':'yes', 'fields':{
             'parent_id':{'label':'Parent', 'type':'select', 'complex_options':{'name':'name', 'value':'id'}, 'options':{}},
             'name':{'label':'Name', 'type':'text'},
-            'ctype':{'label':'Type', 'type':'toggle', 'default':'0', 'toggles':{'0':'Products', '30':'Specials', '50':'New Products'}},
+            'sequence':{'label':'Sequence', 'type':'text', 'size':'small'},
+            'ctype':{'label':'Type', 'type':'toggle', 'default':'0', 'toggles':{'0':'Products', '10':'Favourites', '30':'Specials', '50':'New Products'}},
             }},
         '_synopsis':{'label':'Synopsis', 'fields':{
             'synopsis':{'label':'', 'hidelabel':'yes', 'hint':'', 'size':'small', 'type':'textarea'},

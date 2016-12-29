@@ -19,7 +19,7 @@
 #
 # permalink:            The permalink for the product, to be used on the website.
 #
-# pio_name:            The full product, input, output name combined to form the line that appears on invoices.
+# pio_name:             The full product, input, output name combined to form the line that appears on invoices.
 #
 # io_name:              The input and output names combined for form the line to appear in the price list.
 #

@@ -237,7 +237,7 @@ function ciniki_foodmarket_productSuppliedUpdate(&$ciniki, $business_id, $produc
                 'input' . $idx . '_' . $type . '_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Input ' . $idx . ' Output ID'),
                 'input' . $idx . '_' . $type . '_name'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Input ' . $idx . ' Output Name'),
                 'input' . $idx . '_' . $type . '_status'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Input ' . $idx . ' Output Status'),
-                'input' . $idx . '_' . $type . '_itype'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Input ' . $idx . ' Output Type'),
+//                'input' . $idx . '_' . $type . '_itype'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Input ' . $idx . ' Output Type'),
                 'input' . $idx . '_' . $type . '_units'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Input ' . $idx . ' Output Units'),
                 'input' . $idx . '_' . $type . '_flags'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Input ' . $idx . ' Output Options'),
                 'input' . $idx . '_' . $type . '_sequence'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Input ' . $idx . ' Output Sequence'),

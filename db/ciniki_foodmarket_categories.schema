@@ -19,6 +19,7 @@
 # ctype:                The type of category.
 #
 #                           0 - (default) Product Listing
+#                           10 - Favourites (Find all the customers favourites, they must be logged in)
 #                           30 - All Specials (Find everything on special right now)
 #                           50 - New Products
 #                           90 - Available This Week **future??**
