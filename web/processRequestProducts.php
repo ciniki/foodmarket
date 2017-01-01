@@ -37,6 +37,15 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $busi
         } 
     }
     
+    //
+    // Setup api calls back to poma module
+    //
+    $api_fav_on = 'ciniki/poma/favItemAdd/ciniki.foodmarket.output/';
+    $api_fav_off = 'ciniki/poma/favItemDelete/ciniki.foodmarket.output/';
+    $api_order_update = 'ciniki/poma/orderObjectUpdate/ciniki.foodmarket.output/';
+    $api_repeat_update = 'ciniki/poma/repeatObjectUpdate/ciniki.foodmarket.output/';
+    $api_queue_update = 'ciniki/poma/queueObjectUpdate/ciniki.foodmarket.output/';
+
     $display = 'categories';
 
     //
@@ -141,6 +150,11 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $busi
         if( isset($product['outputs']) && count($product['outputs']) > 0 ) {
             $page['blocks'][] = array('type'=>'orderoptions', 'section'=>'prices', 'size'=>$size,
                 'title'=>(count($product['outputs']) > 1 ? 'Options' : ''),
+                'api_fav_on'=>$api_fav_on,
+                'api_fav_off'=>$api_fav_off,
+                'api_order_update'=>$api_order_update,
+                'api_repeat_update'=>$api_repeat_update,
+                'api_queue_update'=>$api_queue_update,
                 'options'=>$product['outputs'],
                 );
 //            $page['blocks'][] = array('type'=>'content', 'section'=>'prices', 'title'=>'Options', 'content'=>$content);
@@ -205,7 +219,13 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $busi
                 return $rc;
             }
             if( isset($rc['options']) && count($rc['options']) > 0 ) {
-                $page['blocks'][] = array('type'=>'orderoptions', 'base_url'=>$base_url, 'size'=>'wide', 'options'=>$rc['options']);
+                $page['blocks'][] = array('type'=>'orderoptions', 'base_url'=>$base_url, 'size'=>'wide', 
+                    'api_fav_on'=>$api_fav_on,
+                    'api_fav_off'=>$api_fav_off,
+                    'api_order_update'=>$api_order_update,
+                    'api_repeat_update'=>$api_repeat_update,
+                    'api_queue_update'=>$api_queue_update,
+                    'options'=>$rc['options']);
             } else {
                 $page['blocks'][] = array('type'=>'content', 'size'=>'wide', 'content'=>"You don't currently have any favourites. "
                     . "You can browse the products and click on the heart to add it to your favourites.");

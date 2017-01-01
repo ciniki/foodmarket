@@ -142,7 +142,7 @@ $output['queue'] = 'no';
         // Check if available and if already ordered
         //
         if( $output['available'] == 'yes' && isset($order_items[$output['id']]['quantity']) ) {
-            $output['order_quantity'] = $order_items[$output['id']]['quantity'];
+            $output['order_quantity'] = (float)$order_items[$output['id']]['quantity'];
         } else {
             $output['order_quantity'] = 0;
         }
