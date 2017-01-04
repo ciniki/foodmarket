@@ -265,6 +265,20 @@ function ciniki_foodmarket_productUpdateFields(&$ciniki, $business_id, $product_
                 return $rc;
             }
         }
+        if( isset($update_args['pio_name']) ) {
+            //
+            // FIXME: Check if product is in poma and update descriptions
+            //
+            ciniki_core_loadMethod($ciniki, 'ciniki', 'poma', 'hooks', 'updateDescriptions');
+            $rc = ciniki_poma_hooks_updateDescriptions($ciniki, $business_id, array(
+                'object'=>'ciniki.foodmarket.output', 
+                'object_id'=>$output_id,
+                'description'=>$update_args['pio_name'],
+                ));
+            if( $rc['stat'] != 'ok' ) {
+                return $rc;
+            }
+        }
     }
 
     return array('stat'=>'ok');

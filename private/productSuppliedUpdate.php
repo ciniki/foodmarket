@@ -241,6 +241,7 @@ function ciniki_foodmarket_productSuppliedUpdate(&$ciniki, $business_id, $produc
                 'input' . $idx . '_' . $type . '_units'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Input ' . $idx . ' Output Units'),
                 'input' . $idx . '_' . $type . '_flags'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Input ' . $idx . ' Output Options'),
                 'input' . $idx . '_' . $type . '_sequence'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Input ' . $idx . ' Output Sequence'),
+                'input' . $idx . '_' . $type . '_packing_order'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Input ' . $idx . ' Packing Order'),
                 'input' . $idx . '_' . $type . '_wholesale_percent'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Input ' . $idx . ' Wholesale Percent'),
                 'input' . $idx . '_' . $type . '_wholesale_price'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'currency', 'name'=>'Input ' . $idx . ' Wholesale Price'),
                 'input' . $idx . '_' . $type . '_wholesale_taxtype_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Input ' . $idx . ' Wholesale Tax'),

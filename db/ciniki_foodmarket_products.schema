@@ -37,7 +37,15 @@
 #                           0x08 - 
 #
 # category:             The internal organizational category, not used on the website.
-# 
+#
+# packing_order:        The order to pack the outputs when putting together orders. This will be passed into POMA module. 
+#
+#                           10 - Top
+#                           30 - Top/Middle **future**
+#                           50 - Middle
+#                           70 - Mid/Bottom **future**
+#                           90 - Bottom
+#
 # primary_image_id:     The ID of the image to be used as the main image for the product.
 # synopsis:             The synopsis of the product.
 # description:          The full description of the product.
@@ -58,6 +66,7 @@ create table ciniki_foodmarket_products (
     ptype tinyint unsigned not null,
     flags tinyint unsigned not null,
     category varchar(150) not null,
+    packing_order tinyint unsigned not null,
     primary_image_id int not null,
     synopsis varchar(1000) not null,
     description text not null,

@@ -25,6 +25,7 @@ function ciniki_foodmarket_objects($ciniki) {
             'ptype'=>array('name'=>'Type'),
             'flags'=>array('name'=>'Options', 'default'=>'0'),
             'category'=>array('name'=>'Category', 'default'=>''),
+            'packing_order'=>array('name'=>'Packing Order', 'default'=>'10'),
             'primary_image_id'=>array('name'=>'Primary Image', 'default'=>'0'),
             'synopsis'=>array('name'=>'Synopsis', 'default'=>''),
             'description'=>array('name'=>'Description', 'default'=>''),

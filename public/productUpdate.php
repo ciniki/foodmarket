@@ -24,6 +24,7 @@ function ciniki_foodmarket_productUpdate(&$ciniki) {
         'ptype'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Type'),
         'flags'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Options'),
         'category'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Category'),
+        'packing_order'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Packing Order'),
         'primary_image_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Primary Image'),
         'synopsis'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Synopsis'),
         'description'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Description'),

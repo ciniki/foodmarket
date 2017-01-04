@@ -54,6 +54,7 @@ function ciniki_foodmarket_productLoad($ciniki, $business_id, $product_id) {
         . "ciniki_foodmarket_products.ptype, "
         . "ciniki_foodmarket_products.flags, "
         . "ciniki_foodmarket_products.category, "
+        . "ciniki_foodmarket_products.packing_order, "
         . "ciniki_foodmarket_products.primary_image_id, "
         . "ciniki_foodmarket_products.synopsis, "
         . "ciniki_foodmarket_products.description, "
@@ -166,6 +167,7 @@ function ciniki_foodmarket_productLoad($ciniki, $business_id, $product_id) {
         . "ciniki_foodmarket_product_outputs.units, "
         . "ciniki_foodmarket_product_outputs.flags, "
         . "ciniki_foodmarket_product_outputs.sequence, "
+//        . "ciniki_foodmarket_product_outputs.packing_order, "
         . "ciniki_foodmarket_product_outputs.start_date, "
         . "ciniki_foodmarket_product_outputs.end_date, "
         . "ciniki_foodmarket_product_outputs.wholesale_percent, "
@@ -182,7 +184,7 @@ function ciniki_foodmarket_productLoad($ciniki, $business_id, $product_id) {
     $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.foodmarket', array(
         array('container'=>'outputs', 'fname'=>'id', 
             'fields'=>array('id', 'product_id', 'input_id', 'name', 'permalink', 'status', 'status_text'=>'status', 'otype', 'otype_text'=>'otype', 
-                'units', 'units_text'=>'units', 'flags', 'flags_text'=>'flags', 'sequence', 'start_date', 'end_date', 
+                'units', 'units_text'=>'units', 'flags', 'flags_text'=>'flags', 'sequence', 'packing_order', 'start_date', 'end_date', 
                 'wholesale_percent', 'wholesale_price', 'wholesale_taxtype_id', 'retail_percent', 'retail_price', 'retail_taxtype_id', 
                 ),
             'currency'=>array(
@@ -261,6 +263,7 @@ function ciniki_foodmarket_productLoad($ciniki, $business_id, $product_id) {
                 $product['input' . $idx . '_' . $output['otype'] . '_units'] = $output['units'];
                 $product['input' . $idx . '_' . $output['otype'] . '_flags'] = $output['flags'];
                 $product['input' . $idx . '_' . $output['otype'] . '_sequence'] = $output['sequence'];
+                $product['input' . $idx . '_' . $output['otype'] . '_packing_order'] = $output['packing_order'];
                 $product['input' . $idx . '_' . $output['otype'] . '_start_date'] = $output['start_date'];
                 $product['input' . $idx . '_' . $output['otype'] . '_end_date'] = $output['end_date'];
                 $product['input' . $idx . '_' . $output['otype'] . '_wholesale_percent'] = number_format($output['wholesale_percent'], 2);

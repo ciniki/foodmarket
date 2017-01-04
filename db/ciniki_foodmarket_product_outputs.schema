@@ -124,6 +124,7 @@ create table ciniki_foodmarket_product_outputs (
     units mediumint unsigned not null,
     flags smallint unsigned not null,
     sequence tinyint unsigned not null,
+    packing_order tinyint unsigned not null,
     start_date date not null,
     end_date date not null,
     wholesale_percent decimal(9,6) not null,
