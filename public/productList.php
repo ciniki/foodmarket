@@ -40,7 +40,7 @@ function ciniki_foodmarket_productList($ciniki) {
     //
     // Get the list of products
     //
-    if( isset($args['category_id']) && $args['category_id'] > 0 ) {
+    if( isset($args['category_id']) && $args['category_id'] != '' && $args['category_id'] > 0 ) {
         $strsql = "SELECT ciniki_foodmarket_products.id, "
             . "ciniki_foodmarket_products.name, "
             . "ciniki_foodmarket_products.permalink, "
@@ -66,7 +66,7 @@ function ciniki_foodmarket_productList($ciniki) {
             . "WHERE ciniki_foodmarket_category_items.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
             . "AND ciniki_foodmarket_category_items.category_id = '" . ciniki_core_dbQuote($ciniki, $args['category_id']) . "' "
             . "ORDER BY ciniki_foodmarket_products.name ";
-    } elseif( isset($args['category_id']) && $args['category_id'] == 0 ) {
+    } elseif( isset($args['category_id']) && $args['category_id'] != '' && $args['category_id'] == 0 ) {
         $strsql = "SELECT ciniki_foodmarket_products.id, "
             . "ciniki_foodmarket_products.name, "
             . "ciniki_foodmarket_products.permalink, "

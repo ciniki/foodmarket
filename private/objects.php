@@ -55,6 +55,7 @@ function ciniki_foodmarket_objects($ciniki) {
             'case_units'=>array('name'=>'Units/Case', 'default'=>'1'),
             'min_quantity'=>array('name'=>'Minimum Order Quantity', 'default'=>'1'),
             'inc_quantity'=>array('name'=>'Increment Order Quantity', 'default'=>'1'),
+            'sku'=>array('name'=>'Sku/Code', 'default'=>''),
             'inventory'=>array('name'=>'Inventory', 'default'=>'0'),
             'recipe_id'=>array('name'=>'Recipe', 'ref'=>'ciniki.foodmarket.recipe', 'default'=>'0'),
             'recipe_quantity'=>array('name'=>'Recipe Quantity', 'default'=>'1'),

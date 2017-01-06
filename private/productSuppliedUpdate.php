@@ -79,6 +79,7 @@ function ciniki_foodmarket_productSuppliedUpdate(&$ciniki, $business_id, $produc
             'input' . $idx . '_case_units'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Input ' . $idx . ' Case Units'),
             'input' . $idx . '_min_quantity'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Input ' . $idx . ' Minimum Quantity'),
             'input' . $idx . '_inc_quantity'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Input ' . $idx . ' Incremental Quantity'),
+            'input' . $idx . '_sku'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Input ' . $idx . ' Sku/Code'),
             'input' . $idx . '_inventory'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Input ' . $idx . ' Inventory'),
             ));
         if( $rc['stat'] != 'ok' ) {

@@ -32,7 +32,7 @@ function ciniki_foodmarket_hooks_uiSettings($ciniki, $business_id, $args) {
         $menu_item = array(
             'priority'=>6500,
             'label'=>'Products', 
-            'edit'=>array('app'=>'ciniki.foodmarket.main', 'args'=>array('menu'=>'"\'products\'"')),
+            'edit'=>array('app'=>'ciniki.foodmarket.main'),
             );
         $rsp['menu_items'][] = $menu_item;
     } 
