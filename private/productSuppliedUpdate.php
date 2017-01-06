@@ -18,6 +18,8 @@ function ciniki_foodmarket_productSuppliedUpdate(&$ciniki, $business_id, $produc
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'makePermalink');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuote');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuoteIDs');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'private', 'productLoad');
@@ -101,6 +103,7 @@ function ciniki_foodmarket_productSuppliedUpdate(&$ciniki, $business_id, $produc
             $field = str_replace('input' . $idx . '_', '', $arg_key);
             $new_input[$field] = $arg_value;
         }
+        $valid_otypes = array();
 
         //
         // If a new input, add the object
@@ -348,6 +351,60 @@ function ciniki_foodmarket_productSuppliedUpdate(&$ciniki, $business_id, $produc
                 }
                 if( count($update_args) > 0 ) {
                     $rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.foodmarket.output', $output_id, $update_args, 0x04);
+                    if( $rc['stat'] != 'ok' ) {
+                        return $rc;
+                    }
+                }
+            }
+        }
+
+        //
+        // Build the list of valid_otypes 
+        //
+        $valid_otypes = array();
+        if( $new_input['itype'] == 10 ) {
+            $valid_otypes = array('10', '71');
+        } elseif( $new_input['itype'] == 20 ) {
+            $valid_otypes = array('20');
+        } elseif( $new_input['itype'] == 30 ) {
+            $valid_otypes = array('30', '72');
+        } elseif( $new_input['itype'] == 50 ) {
+            $valid_otypes = array('30', '72', '50');
+            if( ($new_input['case_units']%2) == 0 ) {
+                $valid_otypes[] = '52';
+            } 
+            if( ($new_input['case_units']%3) == 0 ) {
+                $valid_otypes[] = '53';
+            } 
+            if( ($new_input['case_units']%4) == 0 ) {
+                $valid_otypes[] = '54';
+            } 
+            if( ($new_input['case_units']%5) == 0 ) {
+                $valid_otypes[] = '55';
+            } 
+            if( ($new_input['case_units']%6) == 0 ) {
+                $valid_otypes[] = '56';
+            }
+        }
+
+        //
+        // Check if there are any outputs that should be removed
+        //
+        if( count($valid_otypes) > 0 ) {
+            $strsql = "SELECT id, uuid, product_id, status "
+                . "FROM ciniki_foodmarket_product_outputs "
+                . "WHERE product_id = '" . ciniki_core_dbQuote($ciniki, $product_id) . "' "
+                . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . "AND status > 5 "
+                . "AND otype NOT IN (" . ciniki_core_dbQuoteIDs($ciniki, $valid_otypes) . ") "
+                . "";
+            $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.foodmarket', 'output');
+            if( $rc['stat'] != 'ok' ) {
+                return $rc;
+            }
+            if( isset($rc['rows']) && count($rc['rows']) > 0 ) {
+                foreach($rc['rows'] as $row) {  
+                    $rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.foodmarket.output', $row['id'], array('status'=>5), 0x04);
                     if( $rc['stat'] != 'ok' ) {
                         return $rc;
                     }

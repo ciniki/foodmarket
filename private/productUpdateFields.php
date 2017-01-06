@@ -184,17 +184,23 @@ function ciniki_foodmarket_productUpdateFields(&$ciniki, $business_id, $product_
             }
         } else {
             if( $output['otype'] == 50 ) {
-                $output['io_name'] .= ($output['io_name'] != '' ? ' - ' : '') . ($output['name'] != '' ? $output['name'] : $case_text) . ' (' . $input['case_units'] . ')';
+                $output['io_name'] .= ($output['io_name'] != '' ? ' - ' : '') . ($output['name'] != '' ? $output['name'] : $case_text) 
+                    . ($output['name'] == '' ? ' (' . $input['case_units'] . ')' : '');
             } elseif( $output['otype'] == 52 ) {
-                $output['io_name'] .= ($output['io_name'] != '' ? ' - ' : '') . ($output['name'] != '' ? $output['name'] : '1/2 ' . $case_text) . ' (' . bcdiv($input['case_units'], 2, 0) . ')';
+                $output['io_name'] .= ($output['io_name'] != '' ? ' - ' : '') . ($output['name'] != '' ? $output['name'] : '1/2 ' . $case_text) 
+                    . ($output['name'] == '' ? ' (' . bcdiv($input['case_units'], 2, 0) . ')' : '');
             } elseif( $output['otype'] == 53 ) {
-                $output['io_name'] .= ($output['io_name'] != '' ? ' - ' : '') . ($output['name'] != '' ? $output['name'] : '1/3 ' . $case_text) . ' (' . bcdiv($input['case_units'], 3, 0) . ')';
+                $output['io_name'] .= ($output['io_name'] != '' ? ' - ' : '') . ($output['name'] != '' ? $output['name'] : '1/3 ' . $case_text) 
+                    . ($output['name'] == '' ? ' (' . bcdiv($input['case_units'], 3, 0) . ')' : '');
             } elseif( $output['otype'] == 54 ) {
-                $output['io_name'] .= ($output['io_name'] != '' ? ' - ' : '') . ($output['name'] != '' ? $output['name'] : '1/4 ' . $case_text) . ' (' . bcdiv($input['case_units'], 4, 0) . ')';
+                $output['io_name'] .= ($output['io_name'] != '' ? ' - ' : '') . ($output['name'] != '' ? $output['name'] : '1/4 ' . $case_text) 
+                    . ($output['name'] == '' ? ' (' . bcdiv($input['case_units'], 4, 0) . ')' : '');
             } elseif( $output['otype'] == 55 ) {
-                $output['io_name'] .= ($output['io_name'] != '' ? ' - ' : '') . ($output['name'] != '' ? $output['name'] : '1/5 ' . $case_text) . ' (' . bcdiv($input['case_units'], 5, 0) . ')';
-            } elseif( $output['otype'] == 55 ) {
-                $output['io_name'] .= ($output['io_name'] != '' ? ' - ' : '') . ($output['name'] != '' ? $output['name'] : '1/6 ' . $case_text) . ' (' . bcdiv($input['case_units'], 6, 0) . ')';
+                $output['io_name'] .= ($output['io_name'] != '' ? ' - ' : '') . ($output['name'] != '' ? $output['name'] : '1/5 ' . $case_text) 
+                    . ($output['name'] == '' ? ' (' . bcdiv($input['case_units'], 5, 0) . ')' : '');
+            } elseif( $output['otype'] == 56 ) {
+                $output['io_name'] .= ($output['io_name'] != '' ? ' - ' : '') . ($output['name'] != '' ? $output['name'] : '1/6 ' . $case_text) 
+                    . ($output['name'] == '' ? ' (' . bcdiv($input['case_units'], 6, 0) . ')' : '');
             } 
         }
         if( $output['io_name'] == '' ) {

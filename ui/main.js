@@ -1057,14 +1057,13 @@ function ciniki_foodmarket_main() {
         if( this.product_id > 0 ) {
             var c = this.serializeForm('no');
             c += 'input1_id=' + this.formValue('input1_id') + '&';
-            for(var i in {10:'', 20:'', 30:'', 50:'', 52:'', 53:'', 54:'', 55:'', 56:''}) {
+            for(var i in {10:'', 20:'', 30:'', 50:'', 52:'', 53:'', 54:'', 55:'', 56:'', 71:'', 72:''}) {
                 if( this.formValue('input1_' + i + '_id') == '0' ) {
                     c += 'input1_' + i + '_id=' + this.formValue('input1_' + i + '_id') + '&';
                 } else {
                     c += this.serializeFormSection('yes', 'input1_' + i);
                 }
             }
-            console.log(c);
             if( c != '' ) {
                 M.api.postJSONCb('ciniki.foodmarket.productUpdate', {'business_id':M.curBusinessID, 'product_id':this.product_id}, c,
                     function(rsp) {
