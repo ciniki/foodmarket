@@ -127,18 +127,16 @@ function ciniki_foodmarket_objects($ciniki) {
             ),
         'history_table'=>'ciniki_foodmarket_history',
         );
-    $objects['orderdate'] = array(
-        'name'=>'Order Date',
+    $objects['dateitem'] = array(
+        'name'=>'Order Date Item',
         'sync'=>'yes',
-        'o_name'=>'orderdate',
-        'o_container'=>'orderdates',
-        'table'=>'ciniki_foodmarket_order_dates',
+        'o_name'=>'dateitem',
+        'o_container'=>'dateitems',
+        'table'=>'ciniki_foodmarket_date_items',
         'fields'=>array(
-            'order_date'=>array('name'=>'Order Date'),
-            'status'=>array('name'=>'Status', 'default'=>'10'),
-            'flags'=>array('flags'=>'Options', 'default'=>'0'),
-            'change_deadline'=>array('name'=>'Change Deadline', 'default'=>''),
-            'notices'=>array('name'=>'Notices', 'default'=>''),
+            'date_id'=>array('name'=>'Category', 'ref'=>'ciniki.poma.orderdate'),
+            'output_id'=>array('name'=>'Product', 'ref'=>'ciniki.foodmarket.output'),
+            'quantity'=>array('name'=>'Quantity', 'default'=>'0'),
             ),
         'history_table'=>'ciniki_foodmarket_history',
         );

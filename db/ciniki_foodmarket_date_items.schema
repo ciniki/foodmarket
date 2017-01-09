@@ -1,0 +1,35 @@
+#
+# Description
+# -----------
+# This table stores the product outputs that are availabe for an order date. This table
+# joins to the ciniki.poma module closely.
+#
+# Fields
+# ------
+# id:                   The ID assigned to the date item.
+# uuid:                 The Universal Unique ID.
+# business_id:          The business the date item is attached to.
+#
+# date_id:              The ID of the order date the item is available for.
+#
+# output_id:            The ID of the output that is available for this date.
+#
+# quantity:             If there is a limited quantity for that date. **future**
+#
+# date_added:           The UTC date and time the record was added.
+# last_updated:         The UTC date and time the record was last updated.
+#
+create table ciniki_foodmarket_date_items (
+    id int not null auto_increment,
+    uuid char(36) not null,
+    business_id int not null,
+    date_id int not null,
+    output_id int not null,
+    quantity decimal(19,4) not null,
+    date_added datetime not null,
+    last_updated datetime not null,
+    primary key (id),
+    unique index (uuid),
+    unique index (date_id, output_id),
+    index sync (business_id, uuid, last_updated)
+) ENGINE='InnoDB', COMMENT='v1.01';

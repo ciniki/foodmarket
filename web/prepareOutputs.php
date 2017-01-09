@@ -78,6 +78,26 @@ function ciniki_foodmarket_web_prepareOutputs($ciniki, $settings, $business_id, 
         $item_types = array();
     }
 
+    //
+    // Load the list of items for a date
+    //
+    $date_items = array();
+    if( isset($ciniki['session']['ciniki.poma']['date']['id']) && $ciniki['session']['ciniki.poma']['date']['id'] > 0 ) {
+        $strsql = "SELECT output_id "
+            . "FROM ciniki_foodmarket_date_items "
+            . "WHERE date_id = '" . ciniki_core_dbQuote($ciniki, $ciniki['session']['ciniki.poma']['date']['id']) . "' "
+            . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "";
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQueryList');
+        $rc = ciniki_core_dbQueryList($ciniki, $strsql, 'ciniki.foodmarket', 'outputs', 'output_id');
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
+        }
+        if( isset($rc['outputs']) ) {
+            $date_items = $rc['outputs'];
+        } 
+    }
+
     $outputs = array();
     foreach($args['outputs'] as $oid => $output) {
         //
@@ -97,6 +117,11 @@ function ciniki_foodmarket_web_prepareOutputs($ciniki, $settings, $business_id, 
         if( ($output['flags']&0x0200) == 0x0200 ) {
             $output['available'] = 'no';
             $output['repeat'] = 'no';
+            if( in_array($output['id'], $date_items) ) {
+                $output['available'] = 'yes';
+            }
+
+/*            ** This code may be useful when implementing date range availablity
             if( $output['start_date'] != '' && $output['start_date'] != '0000-00-00' 
                 && $output['end_date'] != '' && $output['end_date'] != '0000-00-00' 
                 && isset($ciniki['session']['ciniki.poma']['date']['order_dt'])
@@ -109,7 +134,7 @@ function ciniki_foodmarket_web_prepareOutputs($ciniki, $settings, $business_id, 
                 if( $sdt < $ciniki['session']['ciniki.poma']['date']['order_dt'] && $edt > $ciniki['session']['ciniki.poma']['date']['order_dt'] ) {
                     $output['available'] = 'yes';
                 }
-            }
+            } */
         }
 
         //
