@@ -15,7 +15,7 @@
 // Returns
 // -------
 //
-function ciniki_foodmarket_dateItemSearch($ciniki) {
+function ciniki_foodmarket_dateBasketItemSearch($ciniki) {
     //
     // Find all the required and optional arguments
     //
@@ -68,7 +68,7 @@ function ciniki_foodmarket_dateItemSearch($ciniki) {
             . "ciniki_foodmarket_products.supplier_id = ciniki_foodmarket_suppliers.id "
             . "AND ciniki_foodmarket_suppliers.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
             . ") "
-        . "WHERE (ciniki_foodmarket_product_outputs.flags&0x0200) = 0x0200 "
+        . "WHERE ciniki_foodmarket_product_outputs.otype IN (71, 72) "
         . "AND ciniki_foodmarket_product_outputs.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
         . "AND ("
             . "ciniki_foodmarket_product_outputs.pio_name LIKE '" . ciniki_core_dbQuote($ciniki, $args['search_str']) . "%' "

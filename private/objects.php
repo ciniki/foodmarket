@@ -140,6 +140,20 @@ function ciniki_foodmarket_objects($ciniki) {
             ),
         'history_table'=>'ciniki_foodmarket_history',
         );
+    $objects['basketitem'] = array(
+        'name'=>'Order Date Basket Item',
+        'sync'=>'yes',
+        'o_name'=>'basketitem',
+        'o_container'=>'basketitems',
+        'table'=>'ciniki_foodmarket_basket_items',
+        'fields'=>array(
+            'basket_output_id'=>array('name'=>'Basket', 'ref'=>'ciniki.foodmarket.output'),
+            'date_id'=>array('name'=>'Category', 'ref'=>'ciniki.poma.orderdate'),
+            'item_output_id'=>array('name'=>'Product', 'ref'=>'ciniki.foodmarket.output'),
+            'quantity'=>array('name'=>'Quantity', 'default'=>'0'),
+            ),
+        'history_table'=>'ciniki_foodmarket_history',
+        );
     $objects['supplier'] = array(
         'name'=>'Supplier',
         'sync'=>'yes',

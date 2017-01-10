@@ -105,6 +105,7 @@ function ciniki_foodmarket_dateItems($ciniki) {
     // Get the products for the current date
     //
     $strsql = "SELECT ciniki_foodmarket_product_outputs.id, "
+        . "ciniki_foodmarket_product_outputs.product_id, "
         . "ciniki_foodmarket_products.supplier_id, "
         . "ciniki_foodmarket_suppliers.code AS supplier_code, "
         . "ciniki_foodmarket_product_outputs.pio_name "
@@ -127,7 +128,7 @@ function ciniki_foodmarket_dateItems($ciniki) {
         . "ORDER BY supplier_code, pio_name "
         . "";
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.poma', array(
-        array('container'=>'products', 'fname'=>'id', 'fields'=>array('id', 'supplier_id', 'supplier_code', 'name'=>'pio_name')),
+        array('container'=>'products', 'fname'=>'id', 'fields'=>array('id', 'product_id', 'supplier_id', 'supplier_code', 'name'=>'pio_name')),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
@@ -144,6 +145,7 @@ function ciniki_foodmarket_dateItems($ciniki) {
     // Get all outputs that are date limited
     //
     $strsql = "SELECT ciniki_foodmarket_product_outputs.id, "
+        . "ciniki_foodmarket_product_outputs.product_id, "
         . "ciniki_foodmarket_products.supplier_id, "
         . "IFNULL(ciniki_foodmarket_suppliers.code, '') AS supplier_code, "
         . "ciniki_foodmarket_product_outputs.pio_name AS name, "
@@ -177,7 +179,7 @@ function ciniki_foodmarket_dateItems($ciniki) {
         . "";
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.poma', array(
         array('container'=>'products', 'fname'=>'id', 
-            'fields'=>array('id', 'supplier_id', 'supplier_code', 'name'=>'name', 'last_order_date', 'days'),
+            'fields'=>array('id', 'product_id', 'supplier_id', 'supplier_code', 'name'=>'name', 'last_order_date', 'days'),
             'utctotz'=>array('last_order_date'=>array('timezone'=>'UTC', 'format'=>$date_format)),
             ),
         ));
