@@ -30,8 +30,8 @@ function ciniki_foodmarket_hooks_uiSettings($ciniki, $business_id, $args) {
             )
         ) {
         $menu_item = array(
-            'priority'=>6500,
-            'label'=>'Products', 
+            'priority'=>6700,
+            'label'=>'Food Market', 
             'edit'=>array('app'=>'ciniki.foodmarket.main'),
             );
         $rsp['menu_items'][] = $menu_item;

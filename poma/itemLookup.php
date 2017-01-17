@@ -23,11 +23,11 @@ function ciniki_foodmarket_poma_itemLookup($ciniki, $business_id, $args) {
     if( $args['object'] == 'ciniki.foodmarket.output' ) {
         $strsql = "SELECT "
             . "ciniki_foodmarket_product_outputs.id, "
-            . "ciniki_foodmarket_product_outputs.pio_name AS description, "
-            . "ciniki_foodmarket_product_outputs.otype AS itype, "      // Item type
+            . "ciniki_foodmarket_product_outputs.pio_name, "
+            . "ciniki_foodmarket_product_outputs.otype, "      // Item type
             . "ciniki_foodmarket_product_outputs.units, "
-            . "ciniki_foodmarket_product_outputs.retail_price AS unit_amount, "
-            . "ciniki_foodmarket_product_outputs.retail_taxtype_id AS taxtype_id, "
+            . "ciniki_foodmarket_product_outputs.retail_price, "
+            . "ciniki_foodmarket_product_outputs.retail_taxtype_id, "
             . "IFNULL(ciniki_foodmarket_product_inputs.inventory, 0) AS inventory, "
             . "IFNULL(ciniki_foodmarket_products.packing_order, 10) AS packing_order "
             . "FROM ciniki_foodmarket_product_outputs "
@@ -51,43 +51,12 @@ function ciniki_foodmarket_poma_itemLookup($ciniki, $business_id, $args) {
         }
         $item = $rc['output'];
 
-        //
-        // Adjust output type to be inline with poma order item types
-        //
-        if( $item['itype'] > 30 ) {
-            $item['itype'] = 30;
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'private', 'convertOutputItem');
+        $rc = ciniki_foodmarket_convertOutputItem($ciniki, $business_id, $item);
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
         }
-        //
-        // Setup weight units if applicable
-        //
-        if( $item['itype'] < 30 ) {
-            if( ($item['units']&0x02) == 0x02 ) {
-                $item['weight_units'] = 20;
-            } elseif( ($item['units']&0x04) == 0x04 ) {
-                $item['weight_units'] = 25;
-            } elseif( ($item['units']&0x20) == 0x20 ) {
-                $item['weight_units'] = 60;
-            } elseif( ($item['units']&0x40) == 0x40 ) {
-                $item['weight_units'] = 65;
-            } else {
-                $item['weight_units'] = 0;
-            }
-        } else {
-            if( ($item['units']&0x0100) == 0x0100 ) {
-                $item['unit_suffix'] = 'each';
-            } elseif( ($item['units']&0x0200) == 0x0200 ) {
-                $item['unit_suffix'] = 'pair';
-            } elseif( ($item['units']&0x0400) == 0x0400 ) {
-                $item['unit_suffix'] = 'bunch';
-            } elseif( ($item['units']&0x0800) == 0x0800 ) {
-                $item['unit_suffix'] = 'bag';
-            }
-        }
-        $item['flags'] = 0;
-        $item['object'] = 'ciniki.foodmarket.output';
-        $item['object_id'] = $item['id'];
-
-        return array('stat'=>'ok', 'item'=>$item);
+        return $rc;
     }
 
     return array('stat'=>'ok');

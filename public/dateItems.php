@@ -49,8 +49,18 @@ function ciniki_foodmarket_dateItems($ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'dateFormat');
     $date_format = ciniki_users_dateFormat($ciniki, 'php');
 
-    $rsp = array('stat'=>'ok', 'dates'=>array(), 'date_products'=>array(), 'recent_products'=>array(), 'dated_products'=>array(),
-        'nplists'=>array('date_products'=>array(), 'recent_products'=>array(), 'dated_products'=>array()),
+    //
+    // Load poma maps
+    //
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'poma', 'private', 'maps');
+    $rc = ciniki_poma_maps($ciniki);
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+    $poma_maps = $rc['maps'];
+
+    $rsp = array('stat'=>'ok', 'dates'=>array(), 'availability_date_outputs'=>array(), 'availability_recent_outputs'=>array(), 'availability_outputs'=>array(),
+        'nplists'=>array('availability_date_outputs'=>array(), 'availability_recent_outputs'=>array(), 'availability_outputs'=>array()),
         );
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuoteIDs');
@@ -100,6 +110,9 @@ function ciniki_foodmarket_dateItems($ciniki) {
         return array('stat'=>'ok', 'dates'=>array(), 'open_orders'=>array(), 'closed_orders'=>array(), 'order'=>array());
     }
     $rsp['dates'] = $rc['dates'];
+    foreach($rsp['dates'] as $did => $date) {
+        $rsp['dates'][$did]['name_status'] = $date['display_name'] . ' - ' . $poma_maps['orderdate']['status'][$date['status']];
+    }
 
     //
     // Get the products for the current date
@@ -134,10 +147,10 @@ function ciniki_foodmarket_dateItems($ciniki) {
         return $rc;
     }
     if( isset($rc['products']) ) {
-        $rsp['date_products'] = $rc['products'];
+        $rsp['availability_date_products'] = $rc['products'];
     }
     $date_output_ids = array();
-    foreach($rsp['date_products'] as $product) {
+    foreach($rsp['availability_date_products'] as $product) {
         $date_output_ids[] = $product['id'];
     }
 
@@ -187,11 +200,11 @@ function ciniki_foodmarket_dateItems($ciniki) {
         return $rc;
     }
     if( isset($rc['products']) ) {
-        $rsp['dated_products'] = $rc['products'];
-        foreach($rsp['dated_products'] as $pid => $product) {
+        $rsp['availability_outputs'] = $rc['products'];
+        foreach($rsp['availability_outputs'] as $pid => $product) {
             if( $product['days'] != '' && $product['days'] < 30 ) {
-                $rsp['recent_products'][] = $product;
-                unset($rsp['dated_products'][$pid]);
+                $rsp['availability_recent_outputs'][] = $product;
+                unset($rsp['availability_outputs'][$pid]);
             }
         }
     }

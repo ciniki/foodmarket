@@ -135,6 +135,7 @@ function ciniki_foodmarket_productAdd(&$ciniki) {
             'product_id'=>$product_id,
             'input_id'=>0,
             'name'=>$args['name'],
+            'pio_name'=>$args['name'],
             'permalink'=>$args['permalink'],
             'status'=>(isset($args['status']) ? $args['status'] : 10),
             'otype'=>70,

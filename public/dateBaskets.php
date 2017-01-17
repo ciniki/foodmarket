@@ -53,20 +53,34 @@ function ciniki_foodmarket_dateBaskets($ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'dateFormat');
     $date_format = ciniki_users_dateFormat($ciniki, 'php');
 
-    $rsp = array('stat'=>'ok', 'dates'=>array(), 'baskets'=>array(), 'basket_items'=>array(), 'recent_basket_outputs'=>array(), 'basket_outputs'=>array(),
-        'nplists'=>array('basket_items'=>array(), 'recent_basket_outputs'=>array(), 'basket_outputs'=>array()),
+    //
+    // Load poma maps
+    //
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'poma', 'private', 'maps');
+    $rc = ciniki_poma_maps($ciniki);
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+    $poma_maps = $rc['maps'];
+
+    $rsp = array('stat'=>'ok', 'dates'=>array(), 'baskets'=>array(), 'baskets_items'=>array(), 'baskets_recent_outputs'=>array(), 'baskets_outputs'=>array(),
+        'nplists'=>array('basket_items'=>array(), 'baskets_recent_outputs'=>array(), 'baskets_outputs'=>array()),
         );
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuoteIDs');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'private', 'basketsUpdateOrders');
 
     //
     // If the date wasn't set, then choose the closest date to now
     //
     if( !isset($args['date_id']) || $args['date_id'] == 0 ) {
-        $strsql = "SELECT id, ABS(DATEDIFF(NOW(), order_date)) AS age "
+        $strsql = "SELECT id, status, ABS(DATEDIFF(NOW(), order_date)) AS age "
             . "FROM ciniki_poma_order_dates "
+            . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
             . "ORDER BY age ASC "
             . "LIMIT 1 "
             . "";
@@ -79,6 +93,22 @@ function ciniki_foodmarket_dateBaskets($ciniki) {
         }
         $args['date_id'] = $rc['date']['id'];
         $rsp['date_id'] = $rc['date']['id'];
+        $rsp['date_status'] = $rc['date']['status'];
+    } else {
+        $strsql = "SELECT id, status "
+            . "FROM ciniki_poma_order_dates "
+            . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['date_id']) . "' "
+            . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "LIMIT 1 "
+            . "";
+        $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.poma', 'date');
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
+        }
+        if( !isset($rc['date']['id']) ) {
+            return $rsp;
+        }
+        $rsp['date_status'] = $rc['date']['status'];
     }
 
     $dt = new DateTime('now', new DateTimezone($intl_timezone));
@@ -96,7 +126,9 @@ function ciniki_foodmarket_dateBaskets($ciniki) {
         . "LIMIT 15"
         . "";
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.poma', array(
-        array('container'=>'dates', 'fname'=>'id', 'fields'=>array('id', 'order_date', 'display_name', 'status', 'flags')),
+        array('container'=>'dates', 'fname'=>'id', 
+            'fields'=>array('id', 'order_date', 'display_name', 'status', 'flags'),
+            ),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
@@ -105,6 +137,9 @@ function ciniki_foodmarket_dateBaskets($ciniki) {
         return $rsp;
     }
     $rsp['dates'] = $rc['dates'];
+    foreach($rsp['dates'] as $did => $date) {
+        $rsp['dates'][$did]['name_status'] = $date['display_name'] . ' - ' . $poma_maps['orderdate']['status'][$date['status']];
+    }
 
     //
     // FIXME: Check if date is still open for new items
@@ -133,20 +168,32 @@ function ciniki_foodmarket_dateBaskets($ciniki) {
         }
         if( isset($rc['item']['quantity']) ) {
             if( $rc['item']['quantity'] != $args['quantity'] ) {
-                ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
                 $rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.foodmarket.basketitem', $rc['item']['id'], array('quantity'=>$args['quantity']), 0x07);
                 if( $rc['stat'] != 'ok' ) {
                     return $rc;
                 }
             }
         } else {
-            ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
             $rc = ciniki_core_objectAdd($ciniki, $args['business_id'], 'ciniki.foodmarket.basketitem', array(
                 'basket_output_id'=>$args['basket_output_id'],
                 'date_id'=>$args['date_id'],
                 'item_output_id'=>$args['item_output_id'],
                 'quantity'=>$args['quantity'],
                 ), 0x07);
+            if( $rc['stat'] != 'ok' ) {
+                return $rc;
+            }
+        }
+        //
+        // Update the basket item in the orders
+        //
+        if( $args['basket_output_id'] > 0 ) {
+            $rc = ciniki_foodmarket_basketsUpdateOrders($ciniki, $args['business_id'], array(
+                'date_id'=>$args['date_id'],
+                'basket_output_id'=>$args['basket_output_id'],
+                'item_output_id'=>$args['item_output_id'],
+                'quantity'=>$args['quantity'],
+                ));
             if( $rc['stat'] != 'ok' ) {
                 return $rc;
             }
@@ -191,7 +238,6 @@ function ciniki_foodmarket_dateBaskets($ciniki) {
 //            $baskets[$bid]['profit'] = 0;
         }
     }
-
     
     //
     // Get the basket items
@@ -240,43 +286,43 @@ function ciniki_foodmarket_dateBaskets($ciniki) {
         return $rc;
     }
     if( isset($rc['basket_items']) ) {
-        $rsp['basket_items'] = $rc['basket_items'];
+        $rsp['baskets_items'] = $rc['basket_items'];
     }
     $output_ids = array();
-    foreach($rsp['basket_items'] as $iid => $item) {
+    foreach($rsp['baskets_items'] as $iid => $item) {
         $output_ids[] = $item['id'];
-        $rsp['basket_items'][$iid]['min_order_quantity'] = 1;
+        $rsp['baskets_items'][$iid]['min_order_quantity'] = 1;
         if( $item['itype'] <= 30 && $item['min_quantity'] > 0 ) {
-            $rsp['basket_items'][$iid]['min_order_quantity'] = $item['min_quantity'];
+            $rsp['baskets_items'][$iid]['min_order_quantity'] = $item['min_quantity'];
         } else if( $item['itype'] == 50 && $item['case_units'] > 0 ) {
-            $rsp['basket_items'][$iid]['min_order_quantity'] = $item['case_units'];
+            $rsp['baskets_items'][$iid]['min_order_quantity'] = $item['case_units'];
         }
         
         //
         // Update the basket totals
         //
-        $rsp['basket_items'][$iid]['quantity'] = 0;
+        $rsp['baskets_items'][$iid]['quantity'] = 0;
         if( isset($item['basket_quantities']) ) {
             foreach($item['basket_quantities'] as $bid => $q) {
                 if( $bid > 0 ) {
                     $baskets[$bid]['total'] = bcadd($baskets[$bid]['total'], bcmul($q['quantity'], $item['price'], 6), 6);
-                    $rsp['basket_items'][$iid]['quantity'] += bcmul($baskets[$bid]['num_ordered'], $q['quantity'], 0);
+                    $rsp['baskets_items'][$iid]['quantity'] += bcmul($baskets[$bid]['num_ordered'], $q['quantity'], 0);
                 }
             }
         }
 
-        if( $rsp['basket_items'][$iid]['min_order_quantity'] > 1 ) {
-            $rsp['basket_items'][$iid]['quantity_text'] = (float)$rsp['basket_items'][$iid]['quantity'] . '/' . (float)$rsp['basket_items'][$iid]['min_order_quantity'];
-            $percent = bcmul(bcdiv($rsp['basket_items'][$iid]['quantity'], $rsp['basket_items'][$iid]['min_order_quantity'], 6), 100, 0);
-            $rsp['basket_items'][$iid]['percent_text'] = $percent . '%';
+        if( $rsp['baskets_items'][$iid]['min_order_quantity'] > 1 ) {
+            $rsp['baskets_items'][$iid]['quantity_text'] = (float)$rsp['baskets_items'][$iid]['quantity'] . '/' . (float)$rsp['baskets_items'][$iid]['min_order_quantity'];
+            $percent = bcmul(bcdiv($rsp['baskets_items'][$iid]['quantity'], $rsp['baskets_items'][$iid]['min_order_quantity'], 6), 100, 0);
+            $rsp['baskets_items'][$iid]['percent_text'] = $percent . '%';
         } else {
-            $rsp['basket_items'][$iid]['quantity_text'] = $rsp['basket_items'][$iid]['quantity'];
-            $rsp['basket_items'][$iid]['percent_text'] = '';
+            $rsp['baskets_items'][$iid]['quantity_text'] = $rsp['baskets_items'][$iid]['quantity'];
+            $rsp['baskets_items'][$iid]['percent_text'] = '';
         }
     }
 
     //
-    // Get all outputs that are for baskets and aren't already in the basket_items
+    // Get all outputs that are for baskets and aren't already in the baskets_items
     //
     if( isset($args['outputs']) && $args['outputs'] == 'yes' ) {
         $strsql = "SELECT ciniki_foodmarket_product_outputs.id, "
@@ -322,14 +368,14 @@ function ciniki_foodmarket_dateBaskets($ciniki) {
             return $rc;
         }
         if( isset($rc['outputs']) ) {
-            $rsp['basket_outputs'] = $rc['outputs'];
-            foreach($rsp['basket_outputs'] as $oid => $output) {
+            $rsp['baskets_outputs'] = $rc['outputs'];
+            foreach($rsp['baskets_outputs'] as $oid => $output) {
                 if( $output['days'] != '' && $output['days'] < 30 ) {
-                    $rsp['recent_basket_outputs'][] = $output;
-                    unset($rsp['basket_outputs'][$oid]);
-                    $rsp['nplists']['recent_basket_outputs'][] = $output['id'];
+                    $rsp['baskets_recent_outputs'][] = $output;
+                    unset($rsp['baskets_outputs'][$oid]);
+                    $rsp['nplists']['baskets_recent_outputs'][] = $output['id'];
                 } else {
-                    $rsp['nplists']['basket_outputs'][] = $output['id'];
+                    $rsp['nplists']['baskets_outputs'][] = $output['id'];
                 }
             }
         }
