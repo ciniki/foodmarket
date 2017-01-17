@@ -543,7 +543,7 @@ function ciniki_foodmarket_main() {
     }
     this.menu.basketsSubmit = function() {
         M.api.getJSONCb('ciniki.foodmarket.dateBaskets', 
-            {'business_id':M.curBusinessID, 'date_id':this.date_id, 'orders':'update', 'outputs':'yes'}, 
+            {'business_id':M.curBusinessID, 'date_id':this.date_id, 'datestatus':'substitutions', 'outputs':'yes'}, 
             M.ciniki_foodmarket_main.menu.processBaskets);
     }
     this.menu.switchDate = function(s, i) {

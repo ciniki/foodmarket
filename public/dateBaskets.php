@@ -21,6 +21,7 @@ function ciniki_foodmarket_dateBaskets($ciniki) {
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'),
         'date_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Order Date'),
+        'datestatus'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Date Status'),
         'basket_output_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Basket'),
         'item_output_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Item'),
         'quantity'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Quantity'),
@@ -110,6 +111,18 @@ function ciniki_foodmarket_dateBaskets($ciniki) {
         }
         $rsp['date_status'] = $rc['date']['status'];
     }
+
+    //
+    // Check if date status is set to subscriptions
+    //
+    if( isset($args['datestatus']) && $args['datestatus'] == 'substitutions' && $rsp['date_status'] < 30 ) {
+        $rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.poma.orderdate', $args['date_id'], array('status'=>30), 0x07);
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
+        }
+        $rsp['date_status'] = 30;
+    }
+
 
     $dt = new DateTime('now', new DateTimezone($intl_timezone));
 
