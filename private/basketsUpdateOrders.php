@@ -171,7 +171,6 @@ function ciniki_foodmarket_basketsUpdateOrders(&$ciniki, $business_id, $args) {
                 //
                 if( ($order_item['flags']&0x04) == 0 && $order_item['quantity'] != $basket_item['quantity'] ) {
                     if( $basket_item['quantity'] == 0 ) {
-                        error_log("Delete");
                         $rc = ciniki_core_objectDelete($ciniki, $business_id, 'ciniki.poma.orderitem', $order_item['id'], $order_item['uuid'], 0x04);
                         if( $rc['stat'] != 'ok' ) {
                             return $rc;

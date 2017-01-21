@@ -30,6 +30,7 @@ function ciniki_foodmarket_poma_itemLookup($ciniki, $business_id, $args) {
             . "ciniki_foodmarket_product_outputs.units, "
             . "ciniki_foodmarket_product_outputs.flags, "
             . "ciniki_foodmarket_product_outputs.retail_price, "
+            . "ciniki_foodmarket_product_outputs.retail_price_text, "
             . "ciniki_foodmarket_product_outputs.retail_taxtype_id, "
             . "IFNULL(ciniki_foodmarket_product_inputs.inventory, 0) AS inventory, "
             . "IFNULL(ciniki_foodmarket_products.packing_order, 10) AS packing_order "
@@ -104,7 +105,6 @@ function ciniki_foodmarket_poma_itemLookup($ciniki, $business_id, $args) {
             if( isset($rc['rows']) ) {
                 $subitems = $rc['rows'];
                 foreach($subitems as $subitem) {
-                    error_log('add: ' . $subitem['id']);
                     $rc = ciniki_foodmarket_convertOutputItem($ciniki, $business_id, $subitem);
                     if( $rc['stat'] != 'ok' ) {
                         return $rc;
