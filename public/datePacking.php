@@ -158,7 +158,6 @@ function ciniki_foodmarket_datePacking($ciniki) {
             return $rc;
         }
         if( isset($rc['order']) && $rc['order']['status'] < 50 ) {
-            error_log('packed');
             $rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.poma.order', $args['order_id'], array('status'=>50), 0x07);
             if( $rc['stat'] != 'ok' ) {
                 return $rc;

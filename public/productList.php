@@ -220,7 +220,7 @@ function ciniki_foodmarket_productList($ciniki) {
             return $rc;
         }
         if( isset($rc['number']) && $rc['number'] > 0 ) {
-            $rsp['product_categories'][] = array(
+            $rsp['categories'][] = array(
                 'id'=>0,
                 'name'=>'Uncategorized',
                 'num_products'=>$rc['number'],
