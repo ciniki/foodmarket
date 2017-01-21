@@ -109,6 +109,11 @@ function ciniki_foodmarket_main() {
                 },
             'noData':'No open orders',
             },
+        'packing_buttons':{'label':'', 'aside':'yes',
+            'visible':function() { return (M.ciniki_foodmarket_main.menu.sections._tabs.selected == 'packing' && M.ciniki_foodmarket_main.menu.sections.packing_tabs.selected == 'orders' ) ? 'yes':'no'; },
+            'buttons':{
+                'pack':{'label':'Print Packing Lists', 'fn':'M.ciniki_foodmarket_main.menu.packingPrintDate();'},
+            }},
         'packed_orders':{'label':'Packed', 'type':'simplegrid', 'num_cols':1, 'aside':'yes',
             'visible':function() { return (M.ciniki_foodmarket_main.menu.sections._tabs.selected == 'packing' && M.ciniki_foodmarket_main.menu.sections.packing_tabs.selected == 'orders') ? 'yes':'no'; },
             'noData':'No closed orders',
@@ -137,7 +142,7 @@ function ciniki_foodmarket_main() {
             'headerValues':['Item', ''],
             'cellClasses':['', 'multiline alignright'],
             },
-        'packing_buttons':{'label':'', 
+        'packing_order_buttons':{'label':'', 
             'visible':function() { return (M.ciniki_foodmarket_main.menu.sections._tabs.selected == 'packing' && M.ciniki_foodmarket_main.menu.sections.packing_tabs.selected == 'orders' && M.ciniki_foodmarket_main.menu.order_id > 0 ) ? 'yes':'no'; },
             'buttons':{
                 'pack':{'label':'Order Packed', 'fn':'M.ciniki_foodmarket_main.menu.packingOrderPacked();'},
@@ -611,6 +616,9 @@ function ciniki_foodmarket_main() {
     this.menu.packingOrderOpen = function(i) {
         this.order_id = i;
         this.open();
+    }
+    this.menu.packingPrintDate = function() {
+        M.api.openPDF('ciniki.foodmarket.datePackingLists', {'business_id':M.curBusinessID, 'date_id':this.date_id});
     }
     this.menu.packingOrderPacked = function() {
         M.api.getJSONCb('ciniki.foodmarket.datePacking', 
@@ -2142,6 +2150,8 @@ function ciniki_foodmarket_main() {
     this.orderitem.data = null;
     this.orderitem.item_id = 0;
     this.orderitem.order_id = 0;
+    this.orderitem.object = '';
+    this.orderitem.object_id = 0;
     this.orderitem.nplist = [];
     this.orderitem.sections = {
         'general':{'label':'', 'fields':{
@@ -2269,6 +2279,10 @@ function ciniki_foodmarket_main() {
             }
             var p = M.ciniki_foodmarket_main.orderitem;
             p.data = rsp.item;
+            if( p.item_id == 0 ) {
+                p.object = '';
+                p.object_id = 0;
+            }
             p.refresh();
             p.show(cb);
             p.updateForm();
@@ -2280,26 +2294,29 @@ function ciniki_foodmarket_main() {
         if( this.item_id > 0 ) {
             var c = this.serializeForm('no');
             if( c != '' ) {
-                M.api.postJSONCb('ciniki.poma.orderItemUpdate', {'business_id':M.curBusinessID, 'item_id':this.item_id}, c, function(rsp) {
-                    if( rsp.stat != 'ok' ) {
-                        M.api.err(rsp);
-                        return false;
-                    }
-                    eval(cb);
-                });
+                M.api.postJSONCb('ciniki.poma.orderItemUpdate', 
+                    {'business_id':M.curBusinessID, 'item_id':this.item_id, 'object':this.object, 'object_id':this.object_id}, 
+                    c, function(rsp) {
+                        if( rsp.stat != 'ok' ) {
+                            M.api.err(rsp);
+                            return false;
+                        }
+                        eval(cb);
+                    });
             } else {
                 eval(cb);
             }
         } else {
             var c = this.serializeForm('yes');
-            M.api.postJSONCb('ciniki.poma.orderItemAdd', {'business_id':M.curBusinessID, 'order_id':this.order_id}, c, function(rsp) {
-                if( rsp.stat != 'ok' ) {
-                    M.api.err(rsp);
-                    return false;
-                }
-                M.ciniki_foodmarket_main.orderitem.item_id = rsp.id;
-                eval(cb);
-            });
+            M.api.postJSONCb('ciniki.poma.orderItemAdd', 
+                {'business_id':M.curBusinessID, 'order_id':this.order_id, 'object':this.object, 'object_id':this.object_id}, c, function(rsp) {
+                    if( rsp.stat != 'ok' ) {
+                        M.api.err(rsp);
+                        return false;
+                    }
+                    M.ciniki_foodmarket_main.orderitem.item_id = rsp.id;
+                    eval(cb);
+                });
         }
     }
     this.orderitem.remove = function() {
