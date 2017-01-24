@@ -109,6 +109,7 @@ function ciniki_foodmarket_productLoad($ciniki, $business_id, $product_id) {
         . "ciniki_foodmarket_product_inputs.case_units, "
         . "ciniki_foodmarket_product_inputs.min_quantity, "
         . "ciniki_foodmarket_product_inputs.inc_quantity, "
+        . "ciniki_foodmarket_product_inputs.container_deposit, "
         . "ciniki_foodmarket_product_inputs.sku, "
         . "ciniki_foodmarket_product_inputs.inventory, "
         . "ciniki_foodmarket_product_inputs.recipe_id, "
@@ -128,7 +129,7 @@ function ciniki_foodmarket_productLoad($ciniki, $business_id, $product_id) {
         array('container'=>'inputs', 'fname'=>'id', 
             'fields'=>array('id', 'product_id', 'name', 'permalink', 'status', 'status_text'=>'status', 'itype', 'itype_text'=>'itype', 
                 'units', 'units_text'=>'units', 'flags', 'flags_text'=>'flags', 'sequence', 'case_cost', 'half_cost', 'unit_cost', 'case_units',
-                'min_quantity', 'inc_quantity', 'sku', 'inventory', 'recipe_id', 'recipe_quantity', 'container_id', 
+                'min_quantity', 'inc_quantity', 'container_deposit', 'sku', 'inventory', 'recipe_id', 'recipe_quantity', 'container_id', 
                 'materials_cost_per_container', 'time_cost_per_container', 'total_cost_per_container', 'total_time_per_container', 
                 ),
             'currency'=>array(
@@ -236,6 +237,7 @@ function ciniki_foodmarket_productLoad($ciniki, $business_id, $product_id) {
             $product['input' . $idx . '_case_units'] = number_format($input['case_units'], 2);
             $product['input' . $idx . '_min_quantity'] = $input['min_quantity'] + 0;
             $product['input' . $idx . '_inc_quantity'] = $input['inc_quantity'] + 0;
+            $product['input' . $idx . '_container_deposit'] = number_format($input['container_deposit'], 2);
             $product['input' . $idx . '_sku'] = $input['sku'];
             $product['input' . $idx . '_inventory'] = $input['inventory'] + 0;
             

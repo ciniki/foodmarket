@@ -88,7 +88,7 @@ function ciniki_foodmarket_dateItemAdd(&$ciniki) {
     //
     // Get the products for the current date
     //
-    if( isset($args['date_products']) && $args['date_products'] == 'yes' ) {
+    if( isset($args['date_outputs']) && $args['date_outputs'] == 'yes' ) {
         $strsql = "SELECT ciniki_foodmarket_product_outputs.id, "
             . "ciniki_foodmarket_products.supplier_id, "
             . "ciniki_foodmarket_suppliers.code AS supplier_code, "

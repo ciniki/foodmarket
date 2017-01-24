@@ -79,13 +79,15 @@
 #                       For items bought by weight, the cost of a single unit of weight from buy_unit_type for the item (cost/lb).
 #                       For items bought by item, the cost of a single item.
 #                       For items bought by case, the cost of a single item in the case.
-# 
+#
 # case_units:           The number of units in a case.
 #
 # min_quantity:         The minimum number of units that can be ordered. That may be 25 lbs, 5 items, or 1 case.
 # inc_quantity:         The incremental number of units that can be ordered after the min_quantity has been met.
 #                       For a case this would be 1 case, for 25lb beets, that would be increments of 25 lbs.
 #
+# container_deposit:    Used for items that require a deposit on the container, eg: glass milk jars.
+# 
 # sku:                  The code or sku in the supplier system. This will be placed on supplier orders.
 #
 # inventory:            The current number of this product in stock.
@@ -94,7 +96,7 @@
 #
 # recipe_quantity:      The quantity of the recipe used. **future**
 #
-# container_id:         The container used for the product. **future**
+# container_id:         The container used for the product when manufactured. **future**
 #
 # materials_cost_per_container:     The cost of materials for 1 container worth of the ingredient. **future**
 #                                   This is the recipe (materials_cost_per_unit * recipe_quantity) + the container cost_per_unit.
@@ -126,6 +128,7 @@ create table ciniki_foodmarket_product_inputs (
     case_units int not null,
     min_quantity decimal(19,4) not null,
     inc_quantity decimal(19,4) not null,
+    container_deposit decimal(19,4) not null,
     sku varchar(150) not null,
     inventory decimal(19,4) not null,
     recipe_id int not null,

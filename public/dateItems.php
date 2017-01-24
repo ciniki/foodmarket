@@ -21,6 +21,8 @@ function ciniki_foodmarket_dateItems($ciniki) {
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'),
         'date_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Order Date'),
+        'add_output_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Add Product'),
+        'delete_output_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Delete Product'),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
@@ -115,16 +117,55 @@ function ciniki_foodmarket_dateItems($ciniki) {
     }
 
     //
+    // Add the order date item to the database
+    //
+    if( isset($args['add_output_id']) && $args['add_output_id'] > 0 ) {
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
+        $rc = ciniki_core_objectAdd($ciniki, $args['business_id'], 'ciniki.foodmarket.dateitem', array(
+            'date_id'=>$args['date_id'], 
+            'output_id'=>$args['add_output_id'],
+            ), 0x07);
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
+        }
+        //
+        // Update the last_change date in the business modules
+        // Ignore the result, as we don't want to stop user updates if this fails.
+        //
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'updateModuleChangeDate');
+        ciniki_businesses_updateModuleChangeDate($ciniki, $args['business_id'], 'ciniki', 'foodmarket');
+    }
+
+    //
+    // Delete the order date item to the database
+    //
+    if( isset($args['delete_output_id']) && $args['delete_output_id'] > 0 ) {
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectDelete');
+        $rc = ciniki_core_objectDelete($ciniki, $args['business_id'], 'ciniki.foodmarket.dateitem', $args['delete_output_id'], null, 0x07);
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
+        }
+        //
+        // Update the last_change date in the business modules
+        // Ignore the result, as we don't want to stop user updates if this fails.
+        //
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'updateModuleChangeDate');
+        ciniki_businesses_updateModuleChangeDate($ciniki, $args['business_id'], 'ciniki', 'foodmarket');
+    }
+
+
+    //
     // Get the products for the current date
     //
     $strsql = "SELECT ciniki_foodmarket_product_outputs.id, "
         . "ciniki_foodmarket_product_outputs.product_id, "
-        . "ciniki_foodmarket_products.supplier_id, "
-        . "ciniki_foodmarket_suppliers.code AS supplier_code, "
+        . "IFNULL(ciniki_foodmarket_products.supplier_id, 0) AS supplier_id, "
+        . "IFNULL(ciniki_foodmarket_suppliers.code, '') AS supplier_code, "
         . "ciniki_foodmarket_product_outputs.pio_name "
         . "FROM ciniki_foodmarket_date_items "
         . "LEFT JOIN ciniki_foodmarket_product_outputs ON ("
             . "ciniki_foodmarket_date_items.output_id  = ciniki_foodmarket_product_outputs.id "
+            . "AND ciniki_foodmarket_product_outputs.status > 5 "
             . "AND ciniki_foodmarket_product_outputs.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
             . ") "
         . "LEFT JOIN ciniki_foodmarket_products ON ("
@@ -137,7 +178,6 @@ function ciniki_foodmarket_dateItems($ciniki) {
             . ") "
         . "WHERE ciniki_foodmarket_date_items.date_id = '" . ciniki_core_dbQuote($ciniki, $args['date_id']) . "' "
         . "AND ciniki_foodmarket_date_items.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
-        . "AND ciniki_foodmarket_product_outputs.status > 5 "
         . "ORDER BY supplier_code, pio_name "
         . "";
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.poma', array(
@@ -147,10 +187,10 @@ function ciniki_foodmarket_dateItems($ciniki) {
         return $rc;
     }
     if( isset($rc['products']) ) {
-        $rsp['availability_date_products'] = $rc['products'];
+        $rsp['availability_date_outputs'] = $rc['products'];
     }
     $date_output_ids = array();
-    foreach($rsp['availability_date_products'] as $product) {
+    foreach($rsp['availability_date_outputs'] as $product) {
         $date_output_ids[] = $product['id'];
     }
 
@@ -182,6 +222,7 @@ function ciniki_foodmarket_dateItems($ciniki) {
             . "AND ciniki_foodmarket_suppliers.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
             . ") "
         . "WHERE (ciniki_foodmarket_product_outputs.flags&0x0200) = 0x0200 "
+        . "AND ciniki_foodmarket_product_outputs.status > 5 "
         . "";
     if( count($date_output_ids) > 0 ) {
         $strsql .= "AND ciniki_foodmarket_product_outputs.id NOT IN (" . ciniki_core_dbQuoteIDs($ciniki, $date_output_ids) . ") ";
