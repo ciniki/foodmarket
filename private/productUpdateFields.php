@@ -177,7 +177,7 @@ function ciniki_foodmarket_productUpdateFields(&$ciniki, $business_id, $product_
                 $output['io_name'] .= ($output['io_name'] != '' ? ' - ' : '') . ($output['name'] != '' ? $output['name'] : '1/4 ' . $case_text) . ' (' . bcdiv($input['case_units'], 4, 0) . 'x' . $input['name'] . ')';
             } elseif( $output['otype'] == 55 ) {
                 $output['io_name'] .= ($output['io_name'] != '' ? ' - ' : '') . ($output['name'] != '' ? $output['name'] : '1/5 ' . $case_text) . ' (' . bcdiv($input['case_units'], 5, 0) . 'x' . $input['name'] . ')';
-            } elseif( $output['otype'] == 55 ) {
+            } elseif( $output['otype'] == 56 ) {
                 $output['io_name'] .= ($output['io_name'] != '' ? ' - ' : '') . ($output['name'] != '' ? $output['name'] : '1/6 ' . $case_text) . ' (' . bcdiv($input['case_units'], 6, 0) . 'x' . $input['name'] . ')';
             } else {
                 $output['io_name'] .= ($output['io_name'] != '' ? ' - ' : '') . $input['name'];

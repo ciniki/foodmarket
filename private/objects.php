@@ -110,6 +110,7 @@ function ciniki_foodmarket_objects($ciniki) {
             'parent_id'=>array('name'=>'Parent Category', 'default'=>'0'),
             'ctype'=>array('name'=>'Type', 'default'=>'0'),
             'sequence'=>array('name'=>'Order', 'default'=>'1'),
+            'flags'=>array('name'=>'Options', 'default'=>''),
             'image_id'=>array('name'=>'Image', 'ref'=>'ciniki.images.image', 'default'=>'0'),
             'synopsis'=>array('name'=>'Synopsis', 'default'=>''),
             'description'=>array('name'=>'Description', 'default'=>''),

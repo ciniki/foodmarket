@@ -157,6 +157,15 @@ function ciniki_foodmarket_productAdd(&$ciniki) {
     }
 
     //
+    // Update the categories
+    //
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'private', 'categoriesUpdate');
+    $rc = ciniki_foodmarket_categoriesUpdate($ciniki, $args['business_id']);
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+
+    //
     // Commit the transaction
     //
     $rc = ciniki_core_dbTransactionCommit($ciniki, 'ciniki.foodmarket');

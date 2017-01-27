@@ -27,7 +27,14 @@
 # sequence:             The order to display the category/sub-category in. This is useful if 
 #                       main categories shouldn't be in alphabetical order.
 #
-# sections:               The format of the category display. **future**
+# flags:                The options for the category.
+#
+#                           0x01 - Visible on website, set only when products exist or favourites category.
+#                           0x02 - 
+#                           0x04 - 
+#                           0x08 - 
+#
+# sections:              format of the category display. **future**
 #
 #                           (blank) - Show the default setting for the page
 #                           default - Show the default setting for the page
@@ -51,6 +58,7 @@ create table ciniki_foodmarket_categories (
     parent_id int not null,
     ctype tinyint unsigned not null,
     sequence tinyint unsigned not null,
+    flags tinyint unsigned not null,
     image_id int not null,
     synopsis varchar(1000) not null,
     description text not null,

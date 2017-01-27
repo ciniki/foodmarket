@@ -651,29 +651,10 @@ function ciniki_foodmarket_main() {
     this.menu.dateItemAdd = function(e, oid) {
         M.api.getJSONCb('ciniki.foodmarket.dateItems', {'business_id':M.curBusinessID, 'date_id':this.date_id, 'add_output_id':oid}, 
             M.ciniki_foodmarket_main.menu.processAvailability);
-        
-/*        M.api.getJSONCb('ciniki.foodmarket.dateItemAdd', {'business_id':M.curBusinessID, 'date_id':this.date_id, 'output_id':oid, 'date_products':'yes'}, function(rsp) {
-            if( rsp.stat != 'ok' ) {
-                M.api.err(rsp);
-                return false;
-            }
-            var p = M.ciniki_foodmarket_main.menu;
-            p.data.date_products = rsp.date_products;
-            p.refreshSection('date_products');
-        }); */
     }
     this.menu.dateItemDelete = function(e, oid) {
         M.api.getJSONCb('ciniki.foodmarket.dateItems', {'business_id':M.curBusinessID, 'date_id':this.date_id, 'delete_output_id':oid}, 
             M.ciniki_foodmarket_main.menu.processAvailability);
-/*        M.api.getJSONCb('ciniki.foodmarket.dateItemDelete', {'business_id':M.curBusinessID, 'date_id':this.date_id, 'output_id':oid, 'date_products':'yes'}, function(rsp) {
-            if( rsp.stat != 'ok' ) {
-                M.api.err(rsp);
-                return false;
-            }
-            var p = M.ciniki_foodmarket_main.menu;
-            p.data.date_products = rsp.date_products;
-            p.refreshSection('date_products');
-        }); */
     }
     this.menu.basketItemAdd = function(e, oid) {
         M.api.getJSONCb('ciniki.foodmarket.dateBaskets', {'business_id':M.curBusinessID, 
@@ -1820,9 +1801,9 @@ function ciniki_foodmarket_main() {
     this.category.category_id = 0;
     this.category.sections = { 
         '_image':{'label':'Image', 'type':'imageform', 'aside':'yes', 'fields':{
-            'primary_image_id':{'label':'', 'type':'image_id', 'hidelabel':'yes', 'controls':'all', 'history':'no',
+            'image_id':{'label':'', 'type':'image_id', 'hidelabel':'yes', 'controls':'all', 'history':'no',
                 'addDropImage':function(iid) {
-                    M.ciniki_foodmarket_main.category.setFieldValue('primary_image_id', iid, null, null);
+                    M.ciniki_foodmarket_main.category.setFieldValue('image_id', iid, null, null);
                     return true;
                     },
                 'addDropImageRefresh':'',

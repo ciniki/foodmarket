@@ -2,6 +2,7 @@
 //
 // Description
 // -----------
+// This function will update the categories a product is a part of
 //
 // Arguments
 // ---------
