@@ -2019,10 +2019,14 @@ function ciniki_foodmarket_main() {
     this.editdate.sections = {
         'general':{'label':'', 'fields':{
             'order_date':{'label':'Date', 'required':'yes', 'type':'date'},
-            'status':{'label':'Status', 'type':'toggle', 'toggles':{'10':'Open', '30':'Substitutions', '50':'Locked', '90':'Closed'}},
+            'status':{'label':'Status', 'type':'toggle', 'toggles':{'10':'Open', '20':'Repeats Added', '30':'Substitutions', '50':'Locked', '90':'Closed'}},
             'flags1':{'label':'Autolock', 'type':'flagtoggle', 'field':'flags', 'bit':0x01, 'on_fields':['autolock_date', 'autolock_time']},
             'autolock_date':{'label':'Auto Lock Date', 'visible':'no', 'type':'date'},
             'autolock_time':{'label':'Auto Lock Time', 'visible':'no', 'type':'text', 'size':'small'},
+            }},
+        '_repeats':{'label':'Apply repeats on', 'fields':{
+            'repeats_date':{'label':'Date', 'type':'date'},
+            'repeats_time':{'label':'Time', 'type':'text', 'size':'small'},
             }},
         '_notices':{'label':'Notices', 'fields':{
             'notices':{'label':'', 'hidelabel':'yes', 'type':'textarea'},
