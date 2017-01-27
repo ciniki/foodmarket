@@ -9,6 +9,9 @@
 //
 function ciniki_foodmarket_categoriesUpdate(&$ciniki, $business_id) {
 
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
+
     //
     // Get the list of categories
     //
@@ -16,7 +19,6 @@ function ciniki_foodmarket_categoriesUpdate(&$ciniki, $business_id) {
         . "FROM ciniki_foodmarket_categories "
         . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
         . "";
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
     $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.foodmarket', array(
         array('container'=>'categories', 'fname'=>'id', 'fields'=>array('id', 'parent_id', 'ctype', 'flags', 'visible')),
         ));

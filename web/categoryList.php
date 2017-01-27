@@ -33,7 +33,7 @@ function ciniki_foodmarket_web_categoryList($ciniki, $settings, $business_id, $a
     }
     $strsql .= "ORDER BY sequence, name ";
     $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.foodmarket', array(
-        array('container'=>'categories', 'fname'=>'id', 'fields'=>array('id', 'name', 'permalink', 'ctype', 'image_id', 'num_products')),
+        array('container'=>'categories', 'fname'=>'id', 'fields'=>array('id', 'name', 'permalink', 'ctype', 'image_id')),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;

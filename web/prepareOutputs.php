@@ -180,12 +180,14 @@ $output['queue'] = 'no';
             $output['repeat_text'] = $item_types['repeat']['items'][$output['id']]['repeat_text'];
             $output['repeat_quantity'] = (float)$item_types['repeat']['items'][$output['id']]['quantity'];
             $output['repeat_days'] = $item_types['repeat']['items'][$output['id']]['repeat_days'];
+            $output['repeat_next_date'] = $item_types['repeat']['items'][$output['id']]['next_order_date'];
         } else {
             $output['repeat_value'] = 'off';
             $output['repeat_quantity'] = 0;
             $output['repeat_days'] = 7;
+            $output['repeat_next_date'] = '';
         }
-$output['repeat'] = 'no';
+
         //
         // Always available as a favourite
         //
