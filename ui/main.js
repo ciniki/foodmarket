@@ -210,10 +210,10 @@ function ciniki_foodmarket_main() {
             'visible':function() { return (M.ciniki_foodmarket_main.menu.sections._tabs.selected == 'procurement' ) ? 'yes':'no'; },
             'noData':'Nothing ordered',
             },
-        'procurement_supplier_inputs':{'label':'Items', 'type':'simplegrid', 'num_cols':4,
+        'procurement_supplier_inputs':{'label':'Items', 'type':'simplegrid', 'num_cols':5,
             'visible':function() { return (M.ciniki_foodmarket_main.menu.sections._tabs.selected == 'procurement' && M.ciniki_foodmarket_main.menu.supplier_id > 0) ? 'yes':'no'; },
             'noData':'Nothing ordered',
-            'headerValues':['SKU', 'Product', 'Required', 'Order'],
+            'headerValues':['SKU', 'Product', 'Cost', 'Required', 'Order'],
             },
 
         /* Baskets */
@@ -523,8 +523,9 @@ function ciniki_foodmarket_main() {
             switch(j) {
                 case 0: return d.sku;
                 case 1: return d.name;
-                case 2: return d.required_quantity_text;
-                case 3: return d.order_quantity_text;
+                case 2: return d.cost_text;
+                case 3: return d.required_quantity_text;
+                case 4: return d.order_quantity_text;
             }
         }
 
@@ -651,6 +652,9 @@ function ciniki_foodmarket_main() {
         /* Procurement */
         if( s == 'procurement_suppliers' ) {
             return 'M.ciniki_foodmarket_main.menu.openProcurementSupplier(\'' + d.id + '\');';
+        }
+        if( s == 'procurement_supplier_inputs' ) {
+            return 'M.ciniki_foodmarket_main.product.open(\'M.ciniki_foodmarket_main.menu.open();\',\'' + d.product_id + '\',null,M.ciniki_foodmarket_main.menu.nplist);';
         }
         /* Availability */
         if( s == 'availability_date_outputs' || s == 'availability_recent_outputs' || s == 'availability_outputs' ) {

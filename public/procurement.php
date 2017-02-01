@@ -190,6 +190,7 @@ function ciniki_foodmarket_procurement($ciniki) {
         $strsql = "SELECT "
             . "ciniki_foodmarket_products.name, "
             . "ciniki_foodmarket_product_inputs.id, "
+            . "ciniki_foodmarket_product_inputs.product_id, "
             . "ciniki_foodmarket_product_inputs.sku, "
             . "ciniki_foodmarket_product_inputs.name AS input_name, "
             . "ciniki_foodmarket_product_inputs.itype, "
@@ -232,7 +233,7 @@ function ciniki_foodmarket_procurement($ciniki) {
             . "";
         $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(
             array('container'=>'inputs', 'fname'=>'id', 
-                'fields'=>array('id', 'sku', 'name', 'input_name', 'itype', 'units', 'flags', 
+                'fields'=>array('id', 'product_id', 'sku', 'name', 'input_name', 'itype', 'units', 'flags', 
                     'min_quantity', 'inc_quantity', 'case_cost', 'half_cost', 'unit_cost', 'case_units')),
             array('container'=>'outputs', 'fname'=>'output_id', 
                 'fields'=>array('id'=>'output_id', 'pio_name', 'otype', 'weight_quantity', 'unit_quantity')),
@@ -294,20 +295,25 @@ function ciniki_foodmarket_procurement($ciniki) {
                         $input['order_quantity'] = (float)bcadd($input['min_quantity'], bcmul($input['inc_quantity'], $multiples, 2), 2);
                     }
                     if( ($input['units']&0x02) == 0x02 ) {
-                        $stext = ' lb';
-                        $ptext = ' lbs';
+                        $stext = 'lb';
+                        $ptext = 'lbs';
                     } elseif( ($input['units']&0x04) == 0x04 ) {
-                        $stext = ' oz';
-                        $ptext = ' ozs';
+                        $stext = 'oz';
+                        $ptext = 'ozs';
                     } elseif( ($input['units']&0x20) == 0x20 ) {
-                        $stext = ' kg';
-                        $ptext = ' kgs';
+                        $stext = 'kg';
+                        $ptext = 'kgs';
                     } elseif( ($input['units']&0x40) == 0x40 ) {
-                        $stext = ' g';
-                        $ptext = ' gs';
+                        $stext = 'g';
+                        $ptext = 'gs';
                     }
-                    $input['required_quantity_text'] = $input['required_quantity'] . ($input['required_quantity'] > 1 ? $ptext : $stext);
-                    $input['order_quantity_text'] = $input['order_quantity'] . ($input['order_quantity'] > 1 ? $ptext : $stext);
+                    $input['required_quantity_text'] = $input['required_quantity'] . ($input['required_quantity'] > 1 ? ' ' . $ptext : ' ' . $stext);
+                    $input['order_quantity_text'] = $input['order_quantity'] . ($input['order_quantity'] > 1 ? ' ' . $ptext : ' ' . $stext);
+                    if( $input['min_quantity'] > 1 ) {
+                        $input['cost_text'] = '$' . number_format(bcmul($input['unit_cost'], $input['min_quantity'], 2), 2) . '/' . (float)$input['min_quantity'] . '' . $stext;
+                    } else {
+                        $input['cost_text'] = '$' . number_format($input['unit_cost'], 2) . '/' . $stext;
+                    }
                 } elseif( $input['itype'] == 20 || $input['itype'] == 30 ) {
                     $stext = '';
                     $ptext = '';
@@ -325,6 +331,27 @@ function ciniki_foodmarket_procurement($ciniki) {
                     $input['required_quantity_text'] = $input['required_quantity'] . ($input['required_quantity'] > 1 ? $ptext : $stext);
                     $input['order_quantity'] = (float)$input['unit_quantity'];
                     $input['order_quantity_text'] = $input['order_quantity'] . ($input['order_quantity'] > 1 ? $ptext : $stext);
+                    if( $input['itype'] == 20 ) {
+                        if( ($input['units']&0x02) == 0x02 ) {
+                            $input['cost_text'] = '$' . number_format($input['unit_cost'], 2) . '/lb';
+                        } elseif( ($input['units']&0x04) == 0x04 ) {
+                            $input['cost_text'] = '$' . number_format($input['unit_cost'], 2) . '/oz';
+                        } elseif( ($input['units']&0x20) == 0x20 ) {
+                            $input['cost_text'] = '$' . number_format($input['unit_cost'], 2) . '/kg';
+                        } elseif( ($input['units']&0x40) == 0x40 ) {
+                            $input['cost_text'] = '$' . number_format($input['unit_cost'], 2) . '/g';
+                        }
+                    } else {
+                        if( ($input['units']&0x0200) == 0x0200 ) {
+                            $input['cost_text'] = '$' . number_format($input['unit_cost'], 2) . '/pair';
+                        } elseif( ($input['units']&0x0400) == 0x0400 ) {
+                            $input['cost_text'] = '$' . number_format($input['unit_cost'], 2) . '/bunch';
+                        } elseif( ($input['units']&0x0800) == 0x0800 ) {
+                            $input['cost_text'] = '$' . number_format($input['unit_cost'], 2) . '/bag';
+                        } else {
+                            $input['cost_text'] = '$' . number_format($input['unit_cost'], 2) . '';
+                        }
+                    }
                 } elseif( $input['itype'] == 50 ) {
                     $input['required_quantity'] = (float)bcdiv($input['unit_quantity'], $input['case_units'], 2);
                     $stext = ' case';
@@ -348,6 +375,7 @@ function ciniki_foodmarket_procurement($ciniki) {
                     $input['required_quantity_text'] = $input['required_quantity'] . ($input['order_quantity'] > 1 ? $ptext : $stext) 
                         . ' (' . (float)$input['unit_quantity'] . ')';
                     $input['order_quantity_text'] = $input['order_quantity'] . ($input['order_quantity'] > 1 ? $ptext : $stext);
+                    $input['cost_text'] = '$' . number_format($input['case_cost'], 2) . '/' . $stext;
                 }
                 $rsp['procurement_supplier_inputs'][] = $input;
             }
