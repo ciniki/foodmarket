@@ -949,7 +949,7 @@ function ciniki_foodmarket_main() {
             return false;
         }
         var p = M.ciniki_foodmarket_main.menu;
-        p.size = 'medium narrowaside';
+        p.size = 'large narrowaside';
         p.data = rsp;
         p.sections._dates.fields.date_id.options = rsp.dates;
         if( rsp.date_id != null && rsp.date_id > 0 ) {
