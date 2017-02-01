@@ -106,6 +106,7 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
     }
     $orders = $rc['orders'];
 
+    $weighted_items = array();
     //
     // Add parent name to subitems
     //
@@ -134,6 +135,20 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
                     }
                     $orders[$oid]['items'][$iid]['quantity'] = (float)$item['weight_quantity'];
                     $orders[$oid]['items'][$iid]['suffix'] = $suffix;
+                    if( !isset($weighted_items[$item['description']]) ) {
+                        $weighted_items[$item['description']] = array(
+                            'description'=>$item['description'],
+                            'quantities'=>array(),
+                        );
+                    }
+                    if( !isset($weighted_items[$item['description']]['quantities'][$item['weight_quantity']]['count']) ) {
+                        $weighted_items[$item['description']]['quantities'][$item['weight_quantity']] = array(
+                            'count'=>0, 
+                            'size'=>$item['weight_quantity'],
+                            'suffix'=>$suffix,
+                        );
+                    }
+                    $weighted_items[$item['description']]['quantities'][$item['weight_quantity']]['count'] += 1;
                 } else {
                     $orders[$oid]['items'][$iid]['quantity'] = (float)$item['unit_quantity'];
                     $orders[$oid]['items'][$iid]['suffix'] = $item['unit_suffix'];
@@ -234,7 +249,7 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
     // add a page
     $pdf->SetFillColor(246);
     $pdf->SetTextColor(0);
-    $pdf->SetDrawColor(222);
+    $pdf->SetDrawColor(232);
     $pdf->SetLineWidth(0.1);
 
     //
@@ -252,10 +267,27 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
             foreach($order['items'] as $item) {
                 if( isset($item['basket']) && $item['basket'] == 'yes' ) {
                     $pdf->Cell($w[0], $lh, $order['sort_name'], $border, 0, 'L', 0);
-                    $pdf->Cell($w[1], $lh, ($item['modified'] == 'yes' ? 'Modified' : ''), $border, 0, 'R', 0);
+                    $pdf->Cell($w[1], $lh, (isset($item['modified']) && $item['modified'] == 'yes' ? 'Modified' : ''), $border, 0, 'R', 0);
                     $pdf->Cell($w[2], $lh, $item['description'], $border, 0, 'R', 0);
                     $pdf->Ln($lh);
                 }
+            }
+        }
+    }
+
+    //
+    // Check if there are weighted items and add a page for them
+    //
+    $w = array(140, 15, 10, 15);
+    if( isset($weighted_items) && count($weighted_items) > 0 ) {
+        $pdf->AddPage();
+        foreach($weighted_items as $item) {
+            foreach($item['quantities'] as $quantity) {
+                $pdf->Cell($w[0], $lh, $item['description'], $border, 0, 'L', 0);
+                $pdf->Cell($w[1], $lh, (float)$quantity['count'], $border, 0, 'L', 0);
+                $pdf->Cell($w[2], $lh, (float)$quantity['size'], $border, 0, 'R', 0);
+                $pdf->Cell($w[3], $lh, $quantity['suffix'], $border, 0, 'L', 0);
+                $pdf->Ln($lh);
             }
         }
     }
@@ -301,7 +333,6 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
                 $pdf->Cell($w[4], $lh, $subitem['suffix'], $border, 0, 'L', $subfill);
                 $pdf->Ln();
                 $border = 'B';
-//                $subfill=!$subfill;
             }
             $num_baskets++;
         }

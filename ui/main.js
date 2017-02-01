@@ -148,7 +148,7 @@ function ciniki_foodmarket_main() {
                 && M.ciniki_foodmarket_main.menu.customer_id > 0 ) ? 'yes':'no'; },
             'buttons':{
                 'addcredit':{'label':'Add Credit', 
-                    'fn':'M.ciniki_foodmarket_main.ledgerentry.open(\'M.ciniki_foodmarket_main.menu.addCredit();\',0,10,\'\',M.ciniki_foodmarket_main.menu.customer_id);'},
+                    'fn':'M.ciniki_foodmarket_main.ledgerentry.open(\'M.ciniki_foodmarket_main.menu.addCredit();\',0,10,M.ciniki_foodmarket_main.menu.data.order.balance_amount,M.ciniki_foodmarket_main.menu.customer_id);'},
                 'addpayment':{'label':'Add Payment', 
                     'fn':'M.ciniki_foodmarket_main.ledgerentry.open(\'M.ciniki_foodmarket_main.menu.addPayment();\',0,60,M.ciniki_foodmarket_main.menu.data.order.balance_amount,M.ciniki_foodmarket_main.menu.customer_id);'},
             }},
