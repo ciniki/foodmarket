@@ -2290,7 +2290,7 @@ function ciniki_foodmarket_main() {
 //            'object':{'label':'Object', 'type':'text'},
 //            'object_id':{'label':'Object ID', 'type':'text'},
 //            'code':{'label':'Code', 'type':'text'},
-            'description':{'label':'Item', 'required':'yes', 'type':'text', 'livesearch':'yes', 'livesearchcols':2},
+            'description':{'label':'Item', 'required':'yes', 'type':'text', 'autofocus':'yes', 'livesearch':'yes', 'livesearchcols':2},
             'itype':{'label':'Sold By', 'required':'yes', 'type':'toggle', 
                 'toggles':{'10':'Weight', '20':'Weighted Units', '30':'Units'}, 
                 'onchange':'M.ciniki_foodmarket_main.orderitem.updateForm', 
