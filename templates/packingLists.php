@@ -61,7 +61,7 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
         . "ciniki_poma_order_items.weight_quantity, "
         . "ciniki_poma_order_items.unit_quantity, "
         . "ciniki_poma_order_items.unit_suffix, "
-        . "IFNULL(ciniki_foodmarket_product_outputs.sequence "
+        . "IFNULL(ciniki_foodmarket_product_outputs.sequence, 0) AS sequence "
         . "FROM ciniki_poma_orders "
         . "LEFT JOIN ciniki_customers ON ("
             . "ciniki_poma_orders.customer_id = ciniki_customers.id "
@@ -96,7 +96,7 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
         array('container'=>'orders', 'fname'=>'id', 'fields'=>array('id', 'billing_name', 'sort_name', 'first', 'last', 'order_date_text')),
         array('container'=>'items', 'fname'=>'item_id', 
             'fields'=>array('id'=>'item_id', 'parent_id', 'line_number', 'code', 'description', 'object', 'object_id', 
-                'flags', 'itype', 'weight_units', 'weight_quantity', 'unit_quantity', 'unit_suffix')), 
+                'flags', 'itype', 'weight_units', 'weight_quantity', 'unit_quantity', 'unit_suffix', 'sequence')), 
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
@@ -110,6 +110,7 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
     // Add parent name to subitems
     //
     foreach($orders as $oid => $order) {
+        $orders[$oid]['sortnumber'] = 1;
         $orders[$oid]['modified'] = '';
         if( isset($order['items']) ) {
             foreach($order['items'] as $iid => $item) {
@@ -141,6 +142,7 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
                     if( !isset($orders[$oid]['items'][$parent_id]['subitems']) ) {
                         $orders[$oid]['items'][$parent_id]['subitems'] = array();
                         $orders[$oid]['items'][$parent_id]['basket'] = 'yes';
+                        $orders[$oid]['sortnumber'] = (1000 * $orders[$oid]['items'][$parent_id]['sequence']);
                     }
                     if( ($item['flags']&0x14) > 0 ) {
                         $orders[$oid]['items'][$parent_id]['modified'] = 'yes';
@@ -150,7 +152,19 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
                 }
             }
         }
+//        if( $orders[$oid]['basket'] == 'yes' ) {
+//            $orders[$oid]['sortnumber'] *= 100;
+//        }
+        if( $orders[$oid]['modified'] == 'M' ) {
+            $orders[$oid]['sortnumber'] *= 100;
+        }
     }
+    uasort($orders, function($a, $b) {
+        if( $a['sortnumber'] == $b['sortnumber'] ) {
+            return strcasecmp($a['sort_name'], $b['sort_name']);
+        }
+        return $a['sortnumber'] > $b['sortnumber'] ? -1 : 1;
+    });
 
     //
     // Load TCPDF library
@@ -221,6 +235,29 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
     $pdf->SetTextColor(0);
     $pdf->SetDrawColor(222);
     $pdf->SetLineWidth(0.1);
+
+    //
+    // Add the first page as a summary
+    //
+    $pdf->name = 'Summary';
+    $pdf->modified = '';
+    $pdf->AddPage();
+    $w = array(80, 40, 60);
+    $lh = 10;
+    $border = 'TB';
+    foreach($orders as $order) {
+        $pdf->date_text = $order['order_date_text'];
+        if( isset($order['items']) ) {
+            foreach($order['items'] as $item) {
+                if( isset($item['basket']) && $item['basket'] == 'yes' ) {
+                    $pdf->Cell($w[0], $lh, $order['sort_name'], $border, 0, 'L', 0);
+                    $pdf->Cell($w[1], $lh, ($item['modified'] == 'yes' ? 'Modified' : ''), $border, 0, 'R', 0);
+                    $pdf->Cell($w[2], $lh, $item['description'], $border, 0, 'R', 0);
+                    $pdf->Ln($lh);
+                }
+            }
+        }
+    }
 
     //
     // Go through the sections, categories and classes
