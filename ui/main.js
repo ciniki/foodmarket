@@ -111,6 +111,14 @@ function ciniki_foodmarket_main() {
                 && M.ciniki_foodmarket_main.menu.order_id > 0 ) ? 'yes':'no'; },
             'cellClasses':['alignright', 'alignright'],
             },
+        'checkout_ordermessages':{'label':'Messages', 'type':'simplegrid', 'num_cols':2,
+            'visible':function() { return ( M.ciniki_foodmarket_main.menu.sections._tabs.selected == 'checkout' 
+                && M.ciniki_foodmarket_main.menu.sections._checkouttabs.selected == 'order' 
+                && M.ciniki_foodmarket_main.menu.order_id > 0 ) ? 'yes':'no'; },
+            'cellClasses':['multiline', 'multiline'],
+            'addTxt':'Email Customer',
+            'addFn':'M.ciniki_foodmarket_main.email.emailOrder(\'M.ciniki_foodmarket_main.menu.open();\',M.ciniki_foodmarket_main.menu.data.order);',
+            },
         'checkout_recentledger':{'label':'Last 15 transactions', 'type':'simplegrid', 'num_cols':4,
             'visible':function() { return ( M.ciniki_foodmarket_main.menu.sections._tabs.selected == 'checkout' 
                 && M.ciniki_foodmarket_main.menu.sections._checkouttabs.selected == 'recentledger' 
@@ -466,6 +474,12 @@ function ciniki_foodmarket_main() {
             switch(j) {
                 case 0: return d.label;
                 case 1: return d.value;
+            }
+        }
+        if( s == 'checkout_ordermessages' ) {
+            switch(j) {
+                case 0: return '<span class="maintext">' + d.message.status_text + '</span><span class="subtext">' + d.message.date_sent + '</span>';
+                case 1: return '<span class="maintext">' + d.message.customer_email + '</span><span class="subtext">' + d.message.subject + '</span>';
             }
         }
         if( s == 'checkout_recentledger' ) {
@@ -938,10 +952,12 @@ function ciniki_foodmarket_main() {
             p.data.checkout_orderitems = rsp.order.items;
             p.data.checkout_tallies = rsp.order.tallies;
             p.data.checkout_payments = rsp.order.payments;
+            p.data.checkout_ordermessages = rsp.order.messages;
         } else {
             p.data.checkout_orderitems = {};
             p.data.checkout_tallies = {};
             p.data.checkout_payments = {};
+            p.data.checkout_ordermessages = {};
         }
         if( rsp.order != null && rsp.order.customer_id > 0 ) {
             p.order_id = rsp.order.id;
@@ -2710,7 +2726,49 @@ function ciniki_foodmarket_main() {
     this.ledgerentry.addButton('save', 'Save', 'M.ciniki_foodmarket_main.ledgerentry.save();');
     this.ledgerentry.addClose('Cancel');
 
-
+    //
+    // The edit invoice panel
+    //
+    this.email = new M.panel('Email Invoice', 'ciniki_foodmarket_main', 'email', 'mc', 'medium', 'sectioned', 'ciniki.foodmarket.main.email');
+    this.email.order_id = 0;
+    this.email.data = {};
+    this.email.sections = {
+        '_subject':{'label':'', 'fields':{
+            'subject':{'label':'Subject', 'type':'text', 'history':'no'},
+            }},
+        '_textmsg':{'label':'Message', 'fields':{
+            'textmsg':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'large', 'history':'no'},
+            }},
+        '_buttons':{'label':'', 'buttons':{
+            'send':{'label':'Send', 'fn':'M.ciniki_foodmarket_main.email.send();'},
+            }},
+    };
+    this.email.fieldValue = function(s, i, d) {
+        return this.data[i];
+    };
+    this.email.emailOrder = function(cb, order) {
+        this.order_id = order.id;
+        this.data.subject = 'Invoice #' + order.order_number;
+        this.data.textmsg = '';
+        this.open(cb);
+    };
+    this.email.open = function(cb) {
+        this.refresh();
+        this.show(cb);
+    };
+    this.email.send = function() {
+        var subject = this.formFieldValue(this.sections._subject.fields.subject, 'subject');
+        var textmsg = this.formFieldValue(this.sections._textmsg.fields.textmsg, 'textmsg');
+        M.api.getJSONCb('ciniki.poma.invoicePDF', {'business_id':M.curBusinessID, 
+            'order_id':this.order_id, 'subject':subject, 'textmsg':textmsg, 'output':'pdf', 'email':'yes'}, function(rsp) {
+                if( rsp.stat != 'ok' ) {
+                    M.api.err(rsp);
+                    return false;
+                }
+                M.ciniki_foodmarket_main.email.close();
+            });
+    };
+    this.email.addClose('Cancel');
 
     //
     // Arguments:
