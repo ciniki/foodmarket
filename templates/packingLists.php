@@ -119,6 +119,7 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
                     continue;
                 }
                 if( ($item['flags']&0x14) > 0 ) {
+                    $orders[$oid]['items'][$iid]['modified'] = 'yes';
                     $orders[$oid]['modified'] = 'M';
                 }
                 if( $item['itype'] == 10 ) {
@@ -262,7 +263,7 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
     //
     // Go through the sections, categories and classes
     //
-    $w = array(8, 142, 10, 20);
+    $w = array(8, 142, 5, 10, 15);
     foreach($orders as $order) {
         if( !isset($order['items']) || count($order['items']) == 0 ) {
             continue;
@@ -295,8 +296,9 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
                 $pdf->Cell($w[0], $lh, 'o', $border, 0, 'C', $subfill);
                 $pdf->SetFont('helvetica', '', 12);
                 $pdf->Cell($w[1], $lh, $subitem['description'], $border, 0, 'L', $subfill);
-                $pdf->Cell($w[2], $lh, $subitem['quantity'], $border, 0, 'R', $subfill);
-                $pdf->Cell($w[3], $lh, $subitem['suffix'], $border, 0, 'L', $subfill);
+                $pdf->Cell($w[2], $lh, (isset($subitem['modified'])&&$subitem['modified']=='yes'?'M':''), $border, 0, 'L', $subfill);
+                $pdf->Cell($w[3], $lh, $subitem['quantity'], $border, 0, 'R', $subfill);
+                $pdf->Cell($w[4], $lh, $subitem['suffix'], $border, 0, 'L', $subfill);
                 $pdf->Ln();
                 $border = 'B';
 //                $subfill=!$subfill;
@@ -327,8 +329,9 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
             $pdf->Cell($w[0], $lh, 'o', $border, 0, 'C', $fill);
             $pdf->SetFont('helvetica', '', 12);
             $pdf->Cell($w[1], $lh, $item['description'], $border, 0, 'L', $fill);
-            $pdf->Cell($w[2], $lh, $item['quantity'], $border, 0, 'R', $fill);
-            $pdf->Cell($w[3], $lh, $item['suffix'], $border, 0, 'L', $fill);
+            $pdf->Cell($w[2], $lh, '', $border, 0, 'L', $fill);
+            $pdf->Cell($w[3], $lh, $item['quantity'], $border, 0, 'R', $fill);
+            $pdf->Cell($w[4], $lh, $item['suffix'], $border, 0, 'L', $fill);
             $pdf->Ln();
             $border = 'B';
             //$fill=!$fill;
