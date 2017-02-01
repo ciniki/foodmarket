@@ -95,8 +95,8 @@ function ciniki_foodmarket_customerRepeats($ciniki) {
             array('container'=>'items', 'fname'=>'id', 
                 'fields'=>array('id', 'description', 'quantity', 'last_order_date', 'next_order_date', 'num_orders'),
                 'utctotz'=>array(
-                    'last_order_date'=>array('format'=>$date_format, 'timezone'=>$intl_timezone),
-                    'next_order_date'=>array('format'=>$date_format, 'timezone'=>$intl_timezone),
+                    'last_order_date'=>array('format'=>$date_format, 'timezone'=>'UTC'),
+                    'next_order_date'=>array('format'=>$date_format, 'timezone'=>'UTC'),
                 )),
             ));
         if( $rc['stat'] != 'ok' ) { 
