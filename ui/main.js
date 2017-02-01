@@ -436,8 +436,12 @@ function ciniki_foodmarket_main() {
             }
         }
         /* Checkout */
-        if( s == 'checkout_open_orders' ) { return d.billing_name; }
-        if( s == 'checkout_closed_orders' ) { return d.billing_name; }
+        if( s == 'checkout_open_orders' || s == 'checkout_closed_orders' ) { 
+            if( d.payment_status != '' ) {
+                return d.billing_name + ' <span class="subdue">[' + d.payment_status + ']</span>';
+            }
+            return d.billing_name; 
+        }
         if( s == 'checkout_orderitems' ) {
             switch(j) {
                 case 0: return '<span class="subdue">' + (parseInt(i) + 1) + '</span>';
