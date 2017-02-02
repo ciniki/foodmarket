@@ -86,7 +86,7 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
     } elseif( isset($args['order_id']) && $args['order_id'] > 0 ) {
         $strsql .= "WHERE ciniki_poma_orders.id = '" . ciniki_core_dbQuote($ciniki, $args['order_id']) . "' ";
     } else {
-        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.poma.78', 'msg'=>'No orders specified'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.53', 'msg'=>'No orders specified'));
     }
     $strsql .= "AND ciniki_poma_orders.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
         . "ORDER BY ciniki_customers.sort_name, ciniki_poma_orders.id, packing_order DESC, description "
@@ -102,7 +102,7 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
         return $rc;
     }
     if( !isset($rc['orders']) ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.poma.91', 'msg'=>'No orders found'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.54', 'msg'=>'No orders found'));
     }
     $orders = $rc['orders'];
 

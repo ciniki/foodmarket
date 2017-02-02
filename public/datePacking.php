@@ -316,7 +316,7 @@ function ciniki_foodmarket_datePacking($ciniki) {
             return $rc;
         }
         if( !isset($rc['item']) ) {
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.poma.76', 'msg'=>'Invalid order item.'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.51', 'msg'=>'Invalid order item.'));
         }
         $rsp['basket'] = $rc['item'];
 
@@ -414,7 +414,7 @@ function ciniki_foodmarket_datePacking($ciniki) {
                 return $rc;
             }
             if( !isset($rc['item']) ) {
-                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.poma.89', 'msg'=>'Unable to add item.'));
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.52', 'msg'=>'Unable to add item.'));
             }
             $newitem = $rc['item'];
 
