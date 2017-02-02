@@ -103,7 +103,7 @@ function ciniki_foodmarket_productDelete(&$ciniki) {
     }
     $category_items = array();
     if( isset($rc['rows']) ) {
-        $category_items = isset($rc['rows']);
+        $category_items = $rc['rows'];
     }
 
     //
