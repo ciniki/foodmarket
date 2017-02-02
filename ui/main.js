@@ -145,7 +145,7 @@ function ciniki_foodmarket_main() {
                 'closeorder':{'label':'Close Order', 
                     'visible':function() {return (M.ciniki_foodmarket_main.menu.data.order.payment_status > 0 && M.ciniki_foodmarket_main.menu.data.order.items.length > 0 ?'yes':'no');},
                     'fn':'M.ciniki_foodmarket_main.menu.closeOrder();'},
-                'deleteorder':{'label':'Delete Order', 
+                'delete':{'label':'Delete Order', 
                     'visible':function() {return (M.ciniki_foodmarket_main.menu.data.order.payment_status == 0 && M.ciniki_foodmarket_main.menu.data.order.items.length == 0 ?'yes':'no');},
                     'fn':'M.ciniki_foodmarket_main.menu.deleteOrder();'},
                 'downloadpdf':{'label':'Print Invoice', 
