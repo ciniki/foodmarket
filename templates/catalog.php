@@ -85,8 +85,8 @@ function ciniki_foodmarket_templates_catalog(&$ciniki, $business_id, $args) {
         . "";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(
-        array('container'=>'categories', 'fname'=>'sid', 'fields'=>array('name'=>'category_name')),
-        array('container'=>'subcategories', 'fname'=>'id', 'fields'=>array('name'=>'subcategory_name')),
+        array('container'=>'categories', 'fname'=>'id', 'fields'=>array('name'=>'category_name')),
+        array('container'=>'subcategories', 'fname'=>'sid', 'fields'=>array('name'=>'subcategory_name')),
         array('container'=>'outputs', 'fname'=>'oid', 'fields'=>array('name'=>'pio_name', 'otype', 'flags', 'price'=>'retail_price_text')),
         ));
     if( $rc['stat'] != 'ok' ) {

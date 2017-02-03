@@ -70,7 +70,7 @@ function ciniki_foodmarket_customerRepeats($ciniki) {
     $rsp = array('stat'=>'ok');
 
     //
-    // Get the list of favourites for a customer and the number of times they've ordered them.
+    // Get the list of repeats for a customer and the number of times they've ordered them.
     //
     if( isset($args['customer_id']) && $args['customer_id'] > 0 ) {
         $strsql = "SELECT ciniki_poma_customer_items.id, "
