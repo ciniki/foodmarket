@@ -329,6 +329,11 @@ function ciniki_foodmarket_main() {
             'addTxt':'Add Category',
             'addFn':'M.ciniki_foodmarket_main.category.open(\'M.ciniki_foodmarket_main.menu.open();\',0);',
             },
+        'product_tools':{'label':'Tools', 'aside':'yes',
+            'visible':function() {return M.ciniki_foodmarket_main.menu.sections._tabs.selected=='products'?'yes':'no';},
+            'list':{
+                'printcatalog':{'label':'Print Catalog', 'fn':'M.ciniki_foodmarket_main.printcatalog.open(\'M.ciniki_foodmarket_main.menu.open();\');'},
+                }},
         'product_search':{'label':'', 'type':'livesearchgrid', 'livesearchcols':1, 
             'visible':function() {return M.ciniki_foodmarket_main.menu.sections._tabs.selected=='products'?'yes':'no';},
             'cellClasses':['multiline'],
@@ -2784,6 +2789,42 @@ function ciniki_foodmarket_main() {
             });
     };
     this.email.addClose('Cancel');
+
+    this.printcatalog = new M.panel('Print Catalog', 'ciniki_foodmarket_main', 'printcatalog', 'mc', 'medium', 'sectioned', 'ciniki.foodmarket.main.printcatalog');
+    this.printcatalog.data = {};
+    this.printcatalog.sections = {
+        '_categories':{'label':'Categories', 'fields':{
+            'categories':{'label':'', 'hidelabel':'yes', 'type':'idlist', 'list':[]},
+            }},
+        '_buttons':{'label':'', 'buttons':{
+            'print':{'label':'Download PDF', 'fn':'M.ciniki_foodmarket_main.printcatalog.downloadPDF();'},
+            }},
+        }
+    this.printcatalog.open = function(cb) {
+        M.api.getJSONCb('ciniki.foodmarket.categoryList', {'business_id':M.curBusinessID}, function(rsp) {
+            if( rsp.stat != 'ok' ) {
+                M.api.err(rsp);
+                return false;
+            }
+            var p = M.ciniki_foodmarket_main.printcatalog;
+            p.data.categories = [];
+            for(var i in rsp.categories) {
+                p.data.categories.push(rsp.categories[i].id);
+            }
+            p.sections._categories.fields.categories.list = rsp.categories;
+            p.refresh();
+            p.show(cb);
+        });
+    }
+    this.printcatalog.fieldValue = function(s, i, j) {
+        return this.data.categories;
+    }
+    this.printcatalog.downloadPDF = function() {    
+        var args = {'business_id':M.curBusinessID};
+        args['categories'] = this.formFieldValue(this.formField('categories'), 'categories');
+        M.api.openPDF('ciniki.foodmarket.productCatalogPDF', args);
+    }
+    this.printcatalog.addClose('Cancel');
 
     //
     // Arguments:

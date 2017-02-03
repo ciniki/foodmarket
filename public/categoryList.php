@@ -40,20 +40,16 @@ function ciniki_foodmarket_categoryList($ciniki) {
     //
     $strsql = "SELECT ciniki_foodmarket_categories.id, "
         . "ciniki_foodmarket_categories.name, "
-        . "ciniki_foodmarket_categories.permalink, "
-        . "ciniki_foodmarket_categories.parent_id, "
-        . "ciniki_foodmarket_categories.ctype, "
-        . "ciniki_foodmarket_categories.sequence, "
-        . "ciniki_foodmarket_categories.image_id, "
-        . "ciniki_foodmarket_categories.synopsis, "
-        . "ciniki_foodmarket_categories.description "
+        . "ciniki_foodmarket_categories.permalink "
         . "FROM ciniki_foodmarket_categories "
         . "WHERE ciniki_foodmarket_categories.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "AND ciniki_foodmarket_categories.parent_id = 0 "
+        . "AND ctype = 0 "
+        . "ORDER BY ciniki_foodmarket_categories.name "
         . "";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(
-        array('container'=>'categories', 'fname'=>'id', 
-            'fields'=>array('id', 'name', 'permalink', 'parent_id', 'ctype', 'sequence', 'image_id', 'synopsis', 'description')),
+        array('container'=>'categories', 'fname'=>'id', 'fields'=>array('id', 'name', 'permalink')),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
