@@ -128,7 +128,7 @@ function ciniki_foodmarket_templates_catalog(&$ciniki, $business_id, $args) {
             // Position at 15 mm from bottom
             $this->SetY(-15);
             $this->SetFont('helvetica', '', 10);
-            $this->Cell(90, 10, $this->date_text, 0, false, 'L', 0, '', 0, false, 'M', 'M');
+            $this->Cell(90, 10, $this->date_text, 0, false, 'L', 0, '', 0, false, 'T', 'M');
             $this->Cell(90, 10, 'Page ' . $this->pageNo().'/'.$this->getAliasNbPages(), 0, false, 'R', 0, '', 0, false, 'T', 'M');
         }
     }
@@ -183,7 +183,7 @@ function ciniki_foodmarket_templates_catalog(&$ciniki, $business_id, $args) {
                 $pdf->SetCellPadding(1.5);
                 $pdf->SetFont('helvetica', 'B', 12);
                 $pdf->Cell($w[0], $lh, $category['name'] . ($subcategory['name'] != '' ? ' > ' . $subcategory['name'] : ''), 0, 0, 'L', 1);
-                $pdf->SetFont('', '', 10);
+                $pdf->SetFont('', '', 12);
                 $pdf->Cell($w[1], $lh, 'Price', 0, 0, 'L', 1);
                 $pdf->Cell($w[2], $lh, 'Availability', 0, 0, 'L', 1);
                 $pdf->Ln($lh+1);
