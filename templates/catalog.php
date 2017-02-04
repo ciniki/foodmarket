@@ -193,7 +193,6 @@ function ciniki_foodmarket_templates_catalog(&$ciniki, $business_id, $args) {
                     $nlines = $pdf->getNumLines($output['name'], $w[0]);
                     $lh = 9;
                     if( $nlines == 2 ) {
-                        error_log('2lines');
                         $lh = 13;
                     }
                     if( $pdf->getY() > ($pdf->getPageHeight() - 30) ) {
@@ -224,7 +223,6 @@ function ciniki_foodmarket_templates_catalog(&$ciniki, $business_id, $args) {
                     $nlines = $pdf->getNumLines($output['name'], $w[0]);
                     $lh = 9;
                     if( $nlines == 2 ) {
-                        error_log('2lines');
                         $lh = 13;
                     }
                     $pdf->MultiCell($w[0], $lh, $output['name'], $border, 'L', 0, 0, '', '', true, 0, false, true, 0, 'T');
