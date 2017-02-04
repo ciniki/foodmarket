@@ -20,6 +20,7 @@ function ciniki_foodmarket_categoryList($ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'),
+        'subscriptions'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Subscriptions'),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
@@ -60,6 +61,22 @@ function ciniki_foodmarket_categoryList($ciniki) {
         $categories = array();
     }
 
-    return array('stat'=>'ok', 'categories'=>$categories);
+    $rsp = array('stat'=>'ok', 'categories'=>$categories, 'subscriptions'=>array());
+
+    //
+    // Check if subscription list requested
+    //
+    if( isset($args['subscriptions']) && $args['subscriptions'] == 'yes' ) {
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'subscriptions', 'hooks', 'subscriptionList');
+        $rc = ciniki_subscriptions_hooks_subscriptionList($ciniki, $args['business_id'], array());
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
+        }
+        if( isset($rc['subscriptions']) ) {
+            $rsp['subscriptions'] = $rc['subscriptions'];
+        }
+    }
+
+    return $rsp;
 }
 ?>

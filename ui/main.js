@@ -2864,15 +2864,53 @@ this.orderitem.liveSearchResultRowFn = function(s, f, i, j, d) {
     this.printcatalog = new M.panel('Print Catalog', 'ciniki_foodmarket_main', 'printcatalog', 'mc', 'medium', 'sectioned', 'ciniki.foodmarket.main.printcatalog');
     this.printcatalog.data = {};
     this.printcatalog.sections = {
+        '_tabs':{'label':'', 'type':'paneltabs', 'selected':'print', 'tabs':{
+            'print':{'label':'Print', 'fn':'M.ciniki_foodmarket_main.printcatalog.switchTab("print");'},
+            'email':{'label':'Email', 'fn':'M.ciniki_foodmarket_main.printcatalog.switchTab("email");'},
+            }},
         '_categories':{'label':'Categories', 'fields':{
             'categories':{'label':'', 'hidelabel':'yes', 'type':'idlist', 'list':[]},
             }},
+        '_subscriptions':{'label':'', 
+            'visible':function() {return (M.ciniki_foodmarket_main.printcatalog.sections._tabs.selected=='email'?'yes':'hidden'); },
+            'fields':{
+                'subscriptions':{'label':'Send To', 'type':'idlist', 'list':[]},
+            }},
+        '_subject':{'label':'', 
+            'visible':function() {return (M.ciniki_foodmarket_main.printcatalog.sections._tabs.selected=='email'?'yes':'hidden'); },
+            'fields':{
+                'subject':{'label':'Subject', 'type':'text', 'history':'no'},
+            }},
+        '_textmsg':{'label':'Message', 
+            'visible':function() {return (M.ciniki_foodmarket_main.printcatalog.sections._tabs.selected=='email'?'yes':'hidden'); },
+            'fields':{
+                'textmsg':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'large', 'history':'no'},
+            }},
         '_buttons':{'label':'', 'buttons':{
-            'print':{'label':'Download PDF', 'fn':'M.ciniki_foodmarket_main.printcatalog.downloadPDF();'},
+            'print':{'label':'Download PDF', 
+                'visible':function() {return (M.ciniki_foodmarket_main.printcatalog.sections._tabs.selected=='print'?'yes':'no'); },
+                'fn':'M.ciniki_foodmarket_main.printcatalog.downloadPDF();'},
+            'emailtext':{'label':'Send Test Email PDF', 
+                'visible':function() {return (M.ciniki_foodmarket_main.printcatalog.sections._tabs.selected=='email'?'yes':'no'); },
+                'fn':'M.ciniki_foodmarket_main.printcatalog.emailTestPDF();'},
+            'email':{'label':'Email PDF', 
+                'visible':function() {return (M.ciniki_foodmarket_main.printcatalog.sections._tabs.selected=='email'?'yes':'no'); },
+                'fn':'M.ciniki_foodmarket_main.printcatalog.emailPDF();'},
             }},
         }
+    this.printcatalog.fieldValue = function(s, i, j) {
+        return this.data[i];
+    }
+    this.printcatalog.switchTab = function(t) {
+        this.sections._tabs.selected = t;
+        this.refreshSection('_tabs');
+        this.refreshSection('_buttons');
+        this.showHideSection('_subscriptions');
+        this.showHideSection('_subject');
+        this.showHideSection('_textmsg');
+    }
     this.printcatalog.open = function(cb) {
-        M.api.getJSONCb('ciniki.foodmarket.categoryList', {'business_id':M.curBusinessID}, function(rsp) {
+        M.api.getJSONCb('ciniki.foodmarket.categoryList', {'business_id':M.curBusinessID, 'subscriptions':'yes'}, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;
@@ -2882,18 +2920,37 @@ this.orderitem.liveSearchResultRowFn = function(s, f, i, j, d) {
             for(var i in rsp.categories) {
                 p.data.categories.push(rsp.categories[i].id);
             }
+            p.data.subscriptions = [];
             p.sections._categories.fields.categories.list = rsp.categories;
+            p.sections._subscriptions.fields.subscriptions.list = rsp.subscriptions;
             p.refresh();
             p.show(cb);
         });
     }
-    this.printcatalog.fieldValue = function(s, i, j) {
-        return this.data.categories;
-    }
     this.printcatalog.downloadPDF = function() {    
-        var args = {'business_id':M.curBusinessID};
+        var args = {'business_id':M.curBusinessID, 'output':'download'};
         args['categories'] = this.formFieldValue(this.formField('categories'), 'categories');
         M.api.openPDF('ciniki.foodmarket.productCatalogPDF', args);
+    }
+    this.printcatalog.emailTestPDF = function() {
+        var c = this.serializeForm();
+        M.api.postJSONCb('ciniki.foodmarket.productCatalogPDF', {'business_id':M.curBusinessID, 'output':'testemail'}, c, function(rsp) {
+            if( rsp.stat != 'ok' ) {
+                M.api.err(rsp);
+                return false;
+            }
+            alert("Email send, please check your inbox.");
+        });
+    }
+    this.printcatalog.emailPDF = function() {
+        var c = this.serializeForm();
+        M.api.postJSONCb('ciniki.foodmarket.productCatalogPDF', {'business_id':M.curBusinessID, 'output':'mailinglists'}, c, function(rsp) {
+            if( rsp.stat != 'ok' ) {
+                M.api.err(rsp);
+                return false;
+            }
+            alert("Email sent.");
+        });
     }
     this.printcatalog.addClose('Cancel');
 

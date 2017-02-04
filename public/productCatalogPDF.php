@@ -13,7 +13,7 @@
 // Returns
 // -------
 //
-function ciniki_foodmarket_productCatalogPDF($ciniki) {
+function ciniki_foodmarket_productCatalogPDF(&$ciniki) {
     //
     // Find all the required and optional arguments
     //
@@ -21,6 +21,10 @@ function ciniki_foodmarket_productCatalogPDF($ciniki) {
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'),
         'categories'=>array('required'=>'no', 'blank'=>'no', 'type'=>'idlist', 'name'=>'Categories'),
+        'subscriptions'=>array('required'=>'no', 'blank'=>'no', 'type'=>'idlist', 'name'=>'Subscriptions'),
+        'subject'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Subject'),
+        'textmsg'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Message'),
+        'output'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Output'),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
@@ -55,8 +59,66 @@ function ciniki_foodmarket_productCatalogPDF($ciniki) {
         return $rc;
     }
     if( isset($rc['pdf']) ) {
-        $rc['pdf']->Output($rc['filename'], 'D');
-        return array('stat'=>'exit');
+        $pdf = $rc['pdf'];
+        $filename = $rc['filename'];
+        if( $args['output'] == 'download' ) {
+            $pdf->Output($filename, 'D');
+            return array('stat'=>'exit');
+        } 
+        elseif( $args['output'] == 'testemail' ) {
+            if( isset($args['subject']) && $args['subject'] != '' && isset($args['textmsg']) && $args['textmsg'] != '' ) {
+                //
+                // Get the users email
+                //
+                $strsql = "SELECT id, CONCAT_WS(' ', firstname, lastname) AS name, email "
+                    . "FROM ciniki_users "
+                    . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $ciniki['session']['user']['id']) . "' "
+                    . "";
+                $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.users', 'user');
+                if( $rc['stat'] != 'ok' || !isset($rc['user']) ) {
+                    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.62', 'msg'=>'Unable to find email information', 'err'=>$rc['err']));
+                }
+                $name = $rc['user']['name'];
+                $email = $rc['user']['email'];
+                ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'hooks', 'addMessage');
+                $rc = ciniki_mail_hooks_addMessage($ciniki, $args['business_id'], array(
+                    'customer_email'=>$email,
+                    'customer_name'=>$name,
+                    'subject'=>$args['subject'],
+                    'html_content'=>$args['textmsg'],
+                    'text_content'=>$args['textmsg'],
+                    'attachments'=>array(array('content'=>$pdf->Output('catalog.pdf', 'S'), 'filename'=>$filename)),
+                    ));
+                if( $rc['stat'] != 'ok' ) {
+                    return $rc;
+                }
+                $ciniki['emailqueue'][] = array('mail_id'=>$rc['id'], 'business_id'=>$args['business_id']);
+                return array('stat'=>'ok');
+            } else {
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.60', 'msg'=>'Subject and message must be specified.'));
+            }
+        } 
+        elseif( $args['output'] == 'mailinglists' ) {
+            if( isset($args['subject']) && $args['subject'] != '' && isset($args['textmsg']) && $args['textmsg'] != '' ) {
+                ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'hooks', 'emailSubscriptionLists');
+                $rc = ciniki_mail_hooks_emailSubscriptionLists($ciniki, $args['business_id'], array(
+                    'subscriptions'=>$args['subscriptions'],
+                    'subject'=>$args['subject'],
+                    'html_content'=>$args['textmsg'],
+                    'text_content'=>$args['textmsg'],
+                    'attachments'=>array(array('content'=>$pdf->Output('catalog.pdf', 'S'), 'filename'=>$filename)),
+                    ));
+                if( $rc['stat'] != 'ok' ) {
+                    return $rc;
+                }
+                return array('stat'=>'ok');
+            } else {
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.61', 'msg'=>'Subject and message must be specified.'));
+            }
+        } 
+        else {
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.59', 'msg'=>'No output specified.'));
+        }
     } 
 
     return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.58', 'msg'=>'No pdf generated'));

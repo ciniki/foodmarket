@@ -145,7 +145,7 @@ function ciniki_foodmarket_templates_catalog(&$ciniki, $business_id, $args) {
     $pdf->SetAuthor($business_details['name']);
     $pdf->SetTitle($business_details['name'] . ' Catalog');
     $pdf->header_text = $business_details['name'] . ' Catalog';
-    $filename = preg_replace("/[^A-Za-z0-9 -_]/", '', $business_details['name'] . ' Catalog');
+    $filename = preg_replace("/[^A-Za-z0-9 -_]/", '', $business_details['name'] . ' Catalog.pdf');
     $pdf->SetSubject('');
     $pdf->SetKeywords('');
 
