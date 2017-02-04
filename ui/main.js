@@ -235,7 +235,7 @@ function ciniki_foodmarket_main() {
             },
         'baskets_buttons':{'label':'', 
             'visible':function() {
-                return (M.ciniki_foodmarket_main.menu.sections._tabs.selected=='baskets' && M.ciniki_foodmarket_main.menu.data.date_status == 10) ? 'yes':'no';
+                return (M.ciniki_foodmarket_main.menu.sections._tabs.selected=='baskets' && M.ciniki_foodmarket_main.menu.data.date_status < 30) ? 'yes':'no';
                 },
             'buttons':{
                 'substitutions':{'label':'Enable Substitutions', 'fn':'M.ciniki_foodmarket_main.menu.basketsSubmit();'},
