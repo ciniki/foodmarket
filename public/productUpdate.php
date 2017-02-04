@@ -194,11 +194,11 @@ function ciniki_foodmarket_productUpdate(&$ciniki) {
     //
     // Update any orders with this products
     //
-/*    ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'private', 'updateOrderPrices');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'private', 'productPricePush');
     $rc = ciniki_foodmarket_productPricePush($ciniki, $args['business_id'], $args['product_id']);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
-    } */
+    }
 
     //
     // Commit the transaction
