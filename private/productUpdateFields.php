@@ -90,6 +90,7 @@ function ciniki_foodmarket_productUpdateFields(&$ciniki, $business_id, $product_
     $strsql = "SELECT ciniki_foodmarket_product_outputs.id, "
         . "ciniki_foodmarket_product_outputs.input_id, "
         . "ciniki_foodmarket_product_outputs.name, "
+        . "ciniki_foodmarket_product_outputs.keywords, "
         . "ciniki_foodmarket_product_outputs.pio_name, "
         . "ciniki_foodmarket_product_outputs.io_name, "
         . "ciniki_foodmarket_product_outputs.otype, "
@@ -107,7 +108,7 @@ function ciniki_foodmarket_productUpdateFields(&$ciniki, $business_id, $product_
         . "";
     $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.foodmarket', array(
         array('container'=>'outputs', 'fname'=>'id', 
-            'fields'=>array('id', 'input_id', 'name', 'pio_name', 'io_name', 'otype', 'units', 'flags', 
+            'fields'=>array('id', 'input_id', 'name', 'pio_name', 'io_name', 'keywords', 'otype', 'units', 'flags', 
                 'wholesale_percent', 'wholesale_price', 'retail_percent', 'retail_price', 'retail_price_text')),
         ));
     if( $rc['stat'] != 'ok' ) {
