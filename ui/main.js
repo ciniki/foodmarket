@@ -253,26 +253,26 @@ function ciniki_foodmarket_main() {
         'baskets_search':{'label':'', 'type':'livesearchgrid', 'livesearchcols':4, 'hint':'Search',
             'visible':function() {return M.ciniki_foodmarket_main.menu.sections._tabs.selected=='baskets'?'yes':'no';},
             'headerValues':['Supplier', 'Product', 'Last Available', ''],
-            'cellClasses':['', '', '', 'alignright'],
+            'cellClasses':['', '', '', 'alignright multiline'],
             'noData':'No products found',
             },
         'baskets_recent_outputs':{'label':'Recent Basket Products', 'type':'simplegrid', 'num_cols':4,
             'visible':function() {return M.ciniki_foodmarket_main.menu.sections._tabs.selected=='baskets'?'yes':'no';},
             'headerValues':['Supplier', 'Product', 'Last Available', ''],
-            'cellClasses':['', '', '', 'alignright'],
+            'cellClasses':['', '', '', 'alignright multiline'],
             'noData':'No recent products found',
             },
         'baskets_outputs':{'label':'Basket Products', 'type':'simplegrid', 'num_cols':4,
             'visible':function() {return M.ciniki_foodmarket_main.menu.sections._tabs.selected=='baskets'?'yes':'no';},
             'headerValues':['Supplier', 'Product', 'Last Available', ''],
-            'cellClasses':['', '', '', 'alignright'],
+            'cellClasses':['', '', '', 'alignright multiline'],
             'noData':'No basket products found',
             },
         /* Availability */
         'availability_date_outputs':{'label':'Available Products', 'aside':'yes', 'type':'simplegrid', 'num_cols':3,
             'visible':function() { return (M.ciniki_foodmarket_main.menu.sections._tabs.selected == 'availability') ? 'yes':'no'; },
             'headerValues':['Supplier', 'Product', ''],
-            'cellClasses':['', '', 'alignright'],
+            'cellClasses':['', '', 'alignright multiline'],
             'noData':'No products available for this date',
             },
         'availability_date_search':{'label':'', 'type':'livesearchgrid', 'livesearchcols':4, 'hint':'Search',
@@ -284,13 +284,13 @@ function ciniki_foodmarket_main() {
         'availability_recent_outputs':{'label':'Recent', 'type':'simplegrid', 'num_cols':4,
             'visible':function() { return (M.ciniki_foodmarket_main.menu.sections._tabs.selected == 'availability') ? 'yes':'no'; },
             'headerValues':['Supplier', 'Product', 'Last Available', ''],
-            'cellClasses':['', '', '', 'alignright'],
+            'cellClasses':['', '', '', 'alignright multiline'],
             'noData':'No recent date limited products',
             },
         'availability_outputs':{'label':'Dated Products', 'type':'simplegrid', 'num_cols':4,
             'visible':function() { return (M.ciniki_foodmarket_main.menu.sections._tabs.selected == 'availability') ? 'yes':'no'; },
             'headerValues':['Supplier', 'Product', 'Last Available', ''],
-            'cellClasses':['', '', '', 'alignright'],
+            'cellClasses':['', '', '', 'alignright multiline'],
             'noData':'No date limited products',
             },
         /* Inventory */
@@ -407,6 +407,9 @@ function ciniki_foodmarket_main() {
     this.menu.liveSearchResultClass = function(s, f, i, j, d) {
         if( s == 'checkout_itemsearch' ) { 
             return '';
+        }
+        if( s == 'baskets_search' && j == 3 ) { 
+            return 'alignright multiline';
         }
         return '';
     }
