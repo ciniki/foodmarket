@@ -232,6 +232,7 @@ function ciniki_foodmarket_main() {
             'visible':function() { return (M.ciniki_foodmarket_main.menu.sections._tabs.selected == 'procurement' && M.ciniki_foodmarket_main.menu.supplier_id > 0) ? 'yes':'no'; },
             'noData':'Nothing ordered',
             'headerValues':['SKU', 'Product', 'Cost', 'Required', 'Order'],
+            'cellClasses':['', '', 'nobreak', 'nobreak', 'nobreak'],
             },
 
         /* Baskets */
@@ -312,6 +313,7 @@ function ciniki_foodmarket_main() {
             'headerValues':['Item', 'Qty', 'Last', 'Next', '# Orders'],
             'sortable':'yes', 'sortTypes':['text', 'number', 'date', 'date', 'number'],
             'noData':'No standing orders for customer',
+            'cellClasses':['', '', 'nobreak', 'nobreak', ''],
             },
 
         /* Queue */
@@ -1172,7 +1174,7 @@ function ciniki_foodmarket_main() {
             return false;
         }
         var p = M.ciniki_foodmarket_main.menu;
-        p.size = 'medium narrowaside';
+        p.size = 'large narrowaside';
         p.data = rsp;
         p.data.customers.unshift({'id':'0', 'display_name':'All Customers'});
         if( p.customer_id > 0 ) {
@@ -1189,7 +1191,7 @@ function ciniki_foodmarket_main() {
             return false;
         }
         var p = M.ciniki_foodmarket_main.menu;
-        p.size = 'medium narrowaside';
+        p.size = 'large narrowaside';
         p.data = rsp;
         p.data.product_categories = rsp.categories;
         if( rsp.nextprevlist != null ) {
