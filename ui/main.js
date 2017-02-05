@@ -1322,12 +1322,18 @@ this.orderitem.liveSearchResultRowFn = function(s, f, i, j, d) {
                 'input1_sku':{'label':'Sku/Code', 'type':'text', 'visible':'yes', 'size':'medium'},
                 'input1_min_quantity':{'label':'Minimum Order', 'type':'text', 'size':'small'},
                 'input1_inc_quantity':{'label':'Incremental Order', 'type':'text', 'size':'small'},
-                'input1_container_deposit':{'label':'Deposit', 'type':'text', 'size':'small'},
                 'input1_case_cost':{'label':'Case Cost', 'type':'text', 'visible':'no', 'size':'small', 'onkeyupFn':'M.ciniki_foodmarket_main.product.updatePrices'},
                 'input1_half_cost':{'label':'Half Case Cost', 'type':'text', 'visible':'no', 'size':'small'},
                 'input1_unit_cost':{'label':'Unit Cost', 'type':'text', 'visible':'no', 'size':'small', 'onkeyupFn':'M.ciniki_foodmarket_main.product.updatePrices'},
                 'input1_case_units':{'label':'Units/Case', 'type':'text', 'visible':'no', 'size':'small', 'onkeyupFn':'M.ciniki_foodmarket_main.product.updatePrices'},
                 'input1_unit_cost_calc':{'label':'Cost/Unit', 'type':'text', 'visible':'no', 'size':'small', 'editable':'no', 'history':'no'},
+                'input1_flags1':{'label':'Deposit', 'type':'flagtoggle', 'field':'input1_flags', 'bit':0x01, 'on_fields':['input1_cdeposit_name', 'input1_cdeposit_amount']},
+//                'input1_flags':{'label':'Deposit', 'type':'toggle', 'visible':'yes', 'field':'input1_flags', 'mask':0x01, 'toggle':'yes', 'join':'yes', 
+//                    'onchange':'M.ciniki_foodmarket_main.product.updatePanel',
+//                    'on_fields':['input1_cdeposit_name', 'input1_cdeposit_amount'],
+//                    },
+                'input1_cdeposit_name':{'label':'Invoice Item', 'visible':'no', 'type':'text'},
+                'input1_cdeposit_amount':{'label':'Deposit', 'visible':'no', 'type':'text', 'size':'small'},
             }},
         'input1_10':{'label':'', 
             'visible':function() { return M.ciniki_foodmarket_main.product.inputVisible('inputs', 'input1', ['10']); },
@@ -1883,12 +1889,17 @@ this.orderitem.liveSearchResultRowFn = function(s, f, i, j, d) {
             var u2 = this.fieldValue(s + '_units2');
             var flags = this.fieldValue(s + '_flags');
             this.sections[s].fields[s + '_inventory'].visible = ((flags&0x02) == 0x02 ? 'yes' : 'no');
+            this.sections[s].fields[s + '_cdeposit_name'].visible = ((flags&0x01) == 0x01 ? 'yes' : 'no');
+            this.sections[s].fields[s + '_cdeposit_amount'].visible = ((flags&0x01) == 0x01 ? 'yes' : 'no');
         } else {
             var v = this.formValue(s + '_itype');
             var u1 = this.formValue(s + '_units1');
             var u2 = this.formValue(s + '_units2');
-            var flags = this.formValue(s + '_flags2');
-            this.sections[s].fields[s + '_inventory'].visible = (flags == 'on' ? 'yes' : 'no');
+            var flags2 = this.formValue(s + '_flags2');
+            this.sections[s].fields[s + '_inventory'].visible = (flags2 == 'on' ? 'yes' : 'no');
+            var flags1 = this.formValue(s + '_flags1');
+            this.sections[s].fields[s + '_cdeposit_name'].visible = (flags1 == 'on' ? 'yes' : 'no');
+            this.sections[s].fields[s + '_cdeposit_amount'].visible = (flags1 == 'on' ? 'yes' : 'no');
         }
         this.sections[s].fields[s + '_units1'].visible = 'no';
         this.sections[s].fields[s + '_units2'].visible = 'no';
@@ -1923,6 +1934,8 @@ this.orderitem.liveSearchResultRowFn = function(s, f, i, j, d) {
             this.sections[s].fields[s + '_unit_cost_calc'].visible = 'yes';
         }
         this.showHideFormField(s, s + '_inventory');
+        this.showHideFormField(s, s + '_cdeposit_name');
+        this.showHideFormField(s, s + '_cdeposit_amount');
         this.showHideFormField(s, s + '_units1');
         this.showHideFormField(s, s + '_units2');
         this.showHideFormField(s, s + '_units3');

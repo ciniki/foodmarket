@@ -60,7 +60,7 @@
 #
 # flags:                The options for the version.
 #
-#                           0x01 - 
+#                           0x01 - Container Deposit
 #                           0x02 - Inventory
 #                           0x04 - 
 #                           0x08 - 
@@ -86,7 +86,8 @@
 # inc_quantity:         The incremental number of units that can be ordered after the min_quantity has been met.
 #                       For a case this would be 1 case, for 25lb beets, that would be increments of 25 lbs.
 #
-# container_deposit:    Used for items that require a deposit on the container, eg: glass milk jars.
+# cdeposit_name:        The name to add to invoice for the deposit.
+# cdeposit_amount:      Used for items that require a deposit on the container, eg: glass milk jars.
 # 
 # sku:                  The code or sku in the supplier system. This will be placed on supplier orders.
 #
@@ -128,7 +129,8 @@ create table ciniki_foodmarket_product_inputs (
     case_units int not null,
     min_quantity decimal(19,4) not null,
     inc_quantity decimal(19,4) not null,
-    container_deposit decimal(19,4) not null,
+    cdeposit_name varchar(250) not null,
+    cdeposit_amount decimal(19,4) not null,
     sku varchar(150) not null,
     inventory decimal(19,4) not null,
     recipe_id int not null,
