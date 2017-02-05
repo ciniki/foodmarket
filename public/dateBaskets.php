@@ -288,7 +288,7 @@ function ciniki_foodmarket_dateBaskets($ciniki) {
             . ") "
         . "WHERE ciniki_foodmarket_basket_items.date_id = '" . ciniki_core_dbQuote($ciniki, $args['date_id']) . "' "
         . "AND ciniki_foodmarket_basket_items.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
-        . "ORDER BY supplier_code, pio_name, ciniki_foodmarket_basket_items.item_output_id "
+        . "ORDER BY pio_name, ciniki_foodmarket_basket_items.item_output_id "
         . "";
     $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.foodmarket', array(
         array('container'=>'basket_items', 'fname'=>'id', 
@@ -333,6 +333,10 @@ function ciniki_foodmarket_dateBaskets($ciniki) {
             $rsp['baskets_items'][$iid]['percent_text'] = '';
         }
     }
+
+    usort($rsp['baskets_items'], function($a, $b) {
+        return strcasecmp($a['name'], $b['name']);
+        });
 
     //
     // Get all outputs that are for baskets and aren't already in the baskets_items
