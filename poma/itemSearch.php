@@ -16,6 +16,7 @@ function ciniki_foodmarket_poma_itemSearch($ciniki, $business_id, $args) {
         return array('stat'=>'ok', 'items'=>array());
     }
 
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'private', 'convertOutputItem');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'dateFormat');
     $date_format = ciniki_users_dateFormat($ciniki);
 
@@ -34,27 +35,37 @@ function ciniki_foodmarket_poma_itemSearch($ciniki, $business_id, $args) {
     //
     $taxtype_id = 0;
 
+    $args['start_needle'] = preg_replace('/ /', '%', $args['start_needle']);
+
     //
     // Get the list of product outputs which match the search
     //
-    $strsql = "SELECT ciniki_foodmarket_product_outputs.id AS object_id, "
+    $strsql = "SELECT ciniki_foodmarket_product_outputs.id, "
+        . "ciniki_foodmarket_product_outputs.flags, "
         . "ciniki_foodmarket_product_outputs.otype, "
         . "ciniki_foodmarket_product_outputs.units, "
-        . "ciniki_foodmarket_product_outputs.pio_name AS description, "
-        . "ciniki_foodmarket_product_outputs.retail_price AS unit_amount, "
-        . "ciniki_foodmarket_product_outputs.retail_price_text AS price_text, "
-        . "ciniki_foodmarket_product_outputs.retail_taxtype_id AS taxtype_id, "
+        . "ciniki_foodmarket_product_outputs.pio_name, "
+        . "ciniki_foodmarket_product_outputs.retail_price, "
+        . "ciniki_foodmarket_product_outputs.retail_price_text, "
+        . "ciniki_foodmarket_product_outputs.retail_taxtype_id, "
         . "ciniki_foodmarket_products.packing_order "
-        . "FROM ciniki_foodmarket_product_outputs, ciniki_foodmarket_products "
+        . "FROM ciniki_foodmarket_product_outputs "
+        . "LEFT JOIN ciniki_foodmarket_products ON ("
+            . "ciniki_foodmarket_product_outputs.product_id = ciniki_foodmarket_products.id "
+            . "AND ciniki_foodmarket_products.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' " 
+            . ") "
+        . "LEFT JOIN ciniki_foodmarket_product_inputs ON ("
+            . "ciniki_foodmarket_product_outputs.input_id = ciniki_foodmarket_product_inputs.id "
+            . "AND ciniki_foodmarket_product_inputs.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' " 
+            . ") "
         . "WHERE ciniki_foodmarket_product_outputs.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' " 
+        // FIXME: switch to keywords
         . "AND (ciniki_foodmarket_product_outputs.pio_name LIKE '" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
             . "OR ciniki_foodmarket_product_outputs.pio_name LIKE '% " . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
             . ") "
-        . "AND ciniki_foodmarket_product_outputs.product_id = ciniki_foodmarket_products.id "
         . "AND ciniki_foodmarket_product_outputs.status > 5 "
         . "AND ciniki_foodmarket_product_outputs.otype < 71 "
         . "AND ciniki_foodmarket_products.status > 5 "
-        . "AND ciniki_foodmarket_products.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' " 
         . "";
     if( isset($args['limit']) && $args['limit'] != '' && preg_match("/^[0-9]+$/", $args['limit']) ) {
         $strsql .= "LIMIT " . $args['limit'];
@@ -70,7 +81,12 @@ function ciniki_foodmarket_poma_itemSearch($ciniki, $business_id, $args) {
     $items = $rc['rows'];
 
     foreach($items as $iid => $item) {
-        $items[$iid]['object'] = 'ciniki.foodmarket.output';
+        $rc = ciniki_foodmarket_convertOutputItem($ciniki, $business_id, $item);
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
+        }
+        $items[$iid] = $rc['item'];
+/*        $items[$iid]['object'] = 'ciniki.foodmarket.output';
         $items[$iid]['itype'] = $item['otype'];
         if( $item['otype'] > 30 ) {
             $items[$iid]['itype'] = 30;
@@ -83,7 +99,7 @@ function ciniki_foodmarket_poma_itemSearch($ciniki, $business_id, $args) {
             $items[$iid]['weight_units'] = 60;
         } elseif( $item['units'] == 0x40 ) {
             $items[$iid]['weight_units'] = 65;
-        }
+        } */
     }
 
     return array('stat'=>'ok', 'items'=>$items);        

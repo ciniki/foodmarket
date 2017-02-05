@@ -102,7 +102,7 @@ function ciniki_foodmarket_main() {
                 && M.ciniki_foodmarket_main.menu.order_id > 0 ) ? 'yes':'no'; },
             'headerValues':['', 'Item', 'Quantity', 'Price', 'Total'],
             'headerClasses':['', '', 'alignright', '', 'alignright'],
-            'cellClasses':['alignright', 'multiline', 'alignright', 'multiline', 'multiline alignright'],
+            'cellClasses':['alignright', 'multiline', 'alignright nobreak', 'multiline nobreak', 'multiline alignright nobreak'],
             'addTxt':'Add',
             'addFn':'M.ciniki_foodmarket_main.orderitem.open(\'M.ciniki_foodmarket_main.menu.open();\',0,M.ciniki_foodmarket_main.menu.order_id,[]);',
             },
@@ -378,34 +378,6 @@ function ciniki_foodmarket_main() {
     this.menu.fieldValue = function(s, i, d) {
         return this.date_id;
     }
-    /*
-this.orderitem.liveSearchResultClass = function(s, f, i, j, d) {
-    return 'multiline';
-}
-this.orderitem.liveSearchResultValue = function(s,f,i,j,d) {
-    switch(j) {
-        case 0: 
-            if( d.notes != null && d.notes != '' ) {
-                return '<span class="maintext">' + d.description + '</span><span class="subtext">' + d.notes + '</span>';
-            }
-            return d.description;
-        case 1:
-            if( d.discount_text != null && d.discount_text != '' ) {
-                return '<span class="maintext">' + d.unit_amount_text + '</span><span class="subtext">' + d.discount_text + '</span>';
-            }
-            return d.unit_price_text;
-        case 2: 
-            if( d.taxtype_name != null && d.taxtype_name != '' ) {
-                return '<span class="maintext">' + d.total_text + '</span><span class="subtext">' + d.taxtype_name + '</span>';
-            }
-            return d.total_text;
-    }
-    return '';
-}
-this.orderitem.liveSearchResultRowFn = function(s, f, i, j, d) {
-    return 'M.ciniki_foodmarket_main.orderitem.updateFromSearch(\'' + s + '\',\'' + f + '\',\'' + d.object + '\',\'' + d.object_id + '\',\'' + escape(d.description) + '\',\'' + d.itype + '\',\'' + d.weight_units + '\',\'' + d.weight_quantity + '\',\'' + d.unit_quantity + '\',\'' + escape(d.unit_suffix) + '\',\'' + d.packing_order + '\',\'' + d.unit_amount_text + '\',\'' + d.unit_discount_amount + '\',\'' + d.unit_discount_percentage + '\',\'' + d.taxtype_id + '\',\'' + escape(d.notes) + '\');';
-}
-*/
     this.menu.liveSearchCb = function(s, i, v) {
         if( s == 'date_search' && v != '' ) {
             M.api.getJSONBgCb('ciniki.foodmarket.dateItemSearch', {'business_id':M.curBusinessID, 'search_str':v, 'limit':'50'}, function(rsp) {
@@ -527,7 +499,13 @@ this.orderitem.liveSearchResultRowFn = function(s, f, i, j, d) {
                         + '<span class="pm-up" onclick=\'event.stopPropagation(); M.ciniki_foodmarket_main.menu.checkoutQuantityUpdate(event,"' + d.id + '","' + (q+1) + '");return false;\'>+</span>'
                         + '</span>';
                 case 3:
-                    if( d.discount_text != '' ) {
+                    if( d.discount_text != '' && d.deposit_text != '' ) {
+                        return '<span class="maintext">@ ' + d.unit_price_text + '</span>'
+                            + '<span class="subtext">' + d.discount_text + '</span>'
+                            + '<span class="subtext">' + d.deposit_text + '</span>';
+                    } else if( d.deposit_text != '' ) {
+                        return '<span class="maintext">@ ' + d.unit_price_text + '</span><span class="subtext">' + d.deposit_text + '</span>';
+                    } else if( d.discount_text != '' ) {
                         return '<span class="maintext">@ ' + d.unit_price_text + '</span><span class="subtext">' + d.discount_text + '</span>';
                     }
                     return '@ ' + d.unit_price_text;
@@ -2420,14 +2398,17 @@ this.orderitem.liveSearchResultRowFn = function(s, f, i, j, d) {
                 'onchange':'M.ciniki_foodmarket_main.orderitem.updateForm', 
                 },
             'unit_quantity':{'label':'Unit Quantity', 'visible':'no', 'type':'text', 'size':'small'},
-            'unit_suffix':{'label':'Unit Suffix', 'visible':'no', 'type':'text', 'size':'small'},
             'weight_quantity':{'label':'Weight', 'visible':'no', 'type':'text', 'size':'small'},
             'weight_units':{'label':'Weight Units', 'visible':'no', 'type':'toggle', 'toggles':{'20':'lb', '25':'oz', '60':'kg', '65':'g'}},
-            'packing_order':{'label':'Packing', 'type':'toggle', 'toggles':{'10':'Top', '50':'Middle', '90':'Bottom'}},
-            'unit_amount':{'label':'Amount', 'required':'yes', 'type':'text', 'size':'small'},
+            'unit_amount':{'label':'Unit Amount', 'required':'yes', 'type':'text', 'size':'small'},
             'unit_discount_amount':{'label':'Discount Amount', 'type':'text', 'size':'small'},
             'unit_discount_percentage':{'label':'Discount Percentage', 'type':'text', 'size':'small'},
+            'unit_suffix':{'label':'Unit Suffix', 'visible':'no', 'type':'text', 'size':'small'},
+            'packing_order':{'label':'Packing', 'type':'toggle', 'toggles':{'10':'Top', '50':'Middle', '90':'Bottom'}},
 //            'taxtype_id':{'label':'Tax Type', 'type':'text'},
+            'flags1':{'label':'Deposit', 'type':'flagtoggle', 'field':'flags', 'bit':0x08, 'on_fields':['cdeposit_description', 'cdeposit_amount']},
+            'cdeposit_description':{'label':'Invoice Item', 'visible':'no', 'type':'text'},
+            'cdeposit_amount':{'label':'Deposit', 'visible':'no', 'type':'text', 'size':'small'},
             }},
         '_notes':{'label':'Notes', 'fields':{
             'notes':{'label':'', 'hidelabel':'yes', 'type':'textarea', 'size':'small'},
@@ -2527,6 +2508,7 @@ this.orderitem.liveSearchResultRowFn = function(s, f, i, j, d) {
         if( iid != null ) { this.item_id = iid; }
         if( list != null ) { this.nplist = list; }
         if( oid != null ) { this.order_id = oid; }
+        this.sections.general.fields.description.autofocus = (this.item_id > 0 ? 'no' : 'yes');
         M.api.getJSONCb('ciniki.poma.orderItemGet', {'business_id':M.curBusinessID, 'item_id':this.item_id}, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);

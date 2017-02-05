@@ -37,6 +37,15 @@ function ciniki_foodmarket_convertOutputItem($ciniki, $business_id, $output) {
     }
 
     //
+    // Check if container deposit on item
+    //
+    if( isset($output['input_flags']) && ($output['input_flags']&0x01) == 0x01 && isset($output['cdeposit_amount']) && $output['cdeposit_amount'] > 0 ) {
+        $item['flags'] |= 0x08;
+        $item['cdeposit_description'] = $output['cdeposit_name'];
+        $item['cdeposit_amount'] = $output['cdeposit_amount'];
+    }
+
+    //
     // Set the substitution flag
     //
     if( $output['otype'] == 70 ) {

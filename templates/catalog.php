@@ -81,7 +81,7 @@ function ciniki_foodmarket_templates_catalog(&$ciniki, $business_id, $args) {
     if( isset($args['categories']) && count($args['categories']) > 0 ) {
         $strsql .= "AND categories.id IN (" . ciniki_core_dbQuoteIDs($ciniki, $args['categories']) . ") ";
     }
-    $strsql .= "ORDER BY categories.name, subcategories.name, outputs.pio_name "
+    $strsql .= "ORDER BY categories.name, subcategories.name, products.name, outputs.sequence, outputs.pio_name "
         . "";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(

@@ -75,9 +75,9 @@ function ciniki_foodmarket_productSuppliedUpdate(&$ciniki, $business_id, $produc
             'input' . $idx . '_units'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Input ' . $idx . ' Units'),
             'input' . $idx . '_flags'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Input ' . $idx . ' Options'),
             'input' . $idx . '_sequence'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Input ' . $idx . ' Sequence'),
-            'input' . $idx . '_case_cost'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'currency', 'name'=>'Input ' . $idx . ' Case Cost'),
-            'input' . $idx . '_half_cost'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'currency', 'name'=>'Input ' . $idx . ' Half Cost'),
-            'input' . $idx . '_unit_cost'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'currency', 'name'=>'Input ' . $idx . ' Unit Cost'),
+            'input' . $idx . '_case_cost'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Input ' . $idx . ' Case Cost'),
+            'input' . $idx . '_half_cost'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Input ' . $idx . ' Half Cost'),
+            'input' . $idx . '_unit_cost'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Input ' . $idx . ' Unit Cost'),
             'input' . $idx . '_case_units'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Input ' . $idx . ' Case Units'),
             'input' . $idx . '_min_quantity'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Input ' . $idx . ' Minimum Quantity'),
             'input' . $idx . '_inc_quantity'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Input ' . $idx . ' Incremental Quantity'),
@@ -103,7 +103,11 @@ function ciniki_foodmarket_productSuppliedUpdate(&$ciniki, $business_id, $produc
         $new_input = array();
         foreach($rc['args'] as $arg_key => $arg_value) {
             $field = str_replace('input' . $idx . '_', '', $arg_key);
-            $new_input[$field] = $arg_value;
+            if( $field == 'case_cost' || $field == 'half_cost' || $field == 'unit_cost' ) {
+                $new_input[$field] = preg_replace("/[\&,]/", '', $arg_value);
+            } else {
+                $new_input[$field] = $arg_value;
+            }
         }
         $valid_otypes = array();
 

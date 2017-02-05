@@ -67,7 +67,7 @@
 #                           0x10 - 
 #                           0x20 - 
 #                           0x40 - 
-#                           0x80 - 
+#                           0x80 -
 #
 # sequence:             The order this version should be shown on the page. **future**
 #
