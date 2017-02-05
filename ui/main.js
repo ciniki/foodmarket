@@ -71,6 +71,8 @@ function ciniki_foodmarket_main() {
                 return (t=='favourites' || t == 'repeats') ? 'yes':'no'; 
                 },
             'noData':'No customers.',
+            'addTxt':'',
+            'addFn':'',
             },
         /* Checkout */
         'checkout_open_orders':{'label':'Open Orders', 'type':'simplegrid', 'num_cols':1, 'aside':'yes',
@@ -316,6 +318,8 @@ function ciniki_foodmarket_main() {
             'sortable':'yes', 'sortTypes':['text', 'number', 'date', 'date', 'number'],
             'noData':'No standing orders for customer',
             'cellClasses':['', '', 'nobreak', 'nobreak', ''],
+            'addTxt':'Add',
+            'addFn':'M.ciniki_foodmarket_main.repeatitem.open(\'M.ciniki_foodmarket_main.menu.open();\',\'0\',M.ciniki_foodmarket_main.menu.customer_id);'
             },
 
         /* Queue */
@@ -757,7 +761,7 @@ function ciniki_foodmarket_main() {
         }
         /* Repeats */
         if( s == 'customer_repeats' ) {
-            return 'M.ciniki_foodmarket_main.repeatitem.open(\'M.ciniki_foodmarket_main.menu.open();\',\'' + d.id + '\');'
+            return 'M.ciniki_foodmarket_main.repeatitem.open(\'M.ciniki_foodmarket_main.menu.open();\',\'' + d.id + '\',\'' + d.customer_id + '\');'
         }
         /* Favourites */
         if( s == 'customers' ) {
@@ -1187,6 +1191,8 @@ function ciniki_foodmarket_main() {
         } else {
             p.sections.customer_repeats.label = 'Favourites';
         }
+        p.sections.customers.addTxt = 'Add';
+        p.sections.customers.addFn = 'M.startApp(\'ciniki.customers.edit\',null,\'M.ciniki_foodmarket_main.menu.open();\',\'mc\',{\'customer_id\':0, \'next\':\'M.ciniki_foodmarket_main.repeatitem.addCustomer\'});';
         p.refresh();
         p.show();
     }
@@ -1206,6 +1212,8 @@ function ciniki_foodmarket_main() {
         } else {
             p.sections.customer_favourites.label = 'Favourites';
         }
+        p.sections.customers.addTxt = '';
+        p.sections.customers.addFn = '';
         p.refresh();
         p.show();
     }
@@ -2613,7 +2621,7 @@ function ciniki_foodmarket_main() {
     //
     // The panel to update a customer favourite
     //
-    this.repeatitem = new M.panel('Standing Order Item', 'ciniki_foodmarket_main', 'repeatitem', 'mc', 'medium', 'sectioned', 'ciniki.foodmarket.main.repeatitem');
+    this.repeatitem = new M.panel('Standing Order Item', 'ciniki_foodmarket_main', 'repeatitem', 'mc', 'large', 'sectioned', 'ciniki.foodmarket.main.repeatitem');
     this.repeatitem.data = null;
     this.repeatitem.item_id = 0;
     this.repeatitem.object = '';
@@ -2621,7 +2629,7 @@ function ciniki_foodmarket_main() {
     this.repeatitem.nplist = [];
     this.repeatitem.sections = {
         'general':{'label':'', 'fields':{
-            'description':{'label':'Item', 'required':'yes', 'type':'text',},// 'livesearch':'yes', 'livesearchcols':2},
+            'description':{'label':'Item', 'required':'yes', 'type':'text', 'livesearch':'yes', 'livesearchcols':2},
             'quantity':{'label':'Quantity', 'type':'text', 'size':'small'},
             'next_order_date':{'label':'Next Date', 'type':'date'},
             }},
@@ -2653,30 +2661,29 @@ function ciniki_foodmarket_main() {
     this.repeatitem.updateFromSearch = function(s,f,o,oid,d) {
         this.object = o;
         this.object_id = oid;
-        this.updateForm();
         this.setFieldValue('description', unescape(d));
-        this.setFieldValue('quantity', '');
-        this.setFieldValue('next_order_date', '');
+        this.removeLiveSearch(s, f);
     } 
     this.repeatitem.fieldValue = function(s, i, d) { return this.data[i]; }
     this.repeatitem.fieldHistoryArgs = function(s, i) {
-        return {'method':'ciniki.poma.orderItemHistory', 'args':{'business_id':M.curBusinessID, 'item_id':this.item_id, 'field':i}};
+        return {'method':'ciniki.poma.customerItemHistory', 'args':{'business_id':M.curBusinessID, 'item_id':this.item_id, 'field':i}};
+    }
+    this.repeatitem.addCustomer = function(cid) {
+        this.open('M.ciniki_foodmarket_main.menu.open();', 0, cid);
     }
     this.repeatitem.open = function(cb, iid, cid, list) {
         if( iid != null ) { this.item_id = iid; }
         if( list != null ) { this.nplist = list; }
         if( cid != null ) { this.customer_id = cid; }
-        M.api.getJSONCb('ciniki.poma.repeatItemGet', {'business_id':M.curBusinessID, 'item_id':this.item_id}, function(rsp) {
+        M.api.getJSONCb('ciniki.poma.customerItemGet', {'business_id':M.curBusinessID, 'item_id':this.item_id, 'type':'40'}, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;
             }
             var p = M.ciniki_foodmarket_main.repeatitem;
             p.data = rsp.item;
-            if( p.item_id == 0 ) {
-                p.object = '';
-                p.object_id = 0;
-            }
+            p.object = rsp.item.object;
+            p.object_id = rsp.item.object_id;
             p.refresh();
             p.show(cb);
         });
@@ -2687,7 +2694,11 @@ function ciniki_foodmarket_main() {
         if( this.item_id > 0 ) {
             var c = this.serializeForm('no');
             if( c != '' ) {
-                M.api.postJSONCb('ciniki.poma.repeatItemUpdate', 
+                if( this.object == '' || this.object_id == 0 ) {
+                    alert('You must specify a product from the dropdown list.');
+                    return false;
+                }
+                M.api.postJSONCb('ciniki.poma.customerItemUpdate', 
                     {'business_id':M.curBusinessID, 'item_id':this.item_id, 'object':this.object, 'object_id':this.object_id}, 
                     c, function(rsp) {
                         if( rsp.stat != 'ok' ) {
@@ -2701,8 +2712,12 @@ function ciniki_foodmarket_main() {
             }
         } else {
             var c = this.serializeForm('yes');
-            M.api.postJSONCb('ciniki.poma.repeatItemAdd', 
-                {'business_id':M.curBusinessID, 'order_id':this.order_id, 'object':this.object, 'object_id':this.object_id}, c, function(rsp) {
+            if( this.object == '' || this.object_id == 0 ) {
+                alert('You must specify a product from the dropdown list.');
+                return false;
+            }
+            M.api.postJSONCb('ciniki.poma.customerItemAdd', 
+                {'business_id':M.curBusinessID, 'object':this.object, 'object_id':this.object_id, 'customer_id':this.customer_id, 'itype':'40'}, c, function(rsp) {
                     if( rsp.stat != 'ok' ) {
                         M.api.err(rsp);
                         return false;
@@ -2714,7 +2729,7 @@ function ciniki_foodmarket_main() {
     }
     this.repeatitem.remove = function() {
         if( confirm('Are you sure you want to remove repeatitem?') ) {
-            M.api.getJSONCb('ciniki.poma.repeatItemDelete', {'business_id':M.curBusinessID, 'item_id':this.item_id}, function(rsp) {
+            M.api.getJSONCb('ciniki.poma.customerItemDelete', {'business_id':M.curBusinessID, 'item_id':this.item_id}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
