@@ -23,6 +23,8 @@
 #
 # io_name:              The input and output names combined for form the line to appear in the price list.
 #
+# keywords:             The keywords for the output, making searching better.
+#
 # status:               The status of this version of the product.
 #
 #                           05 - Inactive - Not currently an active product, but will be used again
@@ -120,6 +122,7 @@ create table ciniki_foodmarket_product_outputs (
     pio_name varchar(250) not null,
     pio_name varchar(250) not null,
     io_name varchar(250) not null,
+    keywords varchar(10000) not null,
     status tinyint unsigned not null,
     otype tinyint unsigned not null,
     units mediumint unsigned not null,
@@ -139,6 +142,7 @@ create table ciniki_foodmarket_product_outputs (
     last_updated datetime not null,
     primary key (id),
     unique index (uuid),
+    index keywords (keywords),
     index (product_id, input_id),
     index sync (business_id, uuid, last_updated)
 ) ENGINE='InnoDB', COMMENT='v1.01';

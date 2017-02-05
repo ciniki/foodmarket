@@ -55,6 +55,15 @@ function ciniki_foodmarket_hooks_uiSettings($ciniki, $business_id, $args) {
         $rsp['menu_items'][] = $menu_item;
     }  */
 
+    if( isset($ciniki['business']['modules']['ciniki.poma'])
+        && (isset($args['permissions']['owners'])
+            || isset($args['permissions']['resellers'])
+            || ($ciniki['session']['user']['perms']&0x01) == 0x01
+            )
+        ) {
+        $rsp['settings_menu_items'][] = array('priority'=>5900, 'label'=>'Food Market', 'edit'=>array('app'=>'ciniki.foodmarket.settings'));
+    }
+
     return $rsp;
 }
 ?>

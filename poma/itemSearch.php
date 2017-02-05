@@ -12,7 +12,7 @@
 //
 function ciniki_foodmarket_poma_itemSearch($ciniki, $business_id, $args) {
 
-    if( !isset($args['start_needle']) || $args['start_needle'] == '' ) {
+    if( !isset($args['keywords']) || $args['keywords'] == '' ) {
         return array('stat'=>'ok', 'items'=>array());
     }
 
@@ -35,7 +35,7 @@ function ciniki_foodmarket_poma_itemSearch($ciniki, $business_id, $args) {
     //
     $taxtype_id = 0;
 
-    $args['start_needle'] = preg_replace('/ /', '%', $args['start_needle']);
+    $args['keywords'] = str_replace(' ', '%', $args['keywords']);
 
     //
     // Get the list of product outputs which match the search
@@ -59,9 +59,8 @@ function ciniki_foodmarket_poma_itemSearch($ciniki, $business_id, $args) {
             . "AND ciniki_foodmarket_product_inputs.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' " 
             . ") "
         . "WHERE ciniki_foodmarket_product_outputs.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' " 
-        // FIXME: switch to keywords
-        . "AND (ciniki_foodmarket_product_outputs.pio_name LIKE '" . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
-            . "OR ciniki_foodmarket_product_outputs.pio_name LIKE '% " . ciniki_core_dbQuote($ciniki, $args['start_needle']) . "%' "
+        . "AND (ciniki_foodmarket_product_outputs.keywords LIKE '" . ciniki_core_dbQuote($ciniki, $args['keywords']) . "%' "
+            . "OR ciniki_foodmarket_product_outputs.keywords LIKE '% " . ciniki_core_dbQuote($ciniki, $args['keywords']) . "%' "
             . ") "
         . "AND ciniki_foodmarket_product_outputs.status > 5 "
         . "AND ciniki_foodmarket_product_outputs.otype < 71 "

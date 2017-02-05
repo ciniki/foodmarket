@@ -18,6 +18,7 @@
 function ciniki_foodmarket_productUpdateFields(&$ciniki, $business_id, $product_id) {
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'makePermalink');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'makeKeywords');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
@@ -210,6 +211,11 @@ function ciniki_foodmarket_productUpdateFields(&$ciniki, $business_id, $product_
         }
 
         //
+        // Create the keywords string for fast searching
+        //
+        $output['keywords'] = ciniki_core_makeKeywords($ciniki, $output['pio_name']);
+
+        //
         // Calculate for supplied products
         //
         if( ($output['otype'] == 10 || $output['otype'] == 20 || $output['otype'] == '71' ) && isset($input['unit_cost']) && isset($input['units']) ) {
@@ -259,7 +265,7 @@ function ciniki_foodmarket_productUpdateFields(&$ciniki, $business_id, $product_
         // Check for changed fields and build array of fields to update, and update the $outputs array
         //
         $update_args = array();
-        foreach(['pio_name', 'io_name', 'wholesale_price', 'retail_price', 'retail_price_text'] as $field) {
+        foreach(['pio_name', 'io_name', 'keywords', 'wholesale_price', 'retail_price', 'retail_price_text'] as $field) {
             if( isset($output[$field]) && $output[$field] != $outputs[$output_id][$field] ) {
                 $update_args[$field] = $output[$field];
                 $outputs[$output_id][$field] = $output[$field];

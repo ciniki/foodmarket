@@ -82,6 +82,7 @@ function ciniki_foodmarket_objects($ciniki) {
             'permalink'=>array('name'=>'Permalink'),
             'pio_name'=>array('name'=>'Full Name', 'default'=>''),
             'io_name'=>array('name'=>'Input/Output Name', 'default'=>''),
+            'keywords'=>array('name'=>'Keywords', 'default'=>''),
             'status'=>array('name'=>'Status', 'default'=>'10'),
             'otype'=>array('name'=>'Type'),
             'units'=>array('name'=>'Units'),
