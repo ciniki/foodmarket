@@ -718,7 +718,6 @@ function ciniki_foodmarket_main() {
             }
             var bid = this.sections[s].basket_ids[(j-3)];
             if( d.basket_quantities != null && d.basket_quantities[bid] != null ) {
-                console.log(d.basket_quantities[bid].quantity);
                 return d.basket_quantities[bid].quantity;
             } 
         }
@@ -804,7 +803,6 @@ function ciniki_foodmarket_main() {
         this.show();
     }
     this.menu.checkoutItemAdd = function(e,o,i) {
-        console.log('test');
         M.api.getJSONCb('ciniki.poma.dateCheckout', 
             {'business_id':M.curBusinessID, 'date_id':this.date_id, 'order_id':this.order_id, 'new_object':o, 'new_object_id':i, 'customer_id':this.customer_id}, 
             M.ciniki_foodmarket_main.menu.processCheckout);
