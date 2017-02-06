@@ -1230,6 +1230,7 @@ function ciniki_foodmarket_main() {
             p.nplist = rsp.nextprevlist;
         }
         if( p.category_id == 0 ) { p.sections.products.label = 'Uncategorized'; }
+        if( p.category_id == -1 ) { p.sections.products.label = 'Archived'; }
         if( p.category_id == '' ) { p.sections.products.label = 'Latest'; }
         p.delButton('edit');
         if( p.category_id > 0 && p.sections._tabs.selected == 'products' ) {

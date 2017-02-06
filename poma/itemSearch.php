@@ -65,6 +65,7 @@ function ciniki_foodmarket_poma_itemSearch($ciniki, $business_id, $args) {
         . "AND ciniki_foodmarket_product_outputs.status > 5 "
         . "AND ciniki_foodmarket_product_outputs.otype < 71 "
         . "AND ciniki_foodmarket_products.status > 5 "
+        . "AND ciniki_foodmarket_products.status < 90 "
         . "";
     if( isset($args['limit']) && $args['limit'] != '' && preg_match("/^[0-9]+$/", $args['limit']) ) {
         $strsql .= "LIMIT " . $args['limit'];
