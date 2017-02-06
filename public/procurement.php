@@ -354,11 +354,11 @@ function ciniki_foodmarket_procurement($ciniki) {
                     }
                 } elseif( $input['itype'] == 50 ) {
                     $input['required_quantity'] = (float)bcdiv($input['unit_quantity'], $input['case_units'], 2);
-                    $stext = ' case';
-                    $ptext = ' cases';
+                    $stext = 'case';
+                    $ptext = 'cases';
                     if( ($input['units']&0x020000) == 0x020000 ) {
-                        $stext = ' bushel';
-                        $ptext = ' bushels';
+                        $stext = 'bushel';
+                        $ptext = 'bushels';
                     }
                     if( $input['half_cost'] > 0 ) {
                         $cases = bcdiv($input['unit_quantity'], $input['case_units'], 2);
@@ -372,9 +372,9 @@ function ciniki_foodmarket_procurement($ciniki) {
                     } else {
                         $input['order_quantity'] = ceil($input['required_quantity']);
                     }
-                    $input['required_quantity_text'] = $input['required_quantity'] . ($input['order_quantity'] > 1 ? $ptext : $stext) 
+                    $input['required_quantity_text'] = $input['required_quantity'] . ($input['order_quantity'] > 1 ? ' ' . $ptext : ' ' . $stext) 
                         . ' (' . (float)$input['unit_quantity'] . ')';
-                    $input['order_quantity_text'] = $input['order_quantity'] . ($input['order_quantity'] > 1 ? $ptext : $stext);
+                    $input['order_quantity_text'] = $input['order_quantity'] . ($input['order_quantity'] > 1 ? ' ' . $ptext : ' ' . $stext);
                     $input['cost_text'] = '$' . number_format($input['case_cost'], 2) . '/' . $stext;
                 }
                 $rsp['procurement_supplier_inputs'][] = $input;
