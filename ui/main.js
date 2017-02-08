@@ -2632,6 +2632,7 @@ function ciniki_foodmarket_main() {
         'general':{'label':'', 'fields':{
             'description':{'label':'Item', 'required':'yes', 'type':'text', 'livesearch':'yes', 'livesearchcols':2},
             'quantity':{'label':'Quantity', 'type':'text', 'size':'small'},
+            'repeat_days':{'label':'Repeat', 'type':'toggle', 'toggles':{'7':'weekly', '14':'2 weeks'}},
             'next_order_date':{'label':'Next Date', 'type':'date'},
             }},
         '_buttons':{'label':'', 'buttons':{
@@ -2927,7 +2928,7 @@ function ciniki_foodmarket_main() {
             'print':{'label':'Download PDF', 
                 'visible':function() {return (M.ciniki_foodmarket_main.printcatalog.sections._tabs.selected=='print'?'yes':'no'); },
                 'fn':'M.ciniki_foodmarket_main.printcatalog.downloadPDF();'},
-            'emailtext':{'label':'Send Test Email PDF', 
+            'emailtest':{'label':'Send Test Email PDF', 
                 'visible':function() {return (M.ciniki_foodmarket_main.printcatalog.sections._tabs.selected=='email'?'yes':'no'); },
                 'fn':'M.ciniki_foodmarket_main.printcatalog.emailTestPDF();'},
             'email':{'label':'Email PDF', 
