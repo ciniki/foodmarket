@@ -12,7 +12,7 @@ function ciniki_foodmarket_productPricePush(&$ciniki, $business_id, $product_id)
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'poma', 'private', 'orderUpdateStatusBalance');
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'poma', 'private', 'dbQuoteIDs');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuoteIDs');
 
     //
     // Load the outputs for the product
