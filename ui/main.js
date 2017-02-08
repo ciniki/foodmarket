@@ -422,7 +422,12 @@ function ciniki_foodmarket_main() {
             switch(j) {
                 case 0: return d.description;
                 case 1: return d.unit_price_text;
-                case 2: return '<button onclick=\'event.stopPropagation(); M.ciniki_foodmarket_main.menu.checkoutItemAdd(event,"' + d.object + '","' + d.object_id + '");return false;\'>Add</button>';
+                case 2: return '<button onclick=\'event.stopPropagation(); M.ciniki_foodmarket_main.menu.checkoutItemAdd("' + d.object + '","' + d.object_id + '","1");return false;\'>1</button>'
+                    + '<button onclick=\'event.stopPropagation(); M.ciniki_foodmarket_main.menu.checkoutItemAdd("' + d.object + '","' + d.object_id + '","2");return false;\'>2</button>'
+                    + '<button onclick=\'event.stopPropagation(); M.ciniki_foodmarket_main.menu.checkoutItemAdd("' + d.object + '","' + d.object_id + '","3");return false;\'>3</button>'
+                    + '<button onclick=\'event.stopPropagation(); M.ciniki_foodmarket_main.menu.checkoutItemAdd("' + d.object + '","' + d.object_id + '","4");return false;\'>4</button>'
+                    + '<button onclick=\'event.stopPropagation(); M.ciniki_foodmarket_main.menu.checkoutItemAdd("' + d.object + '","' + d.object_id + '","5");return false;\'>5</button>';
+                   
             }
         }
         if( s == 'date_search' ) { 
@@ -454,6 +459,9 @@ function ciniki_foodmarket_main() {
         return '';
     }
     this.menu.liveSearchResultRowFn = function(s, f, i, j, d) {
+        if( s == 'checkout_itemsearch' ) { 
+            return 'M.ciniki_foodmarket_main.menu.checkoutItemAdd("' + d.object + '","' + d.object_id + '","1");';
+        }
         if( s == 'date_search' ) {
             return 'M.ciniki_foodmarket_main.product.open(\'M.ciniki_foodmarket_main.menu.open();\',\'' + d.product_id + '\');';
         }
@@ -809,9 +817,9 @@ function ciniki_foodmarket_main() {
         this.refresh();
         this.show();
     }
-    this.menu.checkoutItemAdd = function(e,o,i) {
+    this.menu.checkoutItemAdd = function(o,i,q) {
         M.api.getJSONCb('ciniki.poma.dateCheckout', 
-            {'business_id':M.curBusinessID, 'date_id':this.date_id, 'order_id':this.order_id, 'new_object':o, 'new_object_id':i, 'customer_id':this.customer_id}, 
+            {'business_id':M.curBusinessID, 'date_id':this.date_id, 'order_id':this.order_id, 'new_object':o, 'new_object_id':i, 'new_quantity':q, 'customer_id':this.customer_id}, 
             M.ciniki_foodmarket_main.menu.processCheckout);
     }
     this.menu.checkoutQuantityUpdate = function(e,i,q) {
