@@ -347,13 +347,21 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
 
 
         //
-        // Output the categories
+        // Output the regular items
         //
         $fill = 0;
         $border = 'TB';
         foreach($order['items'] as $item) {
             if( isset($item['basket']) && $item['basket'] == 'yes' ) {  
                 continue;
+            }
+            if( $pdf->getY() > ($pdf->getPageHeight() - 30) ) {
+                $pdf->AddPage();
+                $pdf->SetFillColor(232);
+                $pdf->SetFont('helvetica', 'B', 14);
+                $pdf->Cell(180, 10, 'Additional Items (continued)', 0, 0, 'L', 1);
+                $pdf->Ln(10);
+                $pdf->SetFillColor(246);
             }
             $lh = 10;
             $pdf->SetFont('zapfdingbats', '', 14);
