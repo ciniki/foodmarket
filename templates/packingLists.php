@@ -61,7 +61,7 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
         . "ciniki_poma_order_items.weight_quantity, "
         . "ciniki_poma_order_items.unit_quantity, "
         . "ciniki_poma_order_items.unit_suffix, "
-        . "IFNULL(ciniki_foodmarket_product_outputs.sequence, 0) AS sequence "
+        . "IFNULL(ciniki_foodmarket_product_outputs.sequence, 1) AS sequence "
         . "FROM ciniki_poma_orders "
         . "LEFT JOIN ciniki_customers ON ("
             . "ciniki_poma_orders.customer_id = ciniki_customers.id "
@@ -181,6 +181,9 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
         }
         return $a['sortnumber'] > $b['sortnumber'] ? -1 : 1;
     });
+    foreach($orders as $order) {
+        error_log($order['billing_name'] . ' - ' . $order['sortnumber']);
+    }
 
     //
     // Load TCPDF library
@@ -190,7 +193,6 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
     class MYPDF extends TCPDF {
         //Page header
         public $left_margin = 18;
-        public $right_margin = 18;
         public $top_margin = 15;
         public $header_height = 15;
         public $name = '';
