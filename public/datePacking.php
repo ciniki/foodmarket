@@ -140,8 +140,19 @@ function ciniki_foodmarket_datePacking($ciniki) {
         return $rsp;
     }
     $rsp['dates'] = $rc['dates'];
+    $found = 0;
     foreach($rsp['dates'] as $did => $date) {
         $rsp['dates'][$did]['name_status'] = $date['display_name'] . ' - ' . $poma_maps['orderdate']['status'][$date['status']];
+        if( $date['id'] == $args['date_id'] ) {
+            $found = 1;
+        }
+        $last_date = $date;
+    }
+    if( $found == 0 ) {
+        $args['date_id'] = $last_date['id'];
+        $args['date_id'] = $last_date['id'];
+        $rsp['date_id'] = $last_date['id'];
+        $rsp['date_status'] = $last_date['status'];
     }
 
     //
