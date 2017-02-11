@@ -140,6 +140,139 @@ function ciniki_foodmarket_web_productLoad($ciniki, $settings, $business_id, $ar
         $product['outputs'] = array();
     }
 
+    //
+    // Get the list of items in the basket
+    //
+    if( $product['ptype'] == 70 && ciniki_core_checkModuleFlags($ciniki, 'ciniki.foodmarket', 0x1000) ) {
+        //
+        // Get the basket output id
+        //
+        foreach($product['outputs'] as $output) {
+            if( $output['otype'] == 70 ) {
+                $basket_output_id = $output['id'];
+            }
+        }
+
+        //
+        // Get the details of the order date
+        //
+        if( isset($ciniki['session']['ciniki.poma']['date']['id']) && $ciniki['session']['ciniki.poma']['date']['id'] > 0 ) {
+            //
+            // Get the order date
+            //
+            $strsql = "SELECT id, status, display_name, ABS(DATEDIFF(NOW(), order_date)) AS age "
+                . "FROM ciniki_poma_order_dates "
+                . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . "ORDER BY age ASC "
+                . "LIMIT 1 "
+                . "";
+            $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.poma', 'date');
+            if( $rc['stat'] != 'ok' ) {
+                return $rc;
+            }
+            if( isset($rc['date']['id']) ) {
+                $date_id = $rc['date']['id'];
+                $date_text = $rc['date']['display_name'];
+            }
+        }
+        if( !isset($date_id) ) {
+            //
+            // Get the next order date
+            //
+            $dt = new DateTime('now', new DateTimezone('UTC'));
+            $strsql = "SELECT id, status, display_name "
+                . "FROM ciniki_poma_order_dates "
+                . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . "AND order_date >= '" . ciniki_core_dbQuote($ciniki, $dt->format('Y-m-d')) . "' "
+                . "ORDER BY order_date ASC "
+                . "LIMIT 1 "
+                . "";
+            $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.poma', 'date');
+            if( $rc['stat'] != 'ok' ) {
+                return $rc;
+            }
+            if( isset($rc['date']['id']) ) {
+                $date_id = $rc['date']['id'];
+                $date_text = $rc['date']['display_name'];
+            }
+        }
+
+        if( isset($basket_output_id) && isset($date_id) && isset($date_text) ) {
+            
+            //
+            // Get the subitems for this order date
+            //
+            $strsql = "SELECT "
+                . "ciniki_foodmarket_basket_items.item_output_id AS id, "
+                . "ciniki_foodmarket_product_outputs.product_id, "
+                . "ciniki_foodmarket_product_inputs.itype, "
+                . "IFNULL(ciniki_foodmarket_product_inputs.units, 0) AS units, "
+                . "IFNULL(ciniki_foodmarket_product_inputs.case_units, 1) AS case_units, "
+                . "IFNULL(ciniki_foodmarket_product_inputs.min_quantity, 1) AS min_quantity, "
+                . "ciniki_foodmarket_product_outputs.pio_name AS name, "
+//                . "ciniki_foodmarket_products.name, "
+                . "ciniki_foodmarket_product_outputs.otype, "
+                . "ciniki_foodmarket_product_outputs.retail_price AS price, "
+                . "ciniki_foodmarket_product_outputs.retail_price_text AS price_text, "
+                . "ciniki_foodmarket_basket_items.basket_output_id, "
+                . "ciniki_foodmarket_basket_items.quantity "
+                . "FROM ciniki_foodmarket_basket_items "
+                . "LEFT JOIN ciniki_foodmarket_product_outputs ON ("
+                    . "ciniki_foodmarket_basket_items.item_output_id = ciniki_foodmarket_product_outputs.id "
+                    . "AND ciniki_foodmarket_product_outputs.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                    . ") "
+                . "LEFT JOIN ciniki_foodmarket_product_inputs ON ("
+                    . "ciniki_foodmarket_product_outputs.input_id = ciniki_foodmarket_product_inputs.id "
+                    . "AND ciniki_foodmarket_product_inputs.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                    . ") "
+                . "LEFT JOIN ciniki_foodmarket_products ON ("
+                    . "ciniki_foodmarket_product_outputs.product_id = ciniki_foodmarket_products.id "
+                    . "AND ciniki_foodmarket_products.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                    . ") "
+                . "WHERE ciniki_foodmarket_basket_items.date_id = '" . ciniki_core_dbQuote($ciniki, $date_id) . "' "
+                . "AND ciniki_foodmarket_basket_items.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . "AND ciniki_foodmarket_basket_items.basket_output_id = '" . ciniki_core_dbQuote($ciniki, $basket_output_id) . "' "
+                . "ORDER BY pio_name, ciniki_foodmarket_basket_items.item_output_id "
+                . "";
+            $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.foodmarket', array(
+                array('container'=>'basket_items', 'fname'=>'id', 
+                    'fields'=>array('id', 'product_id', 'itype', 'units', 'case_units', 'min_quantity', 'name', 'otype', 'price', 'price_text', 'quantity')),
+                ));
+            if( $rc['stat'] != 'ok' ) {
+                return $rc;
+            }
+            if( isset($rc['basket_items']) ) {
+                $product['subitems'] = array();
+                foreach($rc['basket_items'] as $iid => $item) {
+                    switch($item['units']) {
+                        case 0x02: $stext = ' lb'; $ptext = ' lbs'; break;
+                        case 0x04: $stext = ' oz'; $ptext = ' ozs'; break;
+                        case 0x20: $stext = ' kg'; $ptext = ' kgs'; break;
+                        case 0x40: $stext = ' g'; $ptext = ' gs'; break;
+                        case 0x0100: $stext = ''; $ptext = ''; break;
+                        case 0x0200: $stext = ' pair'; $ptext = ' pairs'; break;
+                        case 0x0400: $stext = '  bunch'; $ptext = ' bunches'; break;
+                        case 0x0800: $stext = ' bag'; $ptext = ' bags'; break;
+                        case 0x010000: $stext = ' case'; $ptext = ' cases'; break;
+                        case 0x020000: $stext = ' bushel'; $ptext = ' bushels'; break;
+                    }
+                    $product['subitems'][] = array(
+                        'name'=>$item['name'],
+                        'quantity_text'=>(float)$item['quantity'] . ($item['quantity'] != 1 ? $ptext : $stext),
+                        );
+//                    $content .= ($content != '' ? "\n" : '') . (float)$item['quantity'] . ($item['quantity'] != 1 ? $ptext : $stext) . ' - ' . $item['name'];
+//                    if( $item['otype'] == 71 ) {
+//                        $content .= ($content != '' ? "\n" : '') . (float)$item['quantity'] . ($item['quantity'] != 1 ? $ptext : $stext) . ' - ' . $item['name'];
+//                    } else {
+//                        $content .= ($content != '' ? "\n" : '') . (float)$item['quantity'] . ' ' . $item['name'];
+//                    }
+                }
+//                $content .= "<pre>" . print_r($rc['basket_items'], true) . "</pre>";
+            }
+            $product['description'] .= ($product['description'] != '' ? "\n\n" : '') . $content;
+        }
+    }
+
     return array('stat'=>'ok', 'product'=>$product);
 }
 ?>
