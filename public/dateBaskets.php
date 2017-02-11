@@ -24,6 +24,7 @@ function ciniki_foodmarket_dateBaskets($ciniki) {
         'datestatus'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Date Status'),
         'basket_output_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Basket'),
         'item_output_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Item'),
+        'remove_item_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Remove Item'),
         'quantity'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Quantity'),
         'outputs'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Products'),
         ));
@@ -73,6 +74,7 @@ function ciniki_foodmarket_dateBaskets($ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectDelete');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'private', 'basketsUpdateOrders');
 
     //
@@ -170,6 +172,42 @@ function ciniki_foodmarket_dateBaskets($ciniki) {
     //
     // FIXME: Check if date is still open for new items
     //
+
+    //
+    // Check if an item is to be removed from baskets
+    //
+    if( isset($args['remove_item_id']) && $args['remove_item_id'] != '' && $args['remove_item_id'] > 0 ) {
+        $strsql = "SELECT id, uuid, quantity "
+            . "FROM ciniki_foodmarket_basket_items "
+            . "WHERE date_id = '" . ciniki_core_dbQuote($ciniki, $args['date_id']) . "' "
+            . "AND item_output_id = '" . ciniki_core_dbQuote($ciniki, $args['remove_item_id']) . "' "
+            . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "";
+        $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.foodmarket', 'item');
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
+        }
+        if( isset($rc['rows']) && count($rc['rows']) > 0 ) {
+            $items = $rc['rows'];
+            // 
+            // Check if any items still have a quantity
+            //
+            foreach($items as $item) {
+                if( $item['quantity'] > 0 ) {
+                    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.64', 'msg'=>'All quantities must be removed from baskets'));
+                }
+            }
+            //
+            // If all ok, remove
+            //
+            foreach($items as $item) {
+                $rc = ciniki_core_objectDelete($ciniki, $args['business_id'], 'ciniki.foodmarket.basketitem', $item['id'], $item['uuid'], 0x07);
+                if( $rc['stat'] != 'ok' ) {
+                    return $rc;
+                }
+            }
+        }
+    }
 
     //
     // Check if quantity should be changed for a basket first

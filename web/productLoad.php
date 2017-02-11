@@ -245,6 +245,11 @@ function ciniki_foodmarket_web_productLoad($ciniki, $settings, $business_id, $ar
             if( isset($rc['basket_items']) ) {
                 $product['subitems'] = array();
                 foreach($rc['basket_items'] as $iid => $item) {
+                    if( $item['quantity'] <= 0 ) {
+                        continue;
+                    }
+                    $stext = '';
+                    $ptext = '';
                     switch($item['units']) {
                         case 0x02: $stext = ' lb'; $ptext = ' lbs'; break;
                         case 0x04: $stext = ' oz'; $ptext = ' ozs'; break;
@@ -270,7 +275,7 @@ function ciniki_foodmarket_web_productLoad($ciniki, $settings, $business_id, $ar
                 }
 //                $content .= "<pre>" . print_r($rc['basket_items'], true) . "</pre>";
             }
-            $product['description'] .= ($product['description'] != '' ? "\n\n" : '') . $content;
+//            $product['description'] .= ($product['description'] != '' ? "\n\n" : '') . $content;
         }
     }
 
