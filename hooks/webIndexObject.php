@@ -85,7 +85,7 @@ function ciniki_foodmarket_hooks_webIndexObject($ciniki, $business_id, $args) {
         }
         if( isset($rc['rows']) ) {
             foreach($rc['rows'] as $row) {
-                $object['primary_words'] .= ' ' . $row['name'];
+                $object['secondary_words'] .= ' ' . $row['name'];
             }
         }
 
