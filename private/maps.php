@@ -18,6 +18,7 @@ function ciniki_foodmarket_maps(&$ciniki) {
     $maps['product'] = array(
         'status'=>array(
             '10'=>'Active',
+            '40'=>'Public',
             '90'=>'Archived',
         ),
         'ptype'=>array(
@@ -66,6 +67,7 @@ function ciniki_foodmarket_maps(&$ciniki) {
     $maps['output'] = array(
         'status'=>array(
             '10'=>'Active',
+            '40'=>'Public',
             '90'=>'Archived',
         ),
         'otype'=>array(

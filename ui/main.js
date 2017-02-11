@@ -349,9 +349,10 @@ function ciniki_foodmarket_main() {
             'list':{
                 'printcatalog':{'label':'Print Catalog', 'fn':'M.ciniki_foodmarket_main.printcatalog.open(\'M.ciniki_foodmarket_main.menu.open();\');'},
                 }},
-        'product_search':{'label':'', 'type':'livesearchgrid', 'livesearchcols':1, 
+        'product_search':{'label':'', 'type':'livesearchgrid', 'livesearchcols':3, 
             'visible':function() {return M.ciniki_foodmarket_main.menu.sections._tabs.selected=='products'?'yes':'no';},
-            'cellClasses':['multiline'],
+            'headerValues':['Supplier', 'Name', 'Status'],
+            'cellClasses':[''],
             'hint':'Search products', 
             'noData':'No products found',
             },
@@ -437,7 +438,11 @@ function ciniki_foodmarket_main() {
             return this.dateBasketCellValue(s, i, j, d);
         }
         if( s == 'product_search' ) { 
-            return d.name;
+            switch(j) {
+                case 0: return d.supplier_code;
+                case 1: return d.name;
+                case 2: return d.status_text;
+            }
         }
     }
     this.menu.dateBasketCellValue = function(s, i, j, d) {

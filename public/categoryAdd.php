@@ -119,12 +119,6 @@ function ciniki_foodmarket_categoryAdd(&$ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'updateModuleChangeDate');
     ciniki_businesses_updateModuleChangeDate($ciniki, $args['business_id'], 'ciniki', 'foodmarket');
 
-    //
-    // Update the web index if enabled
-    //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'hookExec');
-    ciniki_core_hookExec($ciniki, $args['business_id'], 'ciniki', 'web', 'indexObject', array('object'=>'ciniki.foodmarket.category', 'object_id'=>$category_id));
-
     return array('stat'=>'ok', 'id'=>$category_id);
 }
 ?>
