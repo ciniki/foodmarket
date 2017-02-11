@@ -163,6 +163,7 @@ function ciniki_foodmarket_web_productLoad($ciniki, $settings, $business_id, $ar
             $strsql = "SELECT id, status, display_name, ABS(DATEDIFF(NOW(), order_date)) AS age "
                 . "FROM ciniki_poma_order_dates "
                 . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . "AND id = '" . ciniki_core_dbQuote($ciniki, $ciniki['session']['ciniki.poma']['date']['id']) . "' "
                 . "ORDER BY age ASC "
                 . "LIMIT 1 "
                 . "";
@@ -172,7 +173,7 @@ function ciniki_foodmarket_web_productLoad($ciniki, $settings, $business_id, $ar
             }
             if( isset($rc['date']['id']) ) {
                 $date_id = $rc['date']['id'];
-                $date_text = $rc['date']['display_name'];
+                $product['subitems_date_text'] = $rc['date']['display_name'];
             }
         }
         if( !isset($date_id) ) {
@@ -193,11 +194,11 @@ function ciniki_foodmarket_web_productLoad($ciniki, $settings, $business_id, $ar
             }
             if( isset($rc['date']['id']) ) {
                 $date_id = $rc['date']['id'];
-                $date_text = $rc['date']['display_name'];
+                $product['subitems_date_text'] = $rc['date']['display_name'];
             }
         }
 
-        if( isset($basket_output_id) && isset($date_id) && isset($date_text) ) {
+        if( isset($basket_output_id) && isset($date_id) ) {
             
             //
             // Get the subitems for this order date

@@ -148,7 +148,7 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $busi
             $page['blocks'][] = array('type'=>'content', 'section'=>'content', 'title'=>'Ingredients', 'content'=>$product['ingredients']);
         }
         if( isset($product['subitems']) && count($product['subitems']) > 0 ) {
-            $page['blocks'][] = array('type'=>'table', 'section'=>'items', 'title'=>'Items', 'class'=>'order-subitems',
+            $page['blocks'][] = array('type'=>'table', 'section'=>'items', 'title'=>'Items - ' . $product['subitems_date_text'], 'class'=>'order-subitems', 'size'=>$size,
                 'columns'=>array(
                     array('label'=>'Item', 'field'=>'name', 'class'=>'alignleft'),
                     array('label'=>'Quantity', 'field'=>'quantity_text', 'class'=>'aligncenter'),
