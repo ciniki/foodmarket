@@ -120,7 +120,6 @@ create table ciniki_foodmarket_product_outputs (
     name varchar(250) not null,
     permalink varchar(250) not null,
     pio_name varchar(250) not null,
-    pio_name varchar(250) not null,
     io_name varchar(250) not null,
     keywords varchar(10000) not null,
     status tinyint unsigned not null,
