@@ -118,6 +118,69 @@ function ciniki_foodmarket_dateBaskets($ciniki) {
     // Check if date status is set to subscriptions
     //
     if( isset($args['datestatus']) && $args['datestatus'] == 'substitutions' && $rsp['date_status'] < 30 ) {
+        //
+        // Get the list of existing date available items for this order date
+        //
+        $strsql = "SELECT ciniki_foodmarket_date_items.output_id AS id, "
+            . "ciniki_foodmarket_date_items.quantity "
+            . "FROM ciniki_foodmarket_date_items "
+            . "WHERE ciniki_foodmarket_date_items.date_id = '" . ciniki_core_dbQuote($ciniki, $args['date_id']) . "' "
+            . "AND ciniki_foodmarket_date_items.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "";
+        $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.poma', array(
+            array('container'=>'items', 'fname'=>'id', 'fields'=>array('id', 'quantity')),
+            ));
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
+        }
+        $edateitems = array();
+        if( isset($rc['items']) ) {
+            $edateitems = $rc['items'];
+        }
+
+        //
+        // Get the list of basket items for this order date, and their matching public items
+        //
+        $strsql = "SELECT o2.id, o2.otype, o2.flags "
+            . "FROM ciniki_foodmarket_basket_items AS bitems "
+            . "LEFT JOIN ciniki_foodmarket_product_outputs AS o1 ON ("
+                . "bitems.item_output_id = o1.id "
+                . "AND o1.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+                . ") "
+            . "LEFT JOIN ciniki_foodmarket_product_outputs AS o2 ON ("
+                . "o1.input_id = o2.input_id "
+                . "AND ((o1.otype = 71 AND o2.otype = 10) OR (o1.otype = 72 AND o2.otype = 30)) "
+                . "AND (o2.flags&0x0200) = 0x0200 "
+                . "AND o2.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+                . ") "
+            . "WHERE bitems.date_id = '" . ciniki_core_dbQuote($ciniki, $args['date_id']) . "' "
+            . "AND bitems.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "";
+        $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.poma', array(
+            array('container'=>'items', 'fname'=>'id', 'fields'=>array('id', 'otype', 'flags')),
+            ));
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
+        }
+        $bdateitems = array();
+        if( isset($rc['items']) ) {
+            $bdateitems = $rc['items'];
+        }
+
+        //
+        // Check if any are date only items, and add to date availability.
+        //
+        foreach($bdateitems as $item) {
+            if( !isset($edateitems[$item['id']]) ) {
+                $rc = ciniki_core_objectAdd($ciniki, $args['business_id'], 'ciniki.foodmarket.dateitem', array('date_id'=>$args['date_id'], 'output_id'=>$item['id'], 'quantity'=>0), 0x07);
+                if( $rc['stat'] != 'ok' ) {
+                    return $rc;
+                }
+            }
+        }
+        //
+        // Set the date to allow substitutions
+        //
         $rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.poma.orderdate', $args['date_id'], array('status'=>30), 0x07);
         if( $rc['stat'] != 'ok' ) {
             return $rc;
