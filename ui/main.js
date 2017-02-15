@@ -230,11 +230,18 @@ function ciniki_foodmarket_main() {
             'visible':function() { return (M.ciniki_foodmarket_main.menu.sections._tabs.selected == 'procurement' ) ? 'yes':'no'; },
             'noData':'Nothing ordered',
             },
-        'procurement_supplier_inputs':{'label':'Items', 'type':'simplegrid', 'num_cols':5,
+        'procurement_supplier_inputs':{'label':'Requested Items', 'type':'simplegrid', 'num_cols':5,
             'visible':function() { return (M.ciniki_foodmarket_main.menu.sections._tabs.selected == 'procurement' && M.ciniki_foodmarket_main.menu.supplier_id > 0) ? 'yes':'no'; },
             'noData':'Nothing ordered',
             'headerValues':['SKU', 'Product', 'Cost', 'Required', 'Order'],
             'cellClasses':['', '', 'nobreak', 'nobreak', 'nobreak'],
+            },
+        'procurement_supplier_order':{'label':'Order', 'type':'simplegrid', 'num_cols':4,
+            'visible':function() { return (M.ciniki_foodmarket_main.menu.sections._tabs.selected == 'procurement' && M.ciniki_foodmarket_main.menu.supplier_id > 0) ? 'yes':'no'; },
+            'noData':'Nothing ordered',
+            'headerValues':['Code', 'Description', 'Quantity', 'Case/Single'],
+            'headerClasses':['', '', 'aligncenter nobreak', 'aligncenter nobreak'],
+            'cellClasses':['', '', 'aligncenter nobreak', 'aligncenter nobreak'],
             },
 
         /* Baskets */
@@ -614,6 +621,14 @@ function ciniki_foodmarket_main() {
                 case 2: return d.cost_text;
                 case 3: return d.required_quantity_text;
                 case 4: return d.order_quantity_text;
+            }
+        }
+        if( s == 'procurement_supplier_order' ) {
+            switch(j) {
+                case 0: return d.sku;
+                case 1: return d.name;
+                case 2: return d.quantity;
+                case 3: return d.size;
             }
         }
 

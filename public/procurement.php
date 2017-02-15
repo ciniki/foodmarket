@@ -64,7 +64,7 @@ function ciniki_foodmarket_procurement($ciniki) {
     //
     // Setup the default response
     //
-    $rsp = array('stat'=>'ok', 'procurement_suppliers'=>array(), 'procurement_supplier_inputs'=>array(), 'procurement_supplier_queue'=>array());
+    $rsp = array('stat'=>'ok', 'procurement_suppliers'=>array(), 'procurement_supplier_inputs'=>array(), 'procurement_supplier_order'=>array(), 'procurement_supplier_queue'=>array());
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuoteIDs');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
@@ -297,6 +297,7 @@ function ciniki_foodmarket_procurement($ciniki) {
                 // Decide the quantity that should be ordered
                 //
                 if( $input['itype'] == 10 ) {
+                    $sizetext = 'Single';
                     $input['required_quantity'] = (float)$input['weight_quantity'];
                     if( $input['required_quantity'] <= $input['min_quantity'] ) {
                         $input['order_quantity'] = (float)$input['min_quantity'];
@@ -326,6 +327,7 @@ function ciniki_foodmarket_procurement($ciniki) {
                         $input['cost_text'] = '$' . number_format($input['unit_cost'], 2) . '/' . $stext;
                     }
                 } elseif( $input['itype'] == 20 || $input['itype'] == 30 ) {
+                    $sizetext = 'Single';
                     $stext = '';
                     $ptext = '';
                     if( ($input['units']&0x0200) == 0x0200 ) {
@@ -365,6 +367,7 @@ function ciniki_foodmarket_procurement($ciniki) {
                     }
                 } elseif( $input['itype'] == 50 ) {
                     $input['required_quantity'] = (float)bcdiv($input['unit_quantity'], $input['case_units'], 2);
+                    $sizetext = 'Case';
                     $stext = 'case';
                     $ptext = 'cases';
                     if( ($input['units']&0x020000) == 0x020000 ) {
@@ -389,6 +392,16 @@ function ciniki_foodmarket_procurement($ciniki) {
                     $input['cost_text'] = '$' . number_format($input['case_cost'], 2) . '/' . $stext;
                 }
                 $rsp['procurement_supplier_inputs'][] = $input;
+
+                //
+                // Add the input to the order output for copying to email
+                //
+                $rsp['procurement_supplier_order'][] = array(
+                    'sku'=>$input['sku'],
+                    'name'=>$input['name'],
+                    'quantity'=>$input['order_quantity'],
+                    'size'=>$sizetext,
+                    );
             }
         }
 
