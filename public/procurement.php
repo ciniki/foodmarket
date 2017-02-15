@@ -382,6 +382,8 @@ function ciniki_foodmarket_procurement($ciniki) {
                             $input['order_quantity'] = $full_cases + 0.5;
                         } elseif( $partial_cases > 0 && $partial_cases > 0.5 ) {
                             $input['order_quantity'] = $full_cases + 1;
+                        } else {
+                            $input['order_quantity'] = $full_cases;
                         }
                     } else {
                         $input['order_quantity'] = ceil($input['required_quantity']);
