@@ -979,6 +979,7 @@ function ciniki_foodmarket_main() {
             M.ciniki_foodmarket_main.menu.processBaskets);
     }
     this.menu.switchDate = function(s, i) {
+        console.log('switch date: ' + s + '--' + i);
         this.date_id = this.formValue(i);
         this.order_id = 0;
         this.packing_basket_id = 0;

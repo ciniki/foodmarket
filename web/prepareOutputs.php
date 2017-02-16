@@ -157,7 +157,7 @@ $output['queue'] = 'no';
         //
         if( ($output['flags']&0x0800) == 0x0800 ) {
             $output['repeat'] = 'no';
-            if( $output['inventory'] > 0 ) {
+            if( isset($output['inventory']) && $output['inventory'] > 0 ) {
                 $output['available'] = 'yes';
                 $output['quantity_limit'] = $output['inventory'];
             }
