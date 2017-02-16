@@ -22,7 +22,10 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $busi
         'title'=>$args['page_title'],
         'breadcrumbs'=>$args['breadcrumbs'],
         'blocks'=>array(),
-        'submenu'=>array(),
+        'submenu'=>array(
+            'categories'=>array('name'=>'Categories', 'url'=>$args['base_url']),
+            'catalog'=>array('name'=>'Catalog', 'url'=>$args['base_url'] . '/catalog'),
+            ),
         );
 
     //
@@ -63,10 +66,12 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $busi
     $category_id = 0;
     $product_permalink = '';
     $base_url = isset($args['base_url']) ? $args['base_url'] : '';
-    print_r($args['uri_split']);
     if( isset($args['uri_split'][0]) && $args['uri_split'][0] == 'catalog' ) {
         $display = 'catalog';
+        $page['submenu']['catalog']['selected'] = 'yes';
+        $page['breadcrumbs'][] = array('name'=>'Catalog', 'url'=>$base_url . '/catalog');
     } elseif( ciniki_core_checkModuleFlags($ciniki, 'ciniki.foodmarket', 0x20) ) {
+        $page['submenu']['categories']['selected'] = 'yes';
         while( ($permalink = array_shift($args['uri_split'])) !== null ) {
             //
             // Check for the category
@@ -94,6 +99,7 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $busi
             }
         }
     } elseif( isset($args['uri_split'][0]) && $args['uri_split'][0] != '' ) {
+        $page['submenu']['categories']['selected'] = 'yes';
         $product_permalink = $args['uri_split'][0];
         $display = 'product';
     }
@@ -423,7 +429,6 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $busi
             }
         }
     }
-
 
     return array('stat'=>'ok', 'page'=>$page);
 }
