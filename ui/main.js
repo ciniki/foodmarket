@@ -95,7 +95,7 @@ function ciniki_foodmarket_main() {
             'visible':function() { return ( M.ciniki_foodmarket_main.menu.sections._tabs.selected == 'checkout' 
                 && M.ciniki_foodmarket_main.menu.sections._checkouttabs.selected == 'order' 
                 && M.ciniki_foodmarket_main.menu.order_id > 0 ) ? 'yes':'no'; },
-            'cellClasses':['', '', '', 'alignright'],
+            'cellClasses':['', 'nobreak', 'alignright nobreak'],
             'noData':'No products found',
             },
         'checkout_orderitems':{'label':'Items', 'type':'simplegrid', 'num_cols':5,
@@ -418,6 +418,10 @@ function ciniki_foodmarket_main() {
     }
     this.menu.liveSearchResultClass = function(s, f, i, j, d) {
         if( s == 'checkout_itemsearch' ) { 
+            switch(j) {
+                case 1: return 'nobreak';
+                case 2: return 'nobreak';
+            }   
             return '';
         }
         if( s == 'baskets_search' && j == 3 ) { 
@@ -429,13 +433,13 @@ function ciniki_foodmarket_main() {
         if( s == 'checkout_itemsearch' ) { 
             switch(j) {
                 case 0: return d.description;
-                case 1: return d.unit_price_text;
-                case 2: return '<button onclick=\'event.stopPropagation(); M.ciniki_foodmarket_main.menu.checkoutItemAdd("' + d.object + '","' + d.object_id + '","1");return false;\'>1</button>'
+                case 1: return '<button onclick=\'event.stopPropagation(); M.ciniki_foodmarket_main.menu.checkoutItemAdd("' + d.object + '","' + d.object_id + '","1");return false;\'>1</button>'
                     + '<button onclick=\'event.stopPropagation(); M.ciniki_foodmarket_main.menu.checkoutItemAdd("' + d.object + '","' + d.object_id + '","2");return false;\'>2</button>'
                     + '<button onclick=\'event.stopPropagation(); M.ciniki_foodmarket_main.menu.checkoutItemAdd("' + d.object + '","' + d.object_id + '","3");return false;\'>3</button>'
                     + '<button onclick=\'event.stopPropagation(); M.ciniki_foodmarket_main.menu.checkoutItemAdd("' + d.object + '","' + d.object_id + '","4");return false;\'>4</button>'
-                    + '<button onclick=\'event.stopPropagation(); M.ciniki_foodmarket_main.menu.checkoutItemAdd("' + d.object + '","' + d.object_id + '","5");return false;\'>5</button>';
-                   
+                    + '<button onclick=\'event.stopPropagation(); M.ciniki_foodmarket_main.menu.checkoutItemAdd("' + d.object + '","' + d.object_id + '","5");return false;\'>5</button>'
+                    + '<button onclick=\'event.stopPropagation(); M.ciniki_foodmarket_main.menu.checkoutItemAdd("' + d.object + '","' + d.object_id + '","6");return false;\'>6</button>';
+                case 2: return d.unit_price_text;
             }
         }
         if( s == 'date_search' ) { 
@@ -526,7 +530,7 @@ function ciniki_foodmarket_main() {
                     var bid = d.id;
                     var q = parseFloat(d.quantity);
                     return '<span class="pmbutton"><span class="pm-down" onclick=\'event.stopPropagation(); M.ciniki_foodmarket_main.menu.checkoutQuantityUpdate(event,"' + d.id + '","' + (q-1) + '");return false;\'>-</span>'
-                        + '<span class="pm-value">' + q + '</span>'
+                        + '<span class="pm-value" onclick=\'event.stopPropagation(); M.ciniki_foodmarket_main.menu.checkoutQuantityGet(event,"' + d.id + '");return false;\'>' + q + '</span>'
                         + '<span class="pm-up" onclick=\'event.stopPropagation(); M.ciniki_foodmarket_main.menu.checkoutQuantityUpdate(event,"' + d.id + '","' + (q+1) + '");return false;\'>+</span>'
                         + '</span>';
                 case 3:
@@ -851,6 +855,12 @@ function ciniki_foodmarket_main() {
         M.api.getJSONCb('ciniki.poma.dateCheckout', 
             {'business_id':M.curBusinessID, 'date_id':this.date_id, 'order_id':this.order_id, 'new_object':o, 'new_object_id':i, 'new_quantity':q, 'customer_id':this.customer_id}, 
             M.ciniki_foodmarket_main.menu.processCheckout);
+    }
+    this.menu.checkoutQuantityGet = function(e, i) {
+        var q = prompt("Quantity: ", '');
+        if( q != '' ) {
+            this.checkoutQuantityUpdate(e, i, q);
+        }
     }
     this.menu.checkoutQuantityUpdate = function(e,i,q) {
         M.api.getJSONCb('ciniki.poma.dateCheckout', 
