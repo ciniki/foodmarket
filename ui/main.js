@@ -2486,6 +2486,7 @@ function ciniki_foodmarket_main() {
             'unit_suffix':{'label':'Unit Suffix', 'visible':'no', 'type':'text', 'size':'small'},
             'packing_order':{'label':'Packing', 'type':'toggle', 'toggles':{'10':'Top', '50':'Middle', '90':'Bottom'}},
 //            'taxtype_id':{'label':'Tax Type', 'type':'text'},
+            'flags6':{'label':'Locked', 'type':'flagtoggle', 'field':'flags', 'bit':0x20},
             'flags1':{'label':'Deposit', 'type':'flagtoggle', 'field':'flags', 'bit':0x80, 'on_fields':['cdeposit_description', 'cdeposit_amount']},
             'cdeposit_description':{'label':'Invoice Item', 'visible':'no', 'type':'text'},
             'cdeposit_amount':{'label':'Deposit', 'visible':'no', 'type':'text', 'size':'small'},
