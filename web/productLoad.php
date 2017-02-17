@@ -94,6 +94,8 @@ function ciniki_foodmarket_web_productLoad($ciniki, $settings, $business_id, $ar
         . "ciniki_foodmarket_product_outputs.end_date, "
         . "ciniki_foodmarket_product_outputs.retail_price AS price, "
         . "ciniki_foodmarket_product_outputs.retail_price_text AS price_text, "
+        . "ciniki_foodmarket_product_outputs.retail_sprice AS sale_price, "
+        . "ciniki_foodmarket_product_outputs.retail_sprice_text AS sale_price_text, "
         . "ciniki_foodmarket_product_outputs.retail_taxtype_id AS taxtype_id, "
         . "IFNULL(ciniki_foodmarket_product_inputs.inventory, 0) AS inventory "
         . "FROM ciniki_foodmarket_product_outputs "
@@ -110,11 +112,7 @@ function ciniki_foodmarket_web_productLoad($ciniki, $settings, $business_id, $ar
         array('container'=>'outputs', 'fname'=>'id', 
             'fields'=>array('id', 'product_id', 'input_id', 'name', 'permalink', 'status', 'status_text'=>'status', 'otype', 'otype_text'=>'otype', 
                 'units', 'units_text'=>'units', 'flags', 'flags_text'=>'flags', 'sequence', 'start_date', 'end_date', 
-                'price', 'price_text', 'taxtype_id', 'inventory',
-                ),
-            'currency'=>array(
-                'wholesale_price'=>array('fmt'=>$intl_currency_fmt, 'currency'=>$intl_currency),
-                'retail_price'=>array('fmt'=>$intl_currency_fmt, 'currency'=>$intl_currency),
+                'price', 'price_text', 'sale_price', 'sale_price_text', 'taxtype_id', 'inventory',
                 ),
             'maps'=>array(
                 'status_text'=>$maps['output']['status'],
@@ -215,6 +213,8 @@ function ciniki_foodmarket_web_productLoad($ciniki, $settings, $business_id, $ar
                 . "ciniki_foodmarket_product_outputs.otype, "
                 . "ciniki_foodmarket_product_outputs.retail_price AS price, "
                 . "ciniki_foodmarket_product_outputs.retail_price_text AS price_text, "
+                . "ciniki_foodmarket_product_outputs.retail_sprice AS sale_price, "
+                . "ciniki_foodmarket_product_outputs.retail_sprice_text AS sale_price_text, "
                 . "ciniki_foodmarket_basket_items.basket_output_id, "
                 . "ciniki_foodmarket_basket_items.quantity "
                 . "FROM ciniki_foodmarket_basket_items "
@@ -237,7 +237,7 @@ function ciniki_foodmarket_web_productLoad($ciniki, $settings, $business_id, $ar
                 . "";
             $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.foodmarket', array(
                 array('container'=>'basket_items', 'fname'=>'id', 
-                    'fields'=>array('id', 'product_id', 'itype', 'units', 'case_units', 'min_quantity', 'name', 'otype', 'price', 'price_text', 'quantity')),
+                    'fields'=>array('id', 'product_id', 'itype', 'units', 'case_units', 'min_quantity', 'name', 'otype', 'price', 'price_text', 'sale_price', 'sale_price_text', 'quantity')),
                 ));
             if( $rc['stat'] != 'ok' ) {
                 return $rc;

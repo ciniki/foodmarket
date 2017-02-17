@@ -27,6 +27,11 @@ function ciniki_foodmarket_convertOutputItem($ciniki, $business_id, $output) {
         'packing_order'=>(isset($output['packing_order']) ? $output['packing_order'] : 10),
         );
 
+
+    if( isset($output['retail_sdiscount_percent']) && $output['retail_sdiscount_percent'] > 0 ) {
+        $item['unit_discount_percentage'] = bcmul($output['retail_sdiscount_percent'], 100, 2);
+    }
+
     //
     // Adjust output type to be inline with poma order item types
     //

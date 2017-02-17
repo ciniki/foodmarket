@@ -101,6 +101,13 @@ function ciniki_foodmarket_web_prepareOutputs($ciniki, $settings, $business_id, 
     $outputs = array();
     foreach($args['outputs'] as $oid => $output) {
         //
+        // Check for sale pricing
+        //
+        if( isset($output['sale_price']) && $output['sale_price'] > 0 ) {
+            $output['price_text'] = '$' . number_format($output['price'], 2);
+        }
+
+        //
         // Check if repeating order is available for this output
         //
         if( ($output['flags']&0x0100) == 0x0100 ) {

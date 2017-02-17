@@ -53,7 +53,8 @@ function ciniki_foodmarket_templates_catalog(&$ciniki, $business_id, $args) {
         . "outputs.otype, "
         . "outputs.units, "
         . "outputs.flags, "
-        . "outputs.retail_price_text "
+        . "outputs.retail_price_text, "
+        . "outputs.retail_sprice_text "
         . "FROM ciniki_foodmarket_categories AS categories "
         . "LEFT JOIN ciniki_foodmarket_categories AS subcategories ON ("
             . "categories.id = subcategories.parent_id "
@@ -87,7 +88,7 @@ function ciniki_foodmarket_templates_catalog(&$ciniki, $business_id, $args) {
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(
         array('container'=>'categories', 'fname'=>'id', 'fields'=>array('name'=>'category_name')),
         array('container'=>'subcategories', 'fname'=>'sid', 'fields'=>array('name'=>'subcategory_name')),
-        array('container'=>'outputs', 'fname'=>'oid', 'fields'=>array('name'=>'pio_name', 'otype', 'flags', 'price'=>'retail_price_text')),
+        array('container'=>'outputs', 'fname'=>'oid', 'fields'=>array('name'=>'pio_name', 'otype', 'flags', 'price'=>'retail_price_text', 'sale_price'=>'retail_sprice_text')),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
@@ -170,7 +171,7 @@ function ciniki_foodmarket_templates_catalog(&$ciniki, $business_id, $args) {
     // Add the first page as a summary
     //
     $pdf->AddPage();
-    $w = array(128, 27, 25);
+    $w = array(123, 32, 25);
     $lh = 10;
     $fill = 1;
     $pdf->SetFillColor(232);
@@ -225,9 +226,19 @@ function ciniki_foodmarket_templates_catalog(&$ciniki, $business_id, $args) {
                     if( $nlines == 2 ) {
                         $lh = 13;
                     }
-                    $pdf->MultiCell($w[0], $lh, $output['name'], $border, 'L', 0, 0, '', '', true, 0, false, true, 0, 'T');
-                    $pdf->MultiCell($w[1], $lh, $output['price'], $border, 'L', 0, 0, '', '', true, 0, false, true, 0, 'B');
-                    $pdf->MultiCell($w[2], $lh, $available, $border, 'C', 0, 0, '', '', true, 0, false, true, 0, 'B');
+//                    if( isset($output['sale_price']) && $output['sale_price'] != '' && $nlines < 2 ) {
+//                        $lh = 13;
+//                    }
+                    $pdf->writeHTMLCell($w[0], $lh, '', '', $output['name'], $border, 0, false, true, 'L', 1);
+//                    $pdf->MultiCell($w[0], $lh, $output['name'], $border, 'L', 0, 0, '', '', true, 0, false, true, 0, 'T');
+                    if( isset($output['sale_price']) && $output['sale_price'] != '' ) {
+//                        $pdf->MultiCell($w[1], $lh, '<s>' . $output['price'] . '</s> ' . $output['sale_price'], $border, 'L', 0, 0, '', '', true, 0, false, true, 0, 'B');
+                        $pdf->writeHTMLCell($w[1], $lh, '', '', '<s>$' . $output['price'] . '</s> ' . $output['sale_price'], $border, 0, false, true, 'L', 1);
+                    } else {
+                        $pdf->MultiCell($w[1], $lh, $output['price'], $border, 'L', 0, 0, '', '', true, 0, false, true, 0, 'B');
+                    }
+                    $pdf->writeHTMLCell($w[2], $lh, '', '', $available, $border, 0, false, true, 'C', 1);
+//                    $pdf->MultiCell($w[2], $lh, $available, $border, 'C', 0, 0, '', '', true, 0, false, true, 0, 'B');
                     //$pdf->Cell($w[0], $lh, $output['name'], $border, 0, 'L', 0);
                     //$pdf->Cell($w[1], $lh, $output['price'], $border, 0, 'L', 0);
                     //$pdf->Cell($w[2], $lh, $available, $border, 0, 'C', 0);

@@ -181,9 +181,6 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
         }
         return $a['sortnumber'] > $b['sortnumber'] ? -1 : 1;
     });
-    foreach($orders as $order) {
-        error_log($order['billing_name'] . ' - ' . $order['sortnumber']);
-    }
 
     //
     // Load TCPDF library

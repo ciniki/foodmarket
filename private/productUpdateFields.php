@@ -100,7 +100,10 @@ function ciniki_foodmarket_productUpdateFields(&$ciniki, $business_id, $product_
         . "ciniki_foodmarket_product_outputs.wholesale_price, "
         . "ciniki_foodmarket_product_outputs.retail_percent, "
         . "ciniki_foodmarket_product_outputs.retail_price, "
-        . "ciniki_foodmarket_product_outputs.retail_price_text "
+        . "ciniki_foodmarket_product_outputs.retail_price_text, "
+        . "ciniki_foodmarket_product_outputs.retail_sdiscount_percent, "
+        . "ciniki_foodmarket_product_outputs.retail_sprice, "
+        . "ciniki_foodmarket_product_outputs.retail_sprice_text "
         . "FROM ciniki_foodmarket_product_outputs "
         . "WHERE ciniki_foodmarket_product_outputs.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
         . "AND ciniki_foodmarket_product_outputs.product_id = '" . ciniki_core_dbQuote($ciniki, $product_id) . "' "
@@ -109,7 +112,7 @@ function ciniki_foodmarket_productUpdateFields(&$ciniki, $business_id, $product_
     $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.foodmarket', array(
         array('container'=>'outputs', 'fname'=>'id', 
             'fields'=>array('id', 'input_id', 'name', 'pio_name', 'io_name', 'keywords', 'otype', 'units', 'flags', 
-                'wholesale_percent', 'wholesale_price', 'retail_percent', 'retail_price', 'retail_price_text')),
+                'wholesale_percent', 'wholesale_price', 'retail_percent', 'retail_price', 'retail_price_text', 'retail_sdiscount_percent', 'retail_sprice', 'retail_sprice_text')),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
@@ -219,54 +222,71 @@ function ciniki_foodmarket_productUpdateFields(&$ciniki, $business_id, $product_
         //
         // Calculate for supplied products
         //
+        $price = 0;
+        $unitstext = '';
         if( ($output['otype'] == 10 || $output['otype'] == 20 || $output['otype'] == '71' ) && isset($input['unit_cost']) && isset($input['units']) ) {
             $rc = ciniki_foodmarket_convertWeightPrice($ciniki, $business_id, $input['unit_cost'], ($input['units']&0xff), ($output['units']&0xff));
             if( $rc['stat'] != 'ok' ) {
                 return $rc;
             }
             $auc = $rc['price'];
-            $output['retail_price'] = bcmul($auc, bcadd(1, $output['retail_percent'], 6), 6);
-            $output['retail_price_text'] = '$' . number_format($output['retail_price'], 2, '.', ',') 
-                . ciniki_foodmarket_unitsText($ciniki, $business_id, ($output['units']&0xff));
+            $price = bcmul($auc, bcadd(1, $output['retail_percent'], 6), 6);
+            $unitstext = ciniki_foodmarket_unitsText($ciniki, $business_id, ($output['units']&0xff));
         } 
         elseif( ($output['otype'] == 30 || $output['otype'] == 72 ) && isset($input['unit_cost']) && isset($input['units']) ) {
-            $output['retail_price'] = bcmul($input['unit_cost'], bcadd(1, $output['retail_percent'], 6), 6);
-            $output['retail_price_text'] = '$' . number_format($output['retail_price'], 2, '.', ',') 
-                . ciniki_foodmarket_unitsText($ciniki, $business_id, ($output['units']&0xff00));
+            $price = bcmul($input['unit_cost'], bcadd(1, $output['retail_percent'], 6), 6);
+            $unitstext = ciniki_foodmarket_unitsText($ciniki, $business_id, ($output['units']&0xff00));
         } 
         elseif( $output['otype'] == 50 && isset($input['case_cost']) ) {
-            $output['retail_price'] = bcmul($input['case_cost'], bcadd(1, $output['retail_percent'], 6), 6);
-            $output['retail_price_text'] = '$' . number_format($output['retail_price'], 2, '.', ','); //  . '/' . $case_text;
+            $price = bcmul($input['case_cost'], bcadd(1, $output['retail_percent'], 6), 6);
+//            $output['retail_price_text'] = '$' . number_format($output['retail_price'], 2, '.', ','); //  . '/' . $case_text;
         }
         elseif( $output['otype'] == 52 && isset($input['case_cost']) ) {
-            $output['retail_price'] = bcmul(bcdiv($input['case_cost'], 2, 6), bcadd(1, $output['retail_percent'], 6), 6);
-            $output['retail_price_text'] = '$' . number_format($output['retail_price'], 2, '.', ','); // . ' per 1/2 ' . $case_text;
+            $price = bcmul(bcdiv($input['case_cost'], 2, 6), bcadd(1, $output['retail_percent'], 6), 6);
+//            $output['retail_price_text'] = '$' . number_format($output['retail_price'], 2, '.', ','); // . ' per 1/2 ' . $case_text;
         }
         elseif( $output['otype'] == 53 && isset($input['case_cost']) ) {
-            $output['retail_price'] = bcmul(bcdiv($input['case_cost'], 3, 6), bcadd(1, $output['retail_percent'], 6), 6);
-            $output['retail_price_text'] = '$' . number_format($output['retail_price'], 2, '.', ','); // . ' per 1/3 ' . $case_text;
+            $price = bcmul(bcdiv($input['case_cost'], 3, 6), bcadd(1, $output['retail_percent'], 6), 6);
+//            $output['retail_price_text'] = '$' . number_format($output['retail_price'], 2, '.', ','); // . ' per 1/3 ' . $case_text;
         }
         elseif( $output['otype'] == 54 && isset($input['case_cost']) ) {
-            $output['retail_price'] = bcmul(bcdiv($input['case_cost'], 4, 6), bcadd(1, $output['retail_percent'], 6), 6);
-            $output['retail_price_text'] = '$' . number_format($output['retail_price'], 2, '.', ','); // . ' per 1/4 ' . $case_text;
+            $price = bcmul(bcdiv($input['case_cost'], 4, 6), bcadd(1, $output['retail_percent'], 6), 6);
+//            $output['retail_price_text'] = '$' . number_format($output['retail_price'], 2, '.', ','); // . ' per 1/4 ' . $case_text;
         }
         elseif( $output['otype'] == 55 && isset($input['case_cost']) ) {
-            $output['retail_price'] = bcmul(bcdiv($input['case_cost'], 5, 6), bcadd(1, $output['retail_percent'], 6), 6);
-            $output['retail_price_text'] = '$' . number_format($output['retail_price'], 2, '.', ','); // . ' per 1/5 ' . $case_text;
+            $price = bcmul(bcdiv($input['case_cost'], 5, 6), bcadd(1, $output['retail_percent'], 6), 6);
+//            $output['retail_price_text'] = '$' . number_format($output['retail_price'], 2, '.', ','); // . ' per 1/5 ' . $case_text;
         }
         elseif( $output['otype'] == 56 && isset($input['case_cost']) ) {
-            $output['retail_price'] = bcmul(bcdiv($input['case_cost'], 6, 6), bcadd(1, $output['retail_percent'], 6), 6);
-            $output['retail_price_text'] = '$' . number_format($output['retail_price'], 2, '.', ','); // . ' per 1/6 ' . $case_text;
+            $price = bcmul(bcdiv($input['case_cost'], 6, 6), bcadd(1, $output['retail_percent'], 6), 6);
+//            $output['retail_price_text'] = '$' . number_format($output['retail_price'], 2, '.', ','); // . ' per 1/6 ' . $case_text;
         }
         elseif( $output['otype'] == 70 ) {
-            $output['retail_price_text'] = '$' . number_format($output['retail_price'], 2, '.', ',');
+            $price = $output['retail_price'];
+//            $output['retail_price_text'] = '$' . number_format($output['retail_price'], 2, '.', ',');
+        }
+
+        //
+        // Check for a discount
+        //
+        $output['retail_price'] = $price;
+        if( $output['retail_sdiscount_percent'] > 0 ) {
+            $output['retail_price_text'] = '$' . number_format($price, 2, '.', ',');
+            $discount = bcmul($price, $output['retail_sdiscount_percent'], 6);
+            $output['retail_sprice'] = bcsub($price, $discount, 6);
+            $output['retail_sprice_text'] = '$' . number_format($output['retail_sprice'], 2) . $unitstext;
+        } else {
+            $output['retail_price'] = $price;
+            $output['retail_price_text'] = '$' . number_format($price, 2, '.', ',') . $unitstext;
+            $output['retail_sprice'] = 0;
+            $output['retail_sprice_text'] = '';
         }
 
         //
         // Check for changed fields and build array of fields to update, and update the $outputs array
         //
         $update_args = array();
-        foreach(['pio_name', 'io_name', 'keywords', 'wholesale_price', 'retail_price', 'retail_price_text'] as $field) {
+        foreach(['pio_name', 'io_name', 'keywords', 'wholesale_price', 'retail_price', 'retail_price_text', 'retail_sprice', 'retail_sprice_text'] as $field) {
             if( isset($output[$field]) && $output[$field] != $outputs[$output_id][$field] ) {
                 $update_args[$field] = $output[$field];
                 $outputs[$output_id][$field] = $output[$field];

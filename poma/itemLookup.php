@@ -29,6 +29,7 @@ function ciniki_foodmarket_poma_itemLookup($ciniki, $business_id, $args) {
             . "ciniki_foodmarket_product_outputs.otype, "      // Item type
             . "ciniki_foodmarket_product_outputs.units, "
             . "ciniki_foodmarket_product_outputs.flags, "
+            . "ciniki_foodmarket_product_outputs.retail_sdiscount_percent, "
             . "ciniki_foodmarket_product_outputs.retail_price, "
             . "ciniki_foodmarket_product_outputs.retail_price_text, "
             . "ciniki_foodmarket_product_outputs.retail_taxtype_id, "
