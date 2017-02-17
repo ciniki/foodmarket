@@ -845,7 +845,7 @@ function ciniki_foodmarket_main() {
     }
     this.menu.cellFn = function(s, i, j, d) {
         if( s == 'procurement_supplier_inputs' && j == 2 ) {
-            return 'return M.ciniki_foodmarket_main.menu.procurementUpdateCost(event,\'' + d.id + '\',\'' + d.itype + '\',\'' + encodeURIComponent(d.name) + '\',\'' + d.cost_suffix + '\');';
+            return 'return M.ciniki_foodmarket_main.menu.procurementUpdateCost(event,\'' + d.id + '\',\'' + d.itype + '\',"' + encodeURIComponent(d.name) + '",\'' + d.cost_suffix + '\');';
         }
         return null;
     }
