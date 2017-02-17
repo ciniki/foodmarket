@@ -254,6 +254,7 @@ function ciniki_foodmarket_procurement($ciniki) {
         }
         if( isset($rc['inputs']) ) {
             foreach($rc['inputs'] as $input) {
+                $input['cost_suffix'] = '';
                 $input['requested_quantity'] = 0;
                 $input['order_quantity'] = 0;
                 if( $input['input_name'] != '' ) {
@@ -323,8 +324,10 @@ function ciniki_foodmarket_procurement($ciniki) {
                     $input['order_quantity_text'] = $input['order_quantity'] . ($input['order_quantity'] > 1 ? ' ' . $ptext : ' ' . $stext);
                     if( $input['min_quantity'] > 1 ) {
                         $input['cost_text'] = '$' . number_format(bcmul($input['unit_cost'], $input['min_quantity'], 2), 2) . '/' . (float)$input['min_quantity'] . '' . $stext;
+                        $input['cost_suffix'] = '/' . (float)$input['min_quantity'] . $stext;
                     } else {
                         $input['cost_text'] = '$' . number_format($input['unit_cost'], 2) . '/' . $stext;
+                        $input['cost_suffix'] = '/' . $stext;
                     }
                 } elseif( $input['itype'] == 20 || $input['itype'] == 30 ) {
                     $sizetext = 'Single';
@@ -347,22 +350,30 @@ function ciniki_foodmarket_procurement($ciniki) {
                     if( $input['itype'] == 20 ) {
                         if( ($input['units']&0x02) == 0x02 ) {
                             $input['cost_text'] = '$' . number_format($input['unit_cost'], 2) . '/lb';
+                            $input['cost_suffix'] = '/lb';
                         } elseif( ($input['units']&0x04) == 0x04 ) {
                             $input['cost_text'] = '$' . number_format($input['unit_cost'], 2) . '/oz';
+                            $input['cost_suffix'] = '/oz';
                         } elseif( ($input['units']&0x20) == 0x20 ) {
                             $input['cost_text'] = '$' . number_format($input['unit_cost'], 2) . '/kg';
+                            $input['cost_suffix'] = '/kg';
                         } elseif( ($input['units']&0x40) == 0x40 ) {
                             $input['cost_text'] = '$' . number_format($input['unit_cost'], 2) . '/g';
+                            $input['cost_suffix'] = '/g';
                         }
                     } else {
                         if( ($input['units']&0x0200) == 0x0200 ) {
                             $input['cost_text'] = '$' . number_format($input['unit_cost'], 2) . '/pair';
+                            $input['cost_suffix'] = '/pair';
                         } elseif( ($input['units']&0x0400) == 0x0400 ) {
                             $input['cost_text'] = '$' . number_format($input['unit_cost'], 2) . '/bunch';
+                            $input['cost_suffix'] = '/bunch';
                         } elseif( ($input['units']&0x0800) == 0x0800 ) {
                             $input['cost_text'] = '$' . number_format($input['unit_cost'], 2) . '/bag';
+                            $input['cost_suffix'] = '/bag';
                         } else {
                             $input['cost_text'] = '$' . number_format($input['unit_cost'], 2) . '';
+                            $input['cost_suffix'] = '';
                         }
                     }
                 } elseif( $input['itype'] == 50 ) {
@@ -392,6 +403,7 @@ function ciniki_foodmarket_procurement($ciniki) {
                         . ' (' . (float)$input['unit_quantity'] . ')';
                     $input['order_quantity_text'] = $input['order_quantity'] . ($input['order_quantity'] > 1 ? ' ' . $ptext : ' ' . $stext);
                     $input['cost_text'] = '$' . number_format($input['case_cost'], 2) . '/' . $stext;
+                    $input['cost_suffix'] = '/' . $stext;
                 }
                 $rsp['procurement_supplier_inputs'][] = $input;
 

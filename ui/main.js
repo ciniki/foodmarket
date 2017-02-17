@@ -843,6 +843,12 @@ function ciniki_foodmarket_main() {
         }
         return '';
     }
+    this.menu.cellFn = function(s, i, j, d) {
+        if( s == 'procurement_supplier_inputs' && j == 2 ) {
+            return 'return M.ciniki_foodmarket_main.menu.procurementUpdateCost(event,\'' + d.id + '\',\'' + d.itype + '\',\'' + encodeURIComponent(d.name) + '\',\'' + d.cost_suffix + '\');';
+        }
+        return null;
+    }
     this.menu.rowFn = function(s, i, d) {
         /* Checkout */
         if( s == 'checkout_open_orders' || s == 'checkout_closed_orders' ) {
@@ -1019,6 +1025,31 @@ function ciniki_foodmarket_main() {
     this.menu.openProcurementSupplier = function(i) {
         this.supplier_id = i;
         this.open();
+    }
+    this.menu.procurementUpdateCost = function(e, i, t, n, s) {
+        e.stopPropagation();
+        var p = prompt('Enter new price for ' + decodeURIComponent(n));
+        if( p != null && p != '' ) {
+            p = parseFloat(p);
+            if( t == 50 ) {
+                M.api.getJSONCb('ciniki.foodmarket.inputUpdate', {'business_id':M.curBusinessID, 'input_id':i, 'case_cost':p}, function(rsp) {
+                    if( rsp.stat != 'ok' ) {
+                        M.api.err(rsp);
+                        return false;
+                    }
+                    e.srcElement.innerHTML = '$' + p.toFixed(2) + s;
+                });
+            } else {
+                M.api.getJSONCb('ciniki.foodmarket.inputUpdate', {'business_id':M.curBusinessID, 'input_id':i, 'unit_cost':p}, function(rsp) {
+                    if( rsp.stat != 'ok' ) {
+                        M.api.err(rsp);
+                        return false;
+                    }
+                    e.srcElement.innerHTML = '$' + p.toFixed(2) + s;
+                });
+            }
+        }
+        return false;
     }
 
     /* Dates */
