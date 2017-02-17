@@ -1433,7 +1433,7 @@ function ciniki_foodmarket_main() {
     //
     // The panel for editing a product
     //
-    this.product = new M.panel('Product', 'ciniki_foodmarket_main', 'product', 'mc', 'large narrowaside', 'sectioned', 'ciniki.foodmarket.main.product');
+    this.product = new M.panel('Product', 'ciniki_foodmarket_main', 'product', 'mc', 'medium mediumaside', 'sectioned', 'ciniki.foodmarket.main.product');
     this.product.data = {};
     this.product.product_id = 0;
     this.product.sections = { 
