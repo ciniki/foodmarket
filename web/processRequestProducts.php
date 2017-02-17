@@ -31,12 +31,21 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $busi
     //
     // Check for image format
     //
-    $thumbnail_format = 'square-cropped';
-    $thumbnail_padding_color = '#ffffff';
+    $category_thumbnail_format = 'square-cropped';
+    $category_thumbnail_padding_color = '#ffffff';
+    if( isset($settings['page-foodmarket-category-thumbnail-format']) && $settings['page-foodmarket-category-thumbnail-format'] == 'square-padded' ) {
+        $category_thumbnail_format = $settings['page-foodmarket-category-thumbnail-format'];
+        if( isset($settings['page-foodmarket-category-thumbnail-padding-color']) && $settings['page-foodmarket-category-thumbnail-padding-color'] != '' ) {
+            $category_thumbnail_padding_color = $settings['page-foodmarket-category-thumbnail-padding-color'];
+        } 
+    }
+    
+    $product_thumbnail_format = 'square-cropped';
+    $product_thumbnail_padding_color = '#ffffff';
     if( isset($settings['page-foodmarket-products-thumbnail-format']) && $settings['page-foodmarket-products-thumbnail-format'] == 'square-padded' ) {
-        $thumbnail_format = $settings['page-foodmarket-products-thumbnail-format'];
+        $product_thumbnail_format = $settings['page-foodmarket-products-thumbnail-format'];
         if( isset($settings['page-foodmarket-products-thumbnail-padding-color']) && $settings['page-foodmarket-products-thumbnail-padding-color'] != '' ) {
-            $thumbnail_padding_color = $settings['page-foodmarket-products-thumbnail-padding-color'];
+            $product_thumbnail_padding_color = $settings['page-foodmarket-products-thumbnail-padding-color'];
         } 
     }
     
@@ -193,7 +202,7 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $busi
         }
         if( isset($rc['products']) && count($rc['products']) > 0 ) {
             $page['blocks'][] = array('type'=>'productcards', 'base_url'=>$base_url, 'cards'=>$rc['products'],
-                'thumbnail_format'=>$thumbnail_format, 'thumbnail_padding_color'=>$thumbnail_padding_color,
+                'thumbnail_format'=>$product_thumbnail_format, 'thumbnail_padding_color'=>$product_thumbnail_padding_color,
                 );
         } else {
             $page['blocks'][] = array('type'=>'content', 'content'=>"I'm sorry, we don't currently have any products on special.");
@@ -214,7 +223,7 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $busi
         }
         if( isset($rc['products']) && count($rc['products']) > 0 ) {
             $page['blocks'][] = array('type'=>'productcards', 'base_url'=>$base_url, 'cards'=>$rc['products'],
-                'thumbnail_format'=>$thumbnail_format, 'thumbnail_padding_color'=>$thumbnail_padding_color,
+                'thumbnail_format'=>$product_thumbnail_format, 'thumbnail_padding_color'=>$product_thumbnail_padding_color,
                 );
         } else {
             $page['blocks'][] = array('type'=>'content', 'content'=>"I'm sorry, we don't currently have any new products.");
@@ -268,7 +277,7 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $busi
         if( isset($rc['categories']) && count($rc['categories']) > 0 ) {
             $subcategories = $rc['categories'];
             $page['blocks'][] = array( 'type'=>'tagimages', 'base_url'=>$base_url, 'size'=>'small', 'tags'=>$rc['categories'],
-                'thumbnail_format'=>$thumbnail_format, 'thumbnail_padding_color'=>$thumbnail_padding_color,
+                'thumbnail_format'=>$category_thumbnail_format, 'thumbnail_padding_color'=>$category_thumbnail_padding_color,
                 );
         }
 
@@ -282,7 +291,7 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $busi
         if( isset($rc['products']) && count($rc['products']) > 0 ) {
             $specials = $rc['products'];
             $page['blocks'][] = array( 'type'=>'productcards', 'title'=>'Specials', 'base_url'=>$base_url, 'cards'=>$rc['products'],
-                'thumbnail_format'=>$thumbnail_format, 'thumbnail_padding_color'=>$thumbnail_padding_color,
+                'thumbnail_format'=>$product_thumbnail_format, 'thumbnail_padding_color'=>$product_thumbnail_padding_color,
                 );
         } */
 
@@ -298,7 +307,7 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $busi
             $page['blocks'][] = array('type'=>'productcards',
                 'title'=>(isset($subcategories) || isset($specials) ? 'Products' : ''),  // No title if only block
                 'base_url'=>$base_url, 'cards'=>$rc['products'],
-                'thumbnail_format'=>$thumbnail_format, 'thumbnail_padding_color'=>$thumbnail_padding_color,
+                'thumbnail_format'=>$product_thumbnail_format, 'thumbnail_padding_color'=>$product_thumbnail_padding_color,
                 );
         }
     }
@@ -319,7 +328,7 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $busi
         }
         if( isset($rc['categories']) && count($rc['categories']) > 0 ) {
             $page['blocks'][] = array('type'=>'tagimages', 'base_url'=>$base_url, 'tags'=>$rc['categories'], 'size'=>'small',
-                'thumbnail_format'=>$thumbnail_format, 'thumbnail_padding_color'=>$thumbnail_padding_color,
+                'thumbnail_format'=>$category_thumbnail_format, 'thumbnail_padding_color'=>$category_thumbnail_padding_color,
                 );
         }
 
@@ -332,7 +341,7 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $busi
         }
         if( isset($rc['products']) && count($rc['products']) > 0 ) {
             $page['blocks'][] = array('type'=>'productcards', 'title'=>'Specials', 'base_url'=>$base_url, 'cards'=>$rc['products'],
-                'thumbnail_format'=>$thumbnail_format, 'thumbnail_padding_color'=>$thumbnail_padding_color,
+                'thumbnail_format'=>$product_thumbnail_format, 'thumbnail_padding_color'=>$product_thumbnail_padding_color,
                 );
         } */
 
@@ -345,7 +354,7 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $busi
         }
         if( isset($rc['products']) && count($rc['products']) > 0 ) {
             $page['blocks'][] = array('type'=>'imagelist', 'title'=>'Products', 'base_url'=>$base_url, 'tags'=>$rc['products'],
-                'thumbnail_format'=>$thumbnail_format, 'thumbnail_padding_color'=>$thumbnail_padding_color,
+                'thumbnail_format'=>$product_thumbnail_format, 'thumbnail_padding_color'=>$product_thumbnail_padding_color,
                 );
         } */
     }

@@ -65,6 +65,23 @@ function ciniki_foodmarket_hooks_webOptions(&$ciniki, $business_id, $args) {
         ); */
     $poptions[] = array(
         'label'=>'Category Format',
+        'setting'=>'page-foodmarket-category-thumbnail-format', 
+        'type'=>'toggle',
+        'value'=>(isset($settings['page-foodmarket-category-thumbnail-format']) ? $settings['page-foodmarket-category-thumbnail-format'] : 'square-cropped'),
+        'toggles'=>array(
+            array('value'=>'square-cropped', 'label'=>'Cropped'),
+            array('value'=>'square-padded', 'label'=>'Padded'),
+            ),
+        ); 
+    $poptions[] = array(
+        'label'=>'Thumbnail Padding Color',
+        'setting'=>'page-foodmarket-category-thumbnail-padding-color',
+        'type'=>'colour',
+        'value'=>(isset($settings['page-foodmarket-category-thumbnail-padding-color'])?$settings['page-foodmarket-category-thumbnail-padding-color']:'#ffffff'),
+        );
+
+    $poptions[] = array(
+        'label'=>'Product Format',
         'setting'=>'page-foodmarket-products-thumbnail-format', 
         'type'=>'toggle',
         'value'=>(isset($settings['page-foodmarket-products-thumbnail-format']) ? $settings['page-foodmarket-products-thumbnail-format'] : 'square-cropped'),
