@@ -275,7 +275,7 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $busi
         //
         // Check for any specials for all categories
         //
-        $rc = ciniki_foodmarket_web_productList($ciniki, $settings, $business_id, array('parent_id'=>$category['id'], 'flags'=>0x10, 'limit'=>20));
+/*        $rc = ciniki_foodmarket_web_productList($ciniki, $settings, $business_id, array('parent_id'=>$category['id'], 'flags'=>0x10, 'limit'=>20));
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }
@@ -284,7 +284,7 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $busi
             $page['blocks'][] = array( 'type'=>'productcards', 'title'=>'Specials', 'base_url'=>$base_url, 'cards'=>$rc['products'],
                 'thumbnail_format'=>$thumbnail_format, 'thumbnail_padding_color'=>$thumbnail_padding_color,
                 );
-        }
+        } */
 
         //
         // Show the products for this category
