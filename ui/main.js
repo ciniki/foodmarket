@@ -128,7 +128,7 @@ function ciniki_foodmarket_main() {
                 && M.ciniki_foodmarket_main.menu.order_id > 0 ) ? 'yes':'no'; },
             'cellClasses':['multiline', 'multiline'],
             'addTxt':'Email Customer',
-            'addFn':'M.ciniki_foodmarket_main.email.emailOrder(\'M.ciniki_foodmarket_main.menu.open();\',M.ciniki_foodmarket_main.menu.data.order);',
+            'addFn':'M.ciniki_foodmarket_main.email.open(\'M.ciniki_foodmarket_main.menu.open();\',M.ciniki_foodmarket_main.menu.order_id);',
             },
         'checkout_recentledger':{'label':'Last 15 transactions', 'type':'simplegrid', 'num_cols':4,
             'visible':function() { return ( M.ciniki_foodmarket_main.menu.sections._tabs.selected == 'checkout' 
@@ -3099,15 +3099,27 @@ function ciniki_foodmarket_main() {
     this.email.fieldValue = function(s, i, d) {
         return this.data[i];
     };
-    this.email.emailOrder = function(cb, order) {
+/*    this.email.emailOrder = function(cb, order) {
         this.order_id = order.id;
         this.data.subject = 'Invoice #' + order.order_number;
         this.data.textmsg = '';
         this.open(cb);
-    };
-    this.email.open = function(cb) {
-        this.refresh();
-        this.show(cb);
+    }; */
+    this.email.open = function(cb, oid) {
+        if( oid != null ) { this.order_id = oid; }
+        //
+        // Get the email template
+        //
+        M.api.getJSONCb('ciniki.poma.orderEmailGet', {'business_id':M.curBusinessID, 'order_id':this.order_id}, function(rsp) {
+            if( rsp.stat != 'ok' ) {
+                M.api.err(rsp);
+                return false;
+            }
+            var p = M.ciniki_foodmarket_main.email;
+            p.data = rsp.email;
+            p.refresh();
+            p.show(cb);
+            });
     };
     this.email.send = function() {
         var subject = this.formFieldValue(this.sections._subject.fields.subject, 'subject');
