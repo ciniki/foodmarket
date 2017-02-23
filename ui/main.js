@@ -106,7 +106,7 @@ function ciniki_foodmarket_main() {
                 && M.ciniki_foodmarket_main.menu.order_id > 0 ) ? 'yes':'no'; },
             'headerValues':['', 'Item', 'Quantity', 'Price', 'Total'],
             'headerClasses':['', '', 'alignright', '', 'alignright'],
-            'cellClasses':['alignright', 'multiline', 'alignright nobreak', 'multiline nobreak', 'multiline alignright nobreak'],
+            'cellClasses':['alignright', 'multiline', 'multiline alignright nobreak', 'multiline nobreak', 'multiline alignright nobreak'],
             'addTxt':'Add',
             'addFn':'M.ciniki_foodmarket_main.orderitem.open(\'M.ciniki_foodmarket_main.menu.open();\',0,M.ciniki_foodmarket_main.menu.order_id,[]);',
             },
