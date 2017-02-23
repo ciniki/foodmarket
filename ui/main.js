@@ -943,7 +943,7 @@ function ciniki_foodmarket_main() {
     }
     this.menu.checkoutQuantityGet = function(e, i) {
         var q = prompt("Quantity: ", '');
-        if( q != '' ) {
+        if( q != null && q != '' ) {
             this.checkoutQuantityUpdate(e, i, q);
         }
     }
