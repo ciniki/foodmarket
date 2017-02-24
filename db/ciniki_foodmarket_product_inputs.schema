@@ -39,7 +39,7 @@
 #                           0x08 - 
 #                           0x10 - 
 #                           0x20 - kg (kilograms)
-#                           0x40 - f (grams)
+#                           0x40 - g (grams)
 #                           0x80 - 
 #                           0x0100 - Each
 #                           0x0200 - Pair

@@ -19,6 +19,8 @@ function ciniki_foodmarket_convertOutputItem($ciniki, $business_id, $output) {
         'object'=>'ciniki.foodmarket.output',
         'object_id'=>$output['id'],
         'description'=>$output['pio_name'],
+        'name'=>isset($output['product_name']) ? $output['product_name'] : '',
+        'size'=>isset($output['input_name']) ? $output['input_name'] : '',
         'flags'=>0,
         'itype'=>(isset($output['otype']) ? $output['otype'] : 30),
         'units'=>(isset($output['units']) ? $output['units'] : 0),
@@ -26,7 +28,6 @@ function ciniki_foodmarket_convertOutputItem($ciniki, $business_id, $output) {
         'taxtype_id'=>(isset($output['retail_taxtype_id']) ? $output['retail_taxtype_id'] : 0),
         'packing_order'=>(isset($output['packing_order']) ? $output['packing_order'] : 10),
         );
-
 
     if( isset($output['retail_sdiscount_percent']) && $output['retail_sdiscount_percent'] > 0 ) {
         $item['unit_discount_percentage'] = bcmul($output['retail_sdiscount_percent'], 100, 2);

@@ -234,8 +234,13 @@ function ciniki_foodmarket_productLoad($ciniki, $business_id, $product_id) {
             $product['input' . $idx . '_sequence'] = $input['sequence'];
             $product['input' . $idx . '_case_cost'] = number_format($input['case_cost'], 2);
             $product['input' . $idx . '_half_cost'] = number_format($input['half_cost'], 2);
-            $product['input' . $idx . '_unit_cost'] = number_format($input['unit_cost'], 2);
-            $product['input' . $idx . '_unit_cost_calc'] = number_format($input['unit_cost'], 2);
+            if( $input['unit_cost'] < 1 ) {
+                $product['input' . $idx . '_unit_cost'] = number_format($input['unit_cost'], 4);
+                $product['input' . $idx . '_unit_cost_calc'] = number_format($input['unit_cost'], 4);
+            } else {
+                $product['input' . $idx . '_unit_cost'] = number_format($input['unit_cost'], 2);
+                $product['input' . $idx . '_unit_cost_calc'] = number_format($input['unit_cost'], 2);
+            }
             $product['input' . $idx . '_case_units'] = number_format($input['case_units'], 2);
             $product['input' . $idx . '_min_quantity'] = $input['min_quantity'] + 0;
             $product['input' . $idx . '_inc_quantity'] = $input['inc_quantity'] + 0;

@@ -48,7 +48,7 @@ function ciniki_foodmarket_convertWeightPrice($ciniki, $business_id, $price, $fr
         $price = bcmul($price, 0.453592, $precision);
     }
     // $/kg -> $/oz
-    elseif( $from_units == 0x20 && $to_units == 0x20 ) {
+    elseif( $from_units == 0x20 && $to_units == 0x04 ) {
         $price = bcmul($price, 0.0283495, $precision);
     }
     // $/kg -> $/g
@@ -57,15 +57,15 @@ function ciniki_foodmarket_convertWeightPrice($ciniki, $business_id, $price, $fr
     }
 
     // $/g -> $/lb
-    elseif( $from_units == 0x20 && $to_units == 0x02 ) {
+    elseif( $from_units == 0x40 && $to_units == 0x02 ) {
         $price = bcmul($price, 453.592, $precision);
     }
     // $/g -> $/oz
-    elseif( $from_units == 0x20 && $to_units == 0x20 ) {
+    elseif( $from_units == 0x40 && $to_units == 0x04 ) {
         $price = bcmul($price, 28.3495, $precision);
     }
     // $/g -> $/kg
-    elseif( $from_units == 0x20 && $to_units == 0x40 ) {
+    elseif( $from_units == 0x40 && $to_units == 0x20 ) {
         $price = bcmul($price, 1000, $precision);
     }
     // error
