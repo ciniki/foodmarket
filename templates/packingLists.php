@@ -259,7 +259,11 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
     $pdf->AddPage();
     $w = array(80, 40, 60);
     $lh = 10;
+    $pdf->SetFillColor(232);
+    $pdf->SetFont('helvetica', 'B', 14);
+    $pdf->Cell(180, 10, 'Baskets', 0, 1, 'L', 1);
     $border = 'TB';
+    $pdf->SetFont('helvetica', '', 12);
     foreach($orders as $order) {
         $pdf->date_text = $order['order_date_text'];
         if( isset($order['items']) ) {
@@ -279,7 +283,15 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
     //
     $w = array(140, 15, 10, 15);
     if( isset($weighted_items) && count($weighted_items) > 0 ) {
-        $pdf->AddPage();
+        if( $pdf->GetY() > 160 ) {
+            $pdf->AddPage();
+        } else {
+            $pdf->Ln();
+        }
+        $pdf->SetFillColor(232);
+        $pdf->SetFont('helvetica', 'B', 14);
+        $pdf->Cell(180, 10, 'Weighted Items', 0, 1, 'L', 1);
+        $pdf->SetFont('helvetica', '', 12);
         foreach($weighted_items as $item) {
             foreach($item['quantities'] as $quantity) {
                 $pdf->Cell($w[0], $lh, $item['description'], $border, 0, 'L', 0);
@@ -294,7 +306,7 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
     //
     // Go through the sections, categories and classes
     //
-    $w = array(8, 142, 5, 10, 15);
+//    $w = array(8, 142, 5, 10, 15);
     foreach($orders as $order) {
         if( !isset($order['items']) || count($order['items']) == 0 ) {
             continue;
@@ -309,6 +321,7 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
 
         $pdf->AddPage();
 
+        $w = array(5, 8, 10, 15, 142);
         $num_baskets = 0;
         foreach($order['items'] as $item) {
             if( !isset($item['basket']) || $item['basket'] != 'yes' ) {
@@ -323,13 +336,21 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
             $border = 'B';
             foreach($item['subitems'] as $subitem) {
                 $lh = 10;
-                $pdf->SetFont('zapfdingbats', '', 14);
-                $pdf->Cell($w[0], $lh, 'o', $border, 0, 'C', $subfill);
                 $pdf->SetFont('helvetica', '', 12);
-                $pdf->Cell($w[1], $lh, $subitem['description'], $border, 0, 'L', $subfill);
-                $pdf->Cell($w[2], $lh, (isset($subitem['modified'])&&$subitem['modified']=='yes'?'M':''), $border, 0, 'L', $subfill);
-                $pdf->Cell($w[3], $lh, $subitem['quantity'], $border, 0, 'R', $subfill);
-                $pdf->Cell($w[4], $lh, $subitem['suffix'], $border, 0, 'L', $subfill);
+                $pdf->Cell($w[0], $lh, (isset($subitem['modified'])&&$subitem['modified']=='yes'?'M':''), $border, 0, 'L', $subfill);
+                $pdf->SetFont('zapfdingbats', '', 14);
+                $pdf->Cell($w[1], $lh, 'o', $border, 0, 'C', $subfill);
+                $pdf->SetFont('helvetica', '', 12);
+                $pdf->Cell($w[2], $lh, $subitem['quantity'], $border, 0, 'R', $subfill);
+                $pdf->Cell($w[3], $lh, $subitem['suffix'], $border, 0, 'L', $subfill);
+                $pdf->Cell($w[4], $lh, $subitem['description'], $border, 0, 'L', $subfill);
+//                $pdf->SetFont('zapfdingbats', '', 14);
+//                $pdf->Cell($w[0], $lh, 'o', $border, 0, 'C', $subfill);
+//                $pdf->SetFont('helvetica', '', 12);
+//                $pdf->Cell($w[1], $lh, $subitem['description'], $border, 0, 'L', $subfill);
+//                $pdf->Cell($w[2], $lh, (isset($subitem['modified'])&&$subitem['modified']=='yes'?'M':''), $border, 0, 'L', $subfill);
+//                $pdf->Cell($w[3], $lh, $subitem['quantity'], $border, 0, 'R', $subfill);
+//                $pdf->Cell($w[4], $lh, $subitem['suffix'], $border, 0, 'L', $subfill);
                 $pdf->Ln();
                 $border = 'B';
             }
@@ -350,6 +371,7 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
         //
         $fill = 0;
         $border = 'TB';
+        $w = array(8, 10, 15, 147);
         foreach($order['items'] as $item) {
             if( isset($item['basket']) && $item['basket'] == 'yes' ) {  
                 continue;
@@ -366,10 +388,16 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
             $pdf->SetFont('zapfdingbats', '', 14);
             $pdf->Cell($w[0], $lh, 'o', $border, 0, 'C', $fill);
             $pdf->SetFont('helvetica', '', 12);
-            $pdf->Cell($w[1], $lh, $item['description'], $border, 0, 'L', $fill);
-            $pdf->Cell($w[2], $lh, '', $border, 0, 'L', $fill);
-            $pdf->Cell($w[3], $lh, $item['quantity'], $border, 0, 'R', $fill);
-            $pdf->Cell($w[4], $lh, $item['suffix'], $border, 0, 'L', $fill);
+            $pdf->Cell($w[1], $lh, $item['quantity'], $border, 0, 'R', $fill);
+            $pdf->Cell($w[2], $lh, $item['suffix'], $border, 0, 'L', $fill);
+            $pdf->Cell($w[3], $lh, $item['description'], $border, 0, 'L', $fill);
+//            $pdf->SetFont('zapfdingbats', '', 14);
+//            $pdf->Cell($w[0], $lh, 'o', $border, 0, 'C', $fill);
+//            $pdf->SetFont('helvetica', '', 12);
+//            $pdf->Cell($w[1], $lh, $item['description'], $border, 0, 'L', $fill);
+//            $pdf->Cell($w[2], $lh, '', $border, 0, 'L', $fill);
+//            $pdf->Cell($w[3], $lh, $item['quantity'], $border, 0, 'R', $fill);
+//            $pdf->Cell($w[4], $lh, $item['suffix'], $border, 0, 'L', $fill);
             $pdf->Ln();
             $border = 'B';
             //$fill=!$fill;
