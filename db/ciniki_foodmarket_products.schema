@@ -31,7 +31,7 @@
 #                       You could order 25lbs on squash, inventory by the item, and sell by the weighted item. Each squash
 #                       is weighted on checkout or previously and charged per pound. Customers order the squash by number of items.
 #
-#                           0x01 -
+#                           0x01 - New Product
 #                           0x02 - 
 #                           0x04 - 
 #                           0x08 - 

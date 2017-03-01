@@ -74,6 +74,9 @@ function ciniki_foodmarket_categoriesUpdate(&$ciniki, $business_id) {
             $cat['visible'] = 'yes';
         }
 
+        //
+        // Check for specials
+        //
         if( $cat['ctype'] == 30 ) {
             $strsql = "SELECT COUNT(ciniki_foodmarket_products.id) AS num_products "
                 . "FROM ciniki_foodmarket_products, ciniki_foodmarket_product_outputs "
@@ -81,6 +84,28 @@ function ciniki_foodmarket_categoriesUpdate(&$ciniki, $business_id) {
                 . "AND ciniki_foodmarket_products.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
                 . "AND ciniki_foodmarket_products.id = ciniki_foodmarket_product_outputs.product_id "
                 . "AND ciniki_foodmarket_product_outputs.retail_sdiscount_percent > 0 "
+                . "AND ciniki_foodmarket_product_outputs.status = 40 "
+                . "AND ciniki_foodmarket_product_outputs.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . "";
+            $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.foodmarket', 'num');
+            if( $rc['stat'] != 'ok' ) {
+                return $rc;
+            }
+            if( isset($rc['num']['num_products']) && $rc['num']['num_products'] > 0 ) {
+                $cat['visible'] = 'yes';
+            }
+        }
+
+        //
+        // Check for new products
+        //
+        if( $cat['ctype'] == 50 ) {
+            $strsql = "SELECT COUNT(DISTINCT ciniki_foodmarket_products.id) AS num_products "
+                . "FROM ciniki_foodmarket_products, ciniki_foodmarket_product_outputs "
+                . "WHERE ciniki_foodmarket_products.status = 40 "
+                . "AND ciniki_foodmarket_products.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . "AND (ciniki_foodmarket_products.flags&0x01) = 0x01 "
+                . "AND ciniki_foodmarket_products.id = ciniki_foodmarket_product_outputs.product_id "
                 . "AND ciniki_foodmarket_product_outputs.status = 40 "
                 . "AND ciniki_foodmarket_product_outputs.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
                 . "";

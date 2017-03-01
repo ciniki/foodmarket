@@ -92,7 +92,6 @@ function ciniki_foodmarket_web_productList($ciniki, $settings, $business_id, $ar
     //
     // Get the specials
     //
-//    if( isset($args['flags']) && is_int($args['flags']) ) {
     if( isset($args['type']) && $args['type'] == 'specials' ) {
         // Make sure it's an integer we're passing into the sql string.
         $strsql .= "AND ciniki_foodmarket_product_outputs.retail_sdiscount_percent > 0 ";
@@ -103,7 +102,7 @@ function ciniki_foodmarket_web_productList($ciniki, $settings, $business_id, $ar
     //
     elseif( isset($args['type']) && $args['type'] == 'newproducts' ) {
         // FIXME: Implement new product listings
-        return array('stat'=>'ok', 'products'=>array());    
+        $strsql .= "AND (ciniki_foodmarket_products.flags&0x01) = 0x01 ";
     }
 
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(
