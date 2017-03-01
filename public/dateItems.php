@@ -97,7 +97,7 @@ function ciniki_foodmarket_dateItems($ciniki) {
         . "ciniki_poma_order_dates.flags "
         . "FROM ciniki_poma_order_dates "
         . "WHERE ciniki_poma_order_dates.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
-        . "AND ciniki_poma_order_dates.order_date > '" . ciniki_core_dbQuote($ciniki, $dt->format('Y-m-d')) . "' "
+        . "AND ciniki_poma_order_dates.order_date >= '" . ciniki_core_dbQuote($ciniki, $dt->format('Y-m-d')) . "' "
         . "GROUP BY ciniki_poma_order_dates.id "
         . "ORDER BY ciniki_poma_order_dates.order_date DESC "
         . "LIMIT 15"
