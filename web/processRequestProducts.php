@@ -397,7 +397,7 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $busi
                 . ") "
             . "WHERE categories.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
             . "AND categories.parent_id = 0 "
-            . "AND (categories.ctype = 0 || categories.ctype = 30) "
+            . "AND (categories.ctype = 0 || categories.ctype = 30 || categories.ctype = 50 ) "
             . "";
         if( isset($args['categories']) && count($args['categories']) > 0 ) {
             $strsql .= "AND categories.id IN (" . ciniki_core_dbQuoteIDs($ciniki, $args['categories']) . ") ";
@@ -455,10 +455,65 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $busi
             $specials = $rc['outputs'];
         }
 
+        //
+        // Get the list of new products
+        //
+        $strsql = "SELECT "
+            . "products.name AS product_name, "
+            . "outputs.id AS oid, "
+            . "outputs.pio_name, "
+            . "outputs.otype, "
+            . "outputs.units, "
+            . "outputs.flags, "
+            . "outputs.retail_price_text, "
+            . "outputs.retail_sprice_text "
+            . "FROM ciniki_foodmarket_product_outputs AS outputs "
+            . "INNER JOIN ciniki_foodmarket_products AS products ON ("
+                . "outputs.product_id = products.id "
+                . "AND outputs.otype < 71 "
+                . "AND outputs.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . ") "
+            . "WHERE outputs.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND products.status = 40 "
+            . "AND outputs.status = 40 "
+            . "AND (products.flags&0x01) = 0x01 "
+            . "AND outputs.retail_sdiscount_percent > 0 "
+            . "ORDER BY products.name, outputs.sequence, outputs.pio_name "
+            . "";
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
+        $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(
+            array('container'=>'outputs', 'fname'=>'oid', 'fields'=>array('id'=>'oid', 'name'=>'pio_name', 'otype', 'flags', 
+                'price_text'=>'retail_price_text', 'sale_price_text'=>'retail_sprice_text')),
+            ));
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
+        }
+        if( isset($rc['outputs']) ) {
+            $new = $rc['outputs'];
+        }
+
+        //
+        // Output the catalog
+        //
         ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'web', 'prepareOutputs');
         foreach($categories as $category) {
             if( $category['ctype'] == 30 && isset($specials) && count($specials) > 0 ) {
                 $rc = ciniki_foodmarket_web_prepareOutputs($ciniki, $settings, $business_id, array('outputs'=>$specials));
+                if( $rc['stat'] != 'ok' ) {
+                    return $rc;
+                }
+                $page['blocks'][] = array('type'=>'orderoptions', 'base_url'=>$base_url, 'size'=>'wide',
+                    'title'=>$category['name'],
+                    'api_fav_on'=>$api_fav_on,
+                    'api_fav_off'=>$api_fav_off,
+                    'api_order_update'=>$api_order_update,
+                    'api_repeat_update'=>$api_repeat_update,
+                    'api_queue_update'=>$api_queue_update,
+                    'options'=>$rc['outputs'],
+                    );
+            }
+            elseif( $category['ctype'] == 50 && isset($new) && count($new) > 0 ) {
+                $rc = ciniki_foodmarket_web_prepareOutputs($ciniki, $settings, $business_id, array('outputs'=>$new));
                 if( $rc['stat'] != 'ok' ) {
                     return $rc;
                 }
