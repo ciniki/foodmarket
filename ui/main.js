@@ -656,10 +656,9 @@ function ciniki_foodmarket_main() {
         }
         /* Checkout */
         if( s == 'checkout_open_orders' || s == 'checkout_closed_orders' ) { 
-            if( d.payment_status != '' ) {
-                return d.billing_name + ' <span class="subdue">[' + d.payment_status + ']</span>';
-            }
-            return d.billing_name; 
+            return (d.num_notes != null && d.num_notes > 0 ? '*' : '')
+                + d.billing_name 
+                + (d.payment_status != null && d.payment_status != '' ? ' <span class="subdue">[' + d.payment_status + ']</span>' : '');
         }
         if( s == 'checkout_orderitems' ) {
             switch(j) {
@@ -888,10 +887,9 @@ function ciniki_foodmarket_main() {
                 case 2: return d.input_names;
             }
         } else if( s == 'customers' ) {
-            if( d.num_items != null && d.num_items != '' ) {
-                return d.display_name + ' <span class="count">' + d.num_items + '</span>';
-            }
-            return d.display_name;
+            return (d.num_notes != null && d.num_notes > 0 ? '*' : '') 
+                + d.display_name 
+                + (d.num_items != null && d.num_items > 0 ? ' <span class="count">' + d.num_items + '</span>' : '');
         } 
         if( s == 'new_products' ) { 
             switch(j) {
