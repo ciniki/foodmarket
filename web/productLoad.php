@@ -55,6 +55,8 @@ function ciniki_foodmarket_web_productLoad($ciniki, $settings, $business_id, $ar
         . "ciniki_foodmarket_products.flags, "
         . "ciniki_foodmarket_products.category, "
         . "ciniki_foodmarket_products.primary_image_id AS image_id, "
+        . "ciniki_foodmarket_products.legend_codes, "
+        . "ciniki_foodmarket_products.legend_names, "
         . "ciniki_foodmarket_products.synopsis, "
         . "ciniki_foodmarket_products.description, "
         . "ciniki_foodmarket_products.ingredients, "
@@ -76,6 +78,10 @@ function ciniki_foodmarket_web_productLoad($ciniki, $settings, $business_id, $ar
         return array('stat'=>'404', 'err'=>array('code'=>'ciniki.foodmarket.56', 'msg'=>"I'm sorry, but we were unable to find that product."));
     }
     $product = $rc['product'];
+
+    if( isset($product['legend_codes']) && $product['legend_codes'] != '' ) {
+        $product['name'] .= ' ' . $product['legend_codes'];
+    }
 
     //
     // Get the outputs for the product

@@ -1,0 +1,47 @@
+#
+# Description
+# -----------
+# This table stores the legends for the business.
+#
+# Fields
+# ------
+# id:                   The ID assigned to the legend.
+# uuid:                 The Universal Unique ID.
+# business_id:          The business the legend is attached to.
+#
+# name:                 The name for the legend.
+# permalink:            The permalink for the legend, to be used on the website.
+#
+# code:                 The Code to display in product descriptions.
+#
+# flags:                The options for the legend.
+#
+#                           0x01 - Visible on website, set only when products exist in the legend.
+#                           0x02 - 
+#                           0x04 - 
+#                           0x08 - 
+#
+# image_id:             The image to use for the thumbnail.
+# synopsis:             The short description to show.
+# description:          The description to show at the top of the page for this legend list.
+#
+# date_added:           The UTC date and time the record was added.
+# last_updated:         The UTC date and time the record was last updated.
+#
+create table ciniki_foodmarket_legends (
+    id int not null auto_increment,
+    uuid char(36) not null,
+    business_id int not null,
+    name varchar(250) not null,
+    permalink varchar(250) not null,
+    code varchar(50) not null,
+    flags tinyint unsigned not null,
+    image_id int not null,
+    synopsis varchar(1000) not null,
+    description text not null,
+    date_added datetime not null,
+    last_updated datetime not null,
+    primary key (id),
+    unique index (uuid),
+    index sync (business_id, uuid, last_updated)
+) ENGINE='InnoDB', COMMENT='v1.01';

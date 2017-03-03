@@ -24,6 +24,8 @@ function ciniki_foodmarket_objects($ciniki) {
             'status'=>array('name'=>'Status', 'default'=>'10'),
             'ptype'=>array('name'=>'Type'),
             'flags'=>array('name'=>'Options', 'default'=>'0'),
+            'legend_codes'=>array('name'=>'Legend Codes', 'default'=>''),
+            'legend_names'=>array('name'=>'Legend Names', 'default'=>''),
             'category'=>array('name'=>'Category', 'default'=>''),
             'packing_order'=>array('name'=>'Packing Order', 'default'=>'10'),
             'primary_image_id'=>array('name'=>'Primary Image', 'default'=>'0'),
@@ -130,6 +132,34 @@ function ciniki_foodmarket_objects($ciniki) {
         'table'=>'ciniki_foodmarket_category_items',
         'fields'=>array(
             'category_id'=>array('name'=>'Category'),
+            'product_id'=>array('name'=>'Product'),
+            ),
+        'history_table'=>'ciniki_foodmarket_history',
+        );
+    $objects['legend'] = array(
+        'name'=>'Legend',
+        'sync'=>'yes',
+        'o_name'=>'legend',
+        'o_container'=>'legends',
+        'table'=>'ciniki_foodmarket_legends',
+        'fields'=>array(
+            'name'=>array('name'=>'Name'),
+            'permalink'=>array('name'=>'Permalink'),
+            'code'=>array('name'=>'Code'),
+            'image_id'=>array('name'=>'Image', 'ref'=>'ciniki.images.image', 'default'=>'0'),
+            'synopsis'=>array('name'=>'Synopsis', 'default'=>''),
+            'description'=>array('name'=>'Description', 'default'=>''),
+            ),
+        'history_table'=>'ciniki_foodmarket_history',
+        );
+    $objects['legenditem'] = array(
+        'name'=>'Legend Item',
+        'sync'=>'yes',
+        'o_name'=>'legenditem',
+        'o_container'=>'legenditems',
+        'table'=>'ciniki_foodmarket_legend_items',
+        'fields'=>array(
+            'legend_id'=>array('name'=>'Legend'),
             'product_id'=>array('name'=>'Product'),
             ),
         'history_table'=>'ciniki_foodmarket_history',

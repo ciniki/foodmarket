@@ -36,6 +36,9 @@
 #                           0x04 - 
 #                           0x08 - 
 #
+# legend_codes:         The rolled up string of legend codes.
+# legend_names:         The rolled up string of legend names.
+#
 # category:             The internal organizational category, not used on the website.
 #
 # packing_order:        The order to pack the outputs when putting together orders. This will be passed into POMA module. 
@@ -65,6 +68,8 @@ create table ciniki_foodmarket_products (
     status tinyint unsigned not null,
     ptype tinyint unsigned not null,
     flags tinyint unsigned not null,
+    legend_codes varchar(150) not null,
+    legend_names varchar(250) not null,
     category varchar(150) not null,
     packing_order tinyint unsigned not null,
     primary_image_id int not null,

@@ -1658,6 +1658,12 @@ function ciniki_foodmarket_main() {
                 'basket_retail_price':{'label':'Price', 'type':'text', 'size':'small'},
                 'basket_retail_taxtype_id':{'label':'Tax', 'type':'select', 'options':{}},
             }},
+        '_legends':{'label':'Legends', 'aside':'yes',
+            'addTxt':'Add Legend',
+            'addFn':'M.ciniki_foodmarket_main.product.save("M.ciniki_foodmarket_main.legend.open(\'M.ciniki_foodmarket_main.product.refreshLegends();\',0,M.ciniki_foodmarket_main.product.product_id);");',
+            'fields':{
+                'legends':{'label':'', 'hidelabel':'yes', 'type':'idlist', 'list':[], 'hint':'Enter a new legend: '},
+            }},
         '_tabs':{'label':'', 'type':'paneltabs', 'selected':'inputs', 'tabs':{
             'categories':{'label':'Categories', 
                 'visible':function() {return M.modFlagSet('ciniki.foodmarket', 0x020);}, 
@@ -2093,6 +2099,18 @@ function ciniki_foodmarket_main() {
             p.show();
         });
     };
+    this.product.refreshLegends = function() {
+        M.api.getJSONCb('ciniki.foodmarket.productGet', {'business_id':M.curBusinessID, 'product_id':this.product_id, 'legends':'yes'}, function(rsp) {
+            if( rsp.stat != 'ok' ) {
+                M.api.err(rsp);
+                return false;
+            }
+            var p = M.ciniki_foodmarket_main.product;
+            p.sections._legends.fields.legends.list = rsp.legends;
+            p.refreshSection('_legends');
+            p.show();
+        });
+    };
     this.product.switchType = function(type) {
         this.sections.ptype.selected = type;
         if( this.sections._tabs.selected == 'inputs' ) {
@@ -2385,7 +2403,7 @@ function ciniki_foodmarket_main() {
         if( id != null ) { this.product_id = id; }
         if( tab != null ) { this.product.sections._tabs.selected = tab; }
         if( list != null ) { this.nplist = list; }
-        var args = {'business_id':M.curBusinessID, 'product_id':this.product_id, 'categories':'yes', 'suppliers':'yes'};
+        var args = {'business_id':M.curBusinessID, 'product_id':this.product_id, 'categories':'yes', 'legends':'yes', 'suppliers':'yes'};
         if( cid != null ) { args.category_id = cid; }
         M.api.getJSONCb('ciniki.foodmarket.productGet', args, function(rsp) {
             if( rsp.stat != 'ok' ) {
@@ -2402,6 +2420,7 @@ function ciniki_foodmarket_main() {
             }
             p.sections._supplier.fields.supplier_id.options = rsp.suppliers;
             p.sections._categories.fields.categories.list = rsp.categories;
+            p.sections._legends.fields.legends.list = rsp.legends;
             p.refresh();
             p.show(cb);
             p.updatePanel();
@@ -2595,6 +2614,117 @@ function ciniki_foodmarket_main() {
     this.category.addClose('Cancel');
     this.category.addButton('next', 'Next');
     this.category.addLeftButton('prev', 'Prev');
+
+    //
+    // The panel for editing a legend or child legend
+    //
+    this.legend = new M.panel('Category', 'ciniki_foodmarket_main', 'legend', 'mc', 'medium mediumaside', 'sectioned', 'ciniki.foodmarket.main.legend');
+    this.legend.data = {};
+    this.legend.legend_id = 0;
+    this.legend.sections = { 
+        '_image':{'label':'Image', 'type':'imageform', 'aside':'yes', 'fields':{
+            'image_id':{'label':'', 'type':'image_id', 'hidelabel':'yes', 'controls':'all', 'history':'no',
+                'addDropImage':function(iid) {
+                    M.ciniki_foodmarket_main.legend.setFieldValue('image_id', iid, null, null);
+                    return true;
+                    },
+                'addDropImageRefresh':'',
+                'deleteImage':function(fid) {
+                        M.ciniki_foodmarket_main.legend.setFieldValue(fid, 0, null, null);
+                        return true;
+                    },
+                },
+            }},
+        'general':{'label':'Product', 'aside':'yes', 'fields':{
+            'name':{'label':'Name', 'type':'text'},
+            'code':{'label':'Code', 'type':'text', 'size':'small'},
+            }},
+        '_synopsis':{'label':'Synopsis', 'fields':{
+            'synopsis':{'label':'', 'hidelabel':'yes', 'hint':'', 'size':'small', 'type':'textarea'},
+            }},
+        '_description':{'label':'Description', 'fields':{
+            'description':{'label':'', 'hidelabel':'yes', 'hint':'', 'size':'large', 'type':'textarea'},
+            }},
+        '_buttons':{'label':'', 'buttons':{
+            'save':{'label':'Save', 'fn':'M.ciniki_foodmarket_main.legend.save();'},
+            'delete':{'label':'Delete', 'visible':function() {return M.ciniki_foodmarket_main.legend.legend_id>0?'yes':'no';}, 'fn':'M.ciniki_foodmarket_main.legend.remove();'},
+            }},
+        };  
+    this.legend.fieldValue = function(s, i, d) { return this.data[i]; }
+    this.legend.fieldHistoryArgs = function(s, i) {
+        return {'method':'ciniki.foodmarket.legendHistory', 'args':{'business_id':M.curBusinessID, 'legend_id':this.legend_id, 'field':i}};
+    }
+    this.legend.open = function(cb, id, list) {
+        this.reset();
+        if( id != null ) { this.legend_id = id; }
+        if( list != null ) { this.nplist = list; }
+        M.api.getJSONCb('ciniki.foodmarket.legendGet', {'business_id':M.curBusinessID, 'legend_id':this.legend_id}, function(rsp) {
+            if( rsp.stat != 'ok' ) {
+                M.api.err(rsp);
+                return false;
+            }
+            var p = M.ciniki_foodmarket_main.legend;
+            p.data = rsp.legend;
+            p.refresh();
+            p.show(cb);
+        });
+    }
+    this.legend.save = function(cb) {
+        if( cb == null ) { cb = 'M.ciniki_foodmarket_main.legend.close();'; }
+        if( this.legend_id > 0 ) {
+            var c = this.serializeForm('no');
+            if( c != '' ) {
+                M.api.postJSONCb('ciniki.foodmarket.legendUpdate', {'business_id':M.curBusinessID, 'legend_id':this.legend_id}, c,
+                    function(rsp) {
+                        if( rsp.stat != 'ok' ) {
+                            M.api.err(rsp);
+                            return false;
+                        } 
+                        eval(cb);
+                    });
+            } else {
+                eval(cb);
+            }
+        } else {
+            var c = this.serializeForm('yes');
+            M.api.postJSONCb('ciniki.foodmarket.legendAdd', {'business_id':M.curBusinessID, 'legend_id':this.legend_id}, c,
+                function(rsp) {
+                    if( rsp.stat != 'ok' ) {
+                        M.api.err(rsp);
+                        return false;
+                    } 
+                    M.ciniki_foodmarket_main.legend.legend_id = rsp.id;
+                    eval(cb);
+                });
+        }
+    };
+    this.legend.remove = function() {
+        if( confirm('Are you sure you want to remove this legend?') ) {
+            M.api.getJSONCb('ciniki.foodmarket.legendDelete', {'business_id':M.curBusinessID, 'legend_id':this.legend_id}, function(rsp) {
+                if( rsp.stat != 'ok' ) {
+                    M.api.err(rsp);
+                    return false;
+                } 
+                M.ciniki_foodmarket_main.legend.close();
+            });
+        }
+    };
+    this.legend.nextButtonFn = function() {
+        if( this.nplist != null && this.nplist.indexOf('' + this.legend_id) < (this.nplist.length - 1) ) {
+            return 'M.ciniki_foodmarket_main.legend.save(\'M.ciniki_foodmarket_main.legend.open(null,' + this.nplist[this.nplist.indexOf('' + this.legend_id) + 1] + ');\');';
+        }
+        return null;
+    }
+    this.legend.prevButtonFn = function() {
+        if( this.nplist != null && this.nplist.indexOf('' + this.legend_id) > 0 ) {
+            return 'M.ciniki_foodmarket_main.legend.save(\'M.ciniki_foodmarket_main.legend.open(null,' + this.nplist[this.nplist.indexOf('' + this.legend_id) - 1] + ');\');';
+        }
+        return null;
+    }
+    this.legend.addButton('save', 'Save', 'M.ciniki_foodmarket_main.legend.save();');
+    this.legend.addClose('Cancel');
+    this.legend.addButton('next', 'Next');
+    this.legend.addLeftButton('prev', 'Prev');
 
     //
     // The supplier edit panel

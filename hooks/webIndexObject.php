@@ -32,7 +32,7 @@ function ciniki_foodmarket_hooks_webIndexObject($ciniki, $business_id, $args) {
     }
 
     if( $args['object'] == 'ciniki.foodmarket.product' ) {
-        $strsql = "SELECT id, name, permalink, status, "
+        $strsql = "SELECT id, name, permalink, status, legend_codes, "
             . "primary_image_id, synopsis, description, ingredients "
             . "FROM ciniki_foodmarket_products "
             . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
@@ -55,7 +55,7 @@ function ciniki_foodmarket_hooks_webIndexObject($ciniki, $business_id, $args) {
         }
         $object = array(
             'label'=>'Products',
-            'title'=>$rc['item']['name'],
+            'title'=>$rc['item']['name'] . (isset($rc['item']['legend_codes']) && $rc['item']['legend_codes'] != '' ? ' ' . $rc['item']['legend_codes'] : ''),
             'subtitle'=>'',
             'meta'=>'',
             'primary_image_id'=>$rc['item']['primary_image_id'],

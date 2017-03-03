@@ -25,9 +25,12 @@ function ciniki_foodmarket_web_productList($ciniki, $settings, $business_id, $ar
             . "ciniki_foodmarket_products.name, "
             . "ciniki_foodmarket_products.permalink, "
             . "ciniki_foodmarket_products.primary_image_id AS image_id, "
+            . "ciniki_foodmarket_products.legend_codes, "
+            . "ciniki_foodmarket_products.legend_names, "
             . "ciniki_foodmarket_products.synopsis, "
             . "ciniki_foodmarket_product_outputs.id AS price_id, "
             . "ciniki_foodmarket_product_outputs.io_name, "
+            . "ciniki_foodmarket_product_outputs.retail_price, "
             . "ciniki_foodmarket_product_outputs.retail_price_text, "
             . "ciniki_foodmarket_product_outputs.retail_sprice_text "
             . "FROM ciniki_foodmarket_category_items, ciniki_foodmarket_products, ciniki_foodmarket_product_outputs "
@@ -49,9 +52,12 @@ function ciniki_foodmarket_web_productList($ciniki, $settings, $business_id, $ar
             . "ciniki_foodmarket_products.name, "
             . "ciniki_foodmarket_products.permalink, "
             . "ciniki_foodmarket_products.primary_image_id AS image_id, "
+            . "ciniki_foodmarket_products.legend_codes, "
+            . "ciniki_foodmarket_products.legend_names, "
             . "ciniki_foodmarket_products.synopsis, "
             . "ciniki_foodmarket_product_outputs.id AS price_id, "
             . "ciniki_foodmarket_product_outputs.io_name, "
+            . "ciniki_foodmarket_product_outputs.retail_price, "
             . "ciniki_foodmarket_product_outputs.retail_price_text, "
             . "ciniki_foodmarket_product_outputs.retail_sprice_text "
             . "FROM ciniki_foodmarket_categories, ciniki_foodmarket_category_items, ciniki_foodmarket_products, ciniki_foodmarket_product_outputs "
@@ -75,9 +81,12 @@ function ciniki_foodmarket_web_productList($ciniki, $settings, $business_id, $ar
             . "ciniki_foodmarket_products.name, "
             . "ciniki_foodmarket_products.permalink, "
             . "ciniki_foodmarket_products.primary_image_id AS image_id, "
+            . "ciniki_foodmarket_products.legend_codes, "
+            . "ciniki_foodmarket_products.legend_names, "
             . "ciniki_foodmarket_products.synopsis, "
             . "ciniki_foodmarket_product_outputs.id AS price_id, "
             . "ciniki_foodmarket_product_outputs.io_name, "
+            . "ciniki_foodmarket_product_outputs.retail_price, "
             . "ciniki_foodmarket_product_outputs.retail_price_text, "
             . "ciniki_foodmarket_product_outputs.retail_sprice_text "
             . "FROM ciniki_foodmarket_products, ciniki_foodmarket_product_outputs "
@@ -106,7 +115,7 @@ function ciniki_foodmarket_web_productList($ciniki, $settings, $business_id, $ar
     }
 
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(
-        array('container'=>'products', 'fname'=>'id', 'fields'=>array('id', 'name', 'permalink', 'image_id', 'synopsis')),
+        array('container'=>'products', 'fname'=>'id', 'fields'=>array('id', 'name', 'permalink', 'image_id', 'legend_codes', 'legend_names', 'synopsis')),
         array('container'=>'options', 'fname'=>'price_id', 'fields'=>array('id'=>'price_id', 'name'=>'io_name', 
             'price_display'=>'retail_price_text', 'price'=>'retail_price', 'sale_price_display'=>'retail_sprice_text')),
         ));
@@ -117,6 +126,12 @@ function ciniki_foodmarket_web_productList($ciniki, $settings, $business_id, $ar
         return array('stat'=>'ok', 'products'=>array());
     }
     $products = $rc['products'];
+
+    foreach($products as $pid => $product) {
+        if( $product['legend_codes'] != '' ) {
+            $products[$pid]['name'] .= ' ' . $product['legend_codes'];
+        }
+    }
 
     return array('stat'=>'ok', 'products'=>$products);
 }

@@ -25,6 +25,7 @@ function ciniki_foodmarket_productGet($ciniki) {
         'suppliers'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Suppliers'),
         'categories'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Categories'),
         'category_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Category'),
+        'legends'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Legends'),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
@@ -131,6 +132,7 @@ function ciniki_foodmarket_productGet($ciniki) {
             'description'=>'',
             'supplier_id'=>'0',
             'categories'=>(isset($args['category_id']) && $args['category_id'] > 0 ? $args['category_id'] : ''),
+            'legends'=>'',
         );
     }
 
@@ -224,6 +226,27 @@ function ciniki_foodmarket_productGet($ciniki) {
                     }
                 }
             }
+        } 
+    }
+
+    //
+    // Get the list of legends
+    //
+    if( isset($args['legends']) && $args['legends'] == 'yes' ) {
+        $strsql = "SELECT legends.id, legends.name "
+            . "FROM ciniki_foodmarket_legends AS legends "
+            . "WHERE legends.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "ORDER BY legends.name "
+            . "";
+        $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(
+            array('container'=>'legends', 'fname'=>'id', 'fields'=>array('id', 'name')),
+            ));
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
+        }
+        $rsp['legends'] = array();
+        if( isset($rc['legends']) ) {
+            $rsp['legends'] = $rc['legends'];
         } 
     }
 

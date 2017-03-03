@@ -35,6 +35,7 @@ function ciniki_foodmarket_productUpdate(&$ciniki) {
         'basket_retail_price'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Basket Retail Price'),
         'basket_retail_taxtype_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Basket Retail Tax'),
         'categories'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'idlist', 'name'=>'Categories'),
+        'legends'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'idlist', 'name'=>'Legends'),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
@@ -126,6 +127,18 @@ function ciniki_foodmarket_productUpdate(&$ciniki) {
     }
 
     //
+    // Update the product legends
+    //
+    if( isset($args['legends']) ) {
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'private', 'productLegendsUpdate');
+        $rc = ciniki_foodmarket_productLegendsUpdate($ciniki, $args['business_id'], $args['product_id'], $args['legends']);
+        if( $rc['stat'] != 'ok' ) {
+            ciniki_core_dbTransactionRollback($ciniki, 'ciniki.foodmarket');
+            return $rc;
+        }
+    }
+
+    //
     // Update the inputs and outputs for the product
     //
     if( $ptype == '10' ) {
@@ -187,6 +200,15 @@ function ciniki_foodmarket_productUpdate(&$ciniki) {
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'private', 'categoriesUpdate');
     $rc = ciniki_foodmarket_categoriesUpdate($ciniki, $args['business_id']);
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+
+    //
+    // Update the legends
+    //
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'private', 'legendsUpdate');
+    $rc = ciniki_foodmarket_legendsUpdate($ciniki, $args['business_id']);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }

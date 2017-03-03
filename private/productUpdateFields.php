@@ -22,6 +22,7 @@ function ciniki_foodmarket_productUpdateFields(&$ciniki, $business_id, $product_
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'queryList');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'private', 'convertWeightPrice');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'private', 'unitsText');
 
@@ -34,6 +35,8 @@ function ciniki_foodmarket_productUpdateFields(&$ciniki, $business_id, $product_
         . "ciniki_foodmarket_products.status, "
         . "ciniki_foodmarket_products.ptype, "
         . "ciniki_foodmarket_products.flags, "
+        . "ciniki_foodmarket_products.legend_codes, "
+        . "ciniki_foodmarket_products.legend_names, "
         . "ciniki_foodmarket_products.category, "
         . "ciniki_foodmarket_products.primary_image_id, "
         . "ciniki_foodmarket_products.synopsis, "
@@ -52,6 +55,30 @@ function ciniki_foodmarket_productUpdateFields(&$ciniki, $business_id, $product_
         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.37', 'msg'=>'Unable to find Product'));
     }
     $product = $rc['product'];
+
+    //
+    // Get the legends for the product
+    //
+    $strsql = "SELECT code, name "
+        . "FROM ciniki_foodmarket_legend_items AS items, ciniki_foodmarket_legends AS legends "
+        . "WHERE items.product_id = '" . ciniki_core_dbQuote($ciniki, $product_id) . "' "
+        . "AND items.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND items.legend_id = legends.id "
+        . "AND legends.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "ORDER BY name, code "
+        . "";
+    $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.foodmarket', 'item');
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+    $legend_codes = '';
+    $legend_names = '';
+    if( isset($rc['rows']) ) {
+        foreach($rc['rows'] as $row) {
+            $legend_codes .= ($legend_codes != '' ? ' ' : '') . $row['code'];
+            $legend_names .= ($legend_names != '' ? ' ' : '') . $row['name'];
+        }
+    }
 
     //
     // Load the inputs and their outputs
@@ -209,9 +236,9 @@ function ciniki_foodmarket_productUpdateFields(&$ciniki, $business_id, $product_
             } 
         }
         if( $output['io_name'] == '' ) {
-            $output['pio_name'] = $product['name'];
+            $output['pio_name'] = $product['name'] . ($legend_codes != '' ? ' ' . $legend_codes : '');
         } else {
-            $output['pio_name'] = $product['name'] . ' - ' . $output['io_name'];
+            $output['pio_name'] = $product['name']  . ($legend_codes != '' ? ' ' . $legend_codes : '') . ' - ' . $output['io_name'];
         }
 
         //
@@ -311,6 +338,23 @@ function ciniki_foodmarket_productUpdateFields(&$ciniki, $business_id, $product_
             if( $rc['stat'] != 'ok' ) {
                 return $rc;
             }
+        }
+    }
+
+    //
+    // Check if product needs to be updated
+    //
+    $update_args = array();
+    if( $legend_codes != $product['legend_codes'] ) {
+        $update_args['legend_codes'] = $legend_codes;
+    }
+    if( $legend_names != $product['legend_names'] ) {
+        $update_args['legend_names'] = $legend_names;
+    }
+    if( count($update_args) > 0 ) {
+        $rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.foodmarket.product', $product_id, $update_args, 0x04);
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
         }
     }
 

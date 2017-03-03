@@ -92,6 +92,24 @@ function ciniki_foodmarket_productLoad($ciniki, $business_id, $product_id) {
     }
 
     //
+    // Get the list of legends the product is in
+    //
+    $strsql = "SELECT legend_id "
+        . "FROM ciniki_foodmarket_legend_items "
+        . "WHERE ciniki_foodmarket_legend_items.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND ciniki_foodmarket_legend_items.product_id = '" . ciniki_core_dbQuote($ciniki, $product_id) . "' "
+        . "";
+    $rc = ciniki_core_dbQueryList($ciniki, $strsql, 'ciniki.foodmarket', 'legends', 'legend_id');
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+    if( isset($rc['legends']) ) {
+        $product['legends'] = $rc['legends'];
+    } else {
+        $product['legends'] = array();
+    }
+
+    //
     // Get the inputs of the product
     //
     $strsql = "SELECT ciniki_foodmarket_product_inputs.id, "
