@@ -85,7 +85,7 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $busi
             //
             // Check for the category
             //
-            $strsql = "SELECT id, permalink, name, ctype "
+            $strsql = "SELECT id, permalink, name, ctype, synopsis, description "
                 . "FROM ciniki_foodmarket_categories "
                 . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
                 . "AND parent_id = '" . ciniki_core_dbQuote($ciniki, $category_id) . "' "
@@ -201,6 +201,15 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $busi
             return $rc;
         }
         if( isset($rc['products']) && count($rc['products']) > 0 ) {
+            //
+            // Add the category description or synopsis
+            //
+            if( isset($category['description']) && $category['description'] != '' ) {   
+                $page['blocks'][] = array('type'=>'content', 'content'=>$category['description'], 'wide'=>'yes');
+            } elseif( isset($category['synopsis']) && $category['synopsis'] != '' ) {   
+                $page['blocks'][] = array('type'=>'content', 'content'=>$category['synopsis'], 'wide'=>'yes');
+            }
+
             $page['blocks'][] = array('type'=>'productcards', 'base_url'=>$base_url, 'cards'=>$rc['products'],
                 'thumbnail_format'=>$product_thumbnail_format, 'thumbnail_padding_color'=>$product_thumbnail_padding_color,
                 );
@@ -222,6 +231,15 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $busi
             return $rc;
         }
         if( isset($rc['products']) && count($rc['products']) > 0 ) {
+            //
+            // Add the category description or synopsis
+            //
+            if( isset($category['description']) && $category['description'] != '' ) {   
+                $page['blocks'][] = array('type'=>'content', 'content'=>$category['description'], 'wide'=>'yes');
+            } elseif( isset($category['synopsis']) && $category['synopsis'] != '' ) {   
+                $page['blocks'][] = array('type'=>'content', 'content'=>$category['synopsis'], 'wide'=>'yes');
+            }
+
             $page['blocks'][] = array('type'=>'productcards', 'base_url'=>$base_url, 'cards'=>$rc['products'],
                 'thumbnail_format'=>$product_thumbnail_format, 'thumbnail_padding_color'=>$product_thumbnail_padding_color,
                 );
@@ -244,6 +262,15 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $busi
                 return $rc;
             }
             if( isset($rc['options']) && count($rc['options']) > 0 ) {
+                //
+                // Add the category description or synopsis
+                //
+                if( isset($category['description']) && $category['description'] != '' ) {   
+                    $page['blocks'][] = array('type'=>'content', 'content'=>$category['description'], 'wide'=>'yes');
+                } elseif( isset($category['synopsis']) && $category['synopsis'] != '' ) {   
+                    $page['blocks'][] = array('type'=>'content', 'content'=>$category['synopsis'], 'wide'=>'yes');
+                }
+
                 $page['blocks'][] = array('type'=>'orderoptions', 'base_url'=>$base_url, 'size'=>'wide', 
                     'api_fav_on'=>$api_fav_on,
                     'api_fav_off'=>$api_fav_off,
@@ -266,6 +293,15 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $busi
     elseif( $display == 'category' && isset($category['ctype']) && $category['ctype'] == 0 ) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'web', 'categoryList');
         ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'web', 'productList');
+
+        //
+        // Add the category description or synopsis
+        //
+        if( isset($category['description']) && $category['description'] != '' ) {   
+            $page['blocks'][] = array('type'=>'content', 'content'=>$category['description'], 'wide'=>'yes');
+        } elseif( isset($category['synopsis']) && $category['synopsis'] != '' ) {   
+            $page['blocks'][] = array('type'=>'content', 'content'=>$category['synopsis'], 'wide'=>'yes');
+        }
 
         //
         // Show the subcategories for the category
