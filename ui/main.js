@@ -2437,10 +2437,7 @@ function ciniki_foodmarket_main() {
             c += this.serializeFormSection('no', '_ingredients');
             for(var i in this.data.inputs) {
                 var ipt = parseInt(i) + 1;
-//            for(var i = 1; i <= this.data.inputs; i++) {
                 c += 'input' + ipt + '_id=' + this.formValue('input' + ipt + '_id') + '&';
-                    console.log('input' + ipt);
-                console.log(this.formValue('input' + ipt + '_id'));
                 if( this.formValue('input' + ipt + '_id') == '' ) {
                     c += this.serializeFormSection('yes', 'input' + ipt);
                 } else {
