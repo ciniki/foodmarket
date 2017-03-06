@@ -90,6 +90,7 @@ function ciniki_foodmarket_objects($ciniki) {
             'units'=>array('name'=>'Units'),
             'flags'=>array('name'=>'Options', 'default'=>'0'),
             'sequence'=>array('name'=>'Order', 'default'=>'1'),
+            'io_sequence'=>array('name'=>'Input/Output Order', 'default'=>1),
             'start_date'=>array('name'=>'Start Date', 'default'=>''),
             'end_date'=>array('name'=>'End Date', 'default'=>''),
             'wholesale_percent'=>array('name'=>'Wholesale Percent', 'default'=>'0'),

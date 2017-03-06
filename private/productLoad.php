@@ -117,9 +117,13 @@ function ciniki_foodmarket_productLoad($ciniki, $business_id, $product_id) {
         . "ciniki_foodmarket_product_inputs.name, "
         . "ciniki_foodmarket_product_inputs.permalink, "
         . "ciniki_foodmarket_product_inputs.status, "
+        . "ciniki_foodmarket_product_inputs.status AS status_text, "
         . "ciniki_foodmarket_product_inputs.itype, "
+        . "ciniki_foodmarket_product_inputs.itype AS itype_text, "
         . "ciniki_foodmarket_product_inputs.units, "
+        . "ciniki_foodmarket_product_inputs.units AS units_text, "
         . "ciniki_foodmarket_product_inputs.flags, "
+        . "ciniki_foodmarket_product_inputs.flags AS flags_text, "
         . "ciniki_foodmarket_product_inputs.sequence, "
         . "ciniki_foodmarket_product_inputs.case_cost, "
         . "ciniki_foodmarket_product_inputs.half_cost, "
@@ -146,22 +150,22 @@ function ciniki_foodmarket_productLoad($ciniki, $business_id, $product_id) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
     $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.foodmarket', array(
         array('container'=>'inputs', 'fname'=>'id', 
-            'fields'=>array('id', 'product_id', 'name', 'permalink', 'status', 'status_text'=>'status', 'itype', 'itype_text'=>'itype', 
-                'units', 'units_text'=>'units', 'flags', 'flags_text'=>'flags', 'sequence', 'case_cost', 'half_cost', 'unit_cost', 'case_units',
+            'fields'=>array('id', 'product_id', 'name', 'permalink', 'status', 'status_text', 'itype', 'itype_text', 
+                'units', 'units_text', 'flags', 'flags_text', 'sequence', 'case_cost', 'half_cost', 'unit_cost', 'case_units',
                 'min_quantity', 'inc_quantity', 'cdeposit_name', 'cdeposit_amount', 'sku', 'inventory', 'recipe_id', 'recipe_quantity', 'container_id', 
                 'materials_cost_per_container', 'time_cost_per_container', 'total_cost_per_container', 'total_time_per_container', 
                 ),
-            'currency'=>array(
-                'materials_cost_per_container'=>array('fmt'=>$intl_currency_fmt, 'currency'=>$intl_currency),
-                'time_cost_per_container'=>array('fmt'=>$intl_currency_fmt, 'currency'=>$intl_currency),
-                'total_cost_per_container'=>array('fmt'=>$intl_currency_fmt, 'currency'=>$intl_currency),
-                ),
+//            'currency'=>array(
+//                'materials_cost_per_container'=>array('fmt'=>$intl_currency_fmt, 'currency'=>$intl_currency),
+//                'time_cost_per_container'=>array('fmt'=>$intl_currency_fmt, 'currency'=>$intl_currency),
+//                'total_cost_per_container'=>array('fmt'=>$intl_currency_fmt, 'currency'=>$intl_currency),
+//                ),
             'maps'=>array(
                 'status_text'=>$maps['input']['status'],
                 'itype_text'=>$maps['input']['itype'],
-                'units_text'=>$maps['input']['units'],
                 ),
             'flags'=>array(
+                'units_text'=>$maps['input']['units'],
                 'flags_text'=>$maps['input']['flags'],
                 ),
             ),

@@ -85,6 +85,7 @@ function ciniki_foodmarket_productUpdateFields(&$ciniki, $business_id, $product_
     //
     $strsql = "SELECT ciniki_foodmarket_product_inputs.id, "
         . "ciniki_foodmarket_product_inputs.name, "
+        . "ciniki_foodmarket_product_inputs.sequence, "
         . "ciniki_foodmarket_product_inputs.itype, "
         . "ciniki_foodmarket_product_inputs.units, "
         . "ciniki_foodmarket_product_inputs.flags, "
@@ -100,7 +101,7 @@ function ciniki_foodmarket_productUpdateFields(&$ciniki, $business_id, $product_
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
     $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.foodmarket', array(
         array('container'=>'inputs', 'fname'=>'id', 
-            'fields'=>array('id', 'name', 'itype', 'units', 'flags', 'case_cost', 'half_cost', 'unit_cost', 'case_units')),
+            'fields'=>array('id', 'name', 'sequence', 'itype', 'units', 'flags', 'case_cost', 'half_cost', 'unit_cost', 'case_units')),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
@@ -120,6 +121,8 @@ function ciniki_foodmarket_productUpdateFields(&$ciniki, $business_id, $product_
         . "ciniki_foodmarket_product_outputs.keywords, "
         . "ciniki_foodmarket_product_outputs.pio_name, "
         . "ciniki_foodmarket_product_outputs.io_name, "
+        . "ciniki_foodmarket_product_outputs.sequence, "
+        . "ciniki_foodmarket_product_outputs.io_sequence, "
         . "ciniki_foodmarket_product_outputs.otype, "
         . "ciniki_foodmarket_product_outputs.units, "
         . "ciniki_foodmarket_product_outputs.flags, "
@@ -138,7 +141,7 @@ function ciniki_foodmarket_productUpdateFields(&$ciniki, $business_id, $product_
         . "";
     $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.foodmarket', array(
         array('container'=>'outputs', 'fname'=>'id', 
-            'fields'=>array('id', 'input_id', 'name', 'pio_name', 'io_name', 'keywords', 'otype', 'units', 'flags', 
+            'fields'=>array('id', 'input_id', 'name', 'pio_name', 'io_name', 'sequence', 'io_sequence', 'keywords', 'otype', 'units', 'flags', 
                 'wholesale_percent', 'wholesale_price', 'retail_percent', 'retail_price', 'retail_price_text', 'retail_sdiscount_percent', 'retail_sprice', 'retail_sprice_text')),
         ));
     if( $rc['stat'] != 'ok' ) {
@@ -189,6 +192,7 @@ function ciniki_foodmarket_productUpdateFields(&$ciniki, $business_id, $product_
     foreach($outputs as $output_id => $output) {
         if( $output['input_id'] > 0 && isset($inputs[$output['input_id']]) ) {
             $input = $inputs[$output['input_id']];
+            $output['io_sequence'] = ($input['sequence'] * 1000) + $output['sequence'];
         } else {
             $input = array();
         }
@@ -313,7 +317,7 @@ function ciniki_foodmarket_productUpdateFields(&$ciniki, $business_id, $product_
         // Check for changed fields and build array of fields to update, and update the $outputs array
         //
         $update_args = array();
-        foreach(['pio_name', 'io_name', 'keywords', 'wholesale_price', 'retail_price', 'retail_price_text', 'retail_sprice', 'retail_sprice_text'] as $field) {
+        foreach(['io_sequence', 'pio_name', 'io_name', 'keywords', 'wholesale_price', 'retail_price', 'retail_price_text', 'retail_sprice', 'retail_sprice_text'] as $field) {
             if( isset($output[$field]) && $output[$field] != $outputs[$output_id][$field] ) {
                 $update_args[$field] = $output[$field];
                 $outputs[$output_id][$field] = $output[$field];

@@ -71,6 +71,8 @@
 #
 # sequence:             The order this version should be shown on the page. **future**
 #
+# io_sequence:          The order this version should be shown on the page, which is a combination of the input sequence * 1000 + sequence.
+#
 # case_cost:            The price paid for a full case from the supplier.
 #
 # half_cost:            The price paid for a half case. Depending if allowed to order half cases.
@@ -123,6 +125,7 @@ create table ciniki_foodmarket_product_inputs (
     units mediumint unsigned not null,
     flags smallint unsigned not null,
     sequence tinyint unsigned not null,
+    io_sequence smallint unsigned not null,
     case_cost decimal(19,4) not null,
     half_cost decimal(19,4) not null,
     unit_cost decimal(19,4) not null,

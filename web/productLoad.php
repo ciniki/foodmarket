@@ -95,7 +95,7 @@ function ciniki_foodmarket_web_productLoad($ciniki, $settings, $business_id, $ar
         . "ciniki_foodmarket_product_outputs.otype, "
         . "ciniki_foodmarket_product_outputs.units, "
         . "ciniki_foodmarket_product_outputs.flags, "
-        . "ciniki_foodmarket_product_outputs.sequence, "
+        . "ciniki_foodmarket_product_outputs.sequence AS osequence, "
         . "ciniki_foodmarket_product_outputs.start_date, "
         . "ciniki_foodmarket_product_outputs.end_date, "
         . "ciniki_foodmarket_product_outputs.retail_price AS price, "
@@ -103,6 +103,7 @@ function ciniki_foodmarket_web_productLoad($ciniki, $settings, $business_id, $ar
         . "ciniki_foodmarket_product_outputs.retail_sprice AS sale_price, "
         . "ciniki_foodmarket_product_outputs.retail_sprice_text AS sale_price_text, "
         . "ciniki_foodmarket_product_outputs.retail_taxtype_id AS taxtype_id, "
+        . "IFNULL(ciniki_foodmarket_product_inputs.sequence, 1) AS isequence, "
         . "IFNULL(ciniki_foodmarket_product_inputs.inventory, 0) AS inventory "
         . "FROM ciniki_foodmarket_product_outputs "
         . "LEFT JOIN ciniki_foodmarket_product_inputs ON ("
@@ -112,7 +113,7 @@ function ciniki_foodmarket_web_productLoad($ciniki, $settings, $business_id, $ar
         . "WHERE ciniki_foodmarket_product_outputs.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
         . "AND ciniki_foodmarket_product_outputs.product_id = '" . ciniki_core_dbQuote($ciniki, $product['id']) . "' "
         . "AND ciniki_foodmarket_product_outputs.status = 40 "
-        . "ORDER BY sequence, name "
+        . "ORDER BY isequence, osequence, name "
         . "";
     $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.foodmarket', array(
         array('container'=>'outputs', 'fname'=>'id', 
@@ -239,7 +240,7 @@ function ciniki_foodmarket_web_productLoad($ciniki, $settings, $business_id, $ar
                 . "WHERE ciniki_foodmarket_basket_items.date_id = '" . ciniki_core_dbQuote($ciniki, $date_id) . "' "
                 . "AND ciniki_foodmarket_basket_items.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
                 . "AND ciniki_foodmarket_basket_items.basket_output_id = '" . ciniki_core_dbQuote($ciniki, $basket_output_id) . "' "
-                . "ORDER BY pio_name, ciniki_foodmarket_basket_items.item_output_id "
+                . "ORDER BY ciniki_foodmarket_product_inputs.sequence, pio_name, ciniki_foodmarket_basket_items.item_output_id "
                 . "";
             $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.foodmarket', array(
                 array('container'=>'basket_items', 'fname'=>'id', 

@@ -153,6 +153,16 @@ function ciniki_foodmarket_productGet($ciniki) {
         } else {
             return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.16', 'msg'=>'Unable to find product requested'));
         }
+
+        //
+        // Sort the suppliers
+        //
+        usort($product['inputs'], function($a, $b) {
+            if( $a['sequence'] == $b['sequence'] ) {
+                return strcasecmp($a['name'], $b['name']);
+            }
+            return ($a['sequence'] < $b['sequence']) ? -1 : 1;
+        });
     }
 
     //

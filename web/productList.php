@@ -114,6 +114,8 @@ function ciniki_foodmarket_web_productList($ciniki, $settings, $business_id, $ar
         $strsql .= "AND (ciniki_foodmarket_products.flags&0x01) = 0x01 ";
     }
 
+    $strsql .= "ORDER BY io_sequence, io_name ";
+
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(
         array('container'=>'products', 'fname'=>'id', 'fields'=>array('id', 'name', 'permalink', 'image_id', 'legend_codes', 'legend_names', 'synopsis')),
         array('container'=>'options', 'fname'=>'price_id', 'fields'=>array('id'=>'price_id', 'name'=>'io_name', 
