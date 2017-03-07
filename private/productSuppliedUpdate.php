@@ -64,7 +64,6 @@ function ciniki_foodmarket_productSuppliedUpdate(&$ciniki, $business_id, $produc
     //
     $inputs = array();
     foreach($input_idxs as $idx => $input_index) {
-        error_log('Saving input: ' . $idx);
         //
         // Find all the required and optional arguments
         //
@@ -118,7 +117,6 @@ function ciniki_foodmarket_productSuppliedUpdate(&$ciniki, $business_id, $produc
         if( $input_id == 0 ) {
             if( !isset($new_input['itype']) ) {
                 // No itype,then skip product
-                error_log('no itype');
                 continue;
             }
             $new_input['product_id'] = $product_id;
@@ -241,9 +239,7 @@ function ciniki_foodmarket_productSuppliedUpdate(&$ciniki, $business_id, $produc
         //
         // Check for any outputs for this input
         //
-        error_log("outputs");
         foreach($otypes as $type => $type_details) {
-            error_log("Saving output: " . $type);
             //
             // Parse the args
             //
