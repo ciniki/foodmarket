@@ -61,7 +61,6 @@ function ciniki_foodmarket_newSearch($ciniki) {
             . "OR outputs.keywords LIKE '% " . $sqlwords . "%' "
             . ") "
         . "";
-    error_log($strsql);
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(
         array('container'=>'products', 'fname'=>'id', 'fields'=>array('id', 'supplier_code', 'name')),
