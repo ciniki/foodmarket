@@ -21,6 +21,7 @@ function ciniki_foodmarket_main() {
     this.menu.nplist = [];
     this.menu.nplists = {'orderitems':[]};
     this.menu.data = {};
+    this.menu.liveSearchRN = 0;
     this.menu.sections = {
         '_tabs':{'label':'', 'type':'menutabs', 'selected':'checkout', 'tabs':{
             'checkout':{'label':'Checkout', 'fn':'M.ciniki_foodmarket_main.menu.open(null,"checkout");'},
@@ -476,35 +477,49 @@ function ciniki_foodmarket_main() {
         return this.date_id;
     }
     this.menu.liveSearchCb = function(s, i, v) {
-        if( s == 'date_search' && v != '' ) {
+        this.liveSearchRN++;
+        var sN = this.liveSearchRN;
+        if( s == 'availability_date_search' && v != '' ) {
             M.api.getJSONBgCb('ciniki.foodmarket.dateItemSearch', {'business_id':M.curBusinessID, 'search_str':v, 'limit':'50'}, function(rsp) {
-                    M.ciniki_foodmarket_main.menu.liveSearchShow('date_search',null,M.gE(M.ciniki_foodmarket_main.menu.panelUID + '_' + s), rsp.products);
-                });
+                if( sN == M.ciniki_foodmarket_main.menu.liveSearchRN ) {
+                    M.ciniki_foodmarket_main.menu.liveSearchShow('availability_date_search',null,M.gE(M.ciniki_foodmarket_main.menu.panelUID + '_' + s), rsp.products);
+                }
+            });
         }
         if( s == 'baskets_search' && v != '' ) {
             M.api.getJSONBgCb('ciniki.foodmarket.dateBasketItemSearch', {'business_id':M.curBusinessID, 'search_str':v, 'limit':'50'}, function(rsp) {
+                if( sN == M.ciniki_foodmarket_main.menu.liveSearchRN ) {
                     M.ciniki_foodmarket_main.menu.liveSearchShow('baskets_search',null,M.gE(M.ciniki_foodmarket_main.menu.panelUID + '_' + s), rsp.products);
-                });
+                }
+            });
         }
         if( s == 'product_search' && v != '' ) {
             M.api.getJSONBgCb('ciniki.foodmarket.productSearch', {'business_id':M.curBusinessID, 'search_str':v, 'limit':'50'}, function(rsp) {
+                if( sN == M.ciniki_foodmarket_main.menu.liveSearchRN ) {
                     M.ciniki_foodmarket_main.menu.liveSearchShow('product_search',null,M.gE(M.ciniki_foodmarket_main.menu.panelUID + '_' + s), rsp.products);
-                });
+                }
+            });
         }
         if( s == 'specials_search' && v != '' ) {
             M.api.getJSONBgCb('ciniki.foodmarket.specialsSearch', {'business_id':M.curBusinessID, 'search_str':v, 'limit':'50'}, function(rsp) {
+                if( sN == M.ciniki_foodmarket_main.menu.liveSearchRN ) {
                     M.ciniki_foodmarket_main.menu.liveSearchShow('specials_search',null,M.gE(M.ciniki_foodmarket_main.menu.panelUID + '_' + s), rsp.outputs);
-                });
+                }
+            });
         }
         if( s == 'new_search' && v != '' ) {
             M.api.getJSONBgCb('ciniki.foodmarket.newSearch', {'business_id':M.curBusinessID, 'search_str':v, 'limit':'50'}, function(rsp) {
+                if( sN == M.ciniki_foodmarket_main.menu.liveSearchRN ) {
                     M.ciniki_foodmarket_main.menu.liveSearchShow('new_search',null,M.gE(M.ciniki_foodmarket_main.menu.panelUID + '_' + s), rsp.products);
-                });
+                }
+            });
         }
         if( s == 'checkout_itemsearch' && v != '' ) {
             M.api.getJSONBgCb('ciniki.poma.orderItemSearch', {'business_id':M.curBusinessID, 'start_needle':v, 'limit':'50'}, function(rsp) {
+                if( sN == M.ciniki_foodmarket_main.menu.liveSearchRN ) {
                     M.ciniki_foodmarket_main.menu.liveSearchShow('checkout_itemsearch',null,M.gE(M.ciniki_foodmarket_main.menu.panelUID + '_' + s), rsp.items);
-                });
+                }
+            });
         }
     }
     this.menu.liveSearchResultClass = function(s, f, i, j, d) {
@@ -533,7 +548,7 @@ function ciniki_foodmarket_main() {
                     + '<button onclick=\'event.stopPropagation(); M.ciniki_foodmarket_main.menu.checkoutItemAdd("' + d.object + '","' + d.object_id + '","6");return false;\'>6</button>';
             }
         }
-        if( s == 'date_search' ) { 
+        if( s == 'availability_date_search' ) { 
             return this.dateProductCellValue(s, i, j, d);
         }
         if( s == 'baskets_search' ) { 
@@ -608,7 +623,7 @@ function ciniki_foodmarket_main() {
         if( s == 'checkout_itemsearch' ) { 
             return 'M.ciniki_foodmarket_main.menu.checkoutItemAdd("' + d.object + '","' + d.object_id + '","1");';
         }
-        if( s == 'date_search' ) {
+        if( s == 'availability_date_search' ) {
             return 'M.ciniki_foodmarket_main.product.open(\'M.ciniki_foodmarket_main.menu.open();\',\'' + d.product_id + '\');';
         }
         if( s == 'baskets_search' ) {
