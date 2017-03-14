@@ -2899,14 +2899,20 @@ function ciniki_foodmarket_main() {
             'flags1':{'label':'Autolock', 'type':'flagtoggle', 'field':'flags', 'bit':0x01, 'on_fields':['autolock_date', 'autolock_time']},
             'autolock_date':{'label':'Auto Lock Date', 'visible':'no', 'type':'date'},
             'autolock_time':{'label':'Auto Lock Time', 'visible':'no', 'type':'text', 'size':'small'},
+//            'flags6':{'label':'Lock Reminder', 'type':'flagtoggle', 'field':'flags', 'bit':0x20, 'on_fields':['lockreminder_date', 'lockreminder_time']},
+//            'lockreminder_date':{'label':'Lock Reminder Date', 'visible':'no', 'type':'date'},
+//            'lockreminder_time':{'label':'Lock Reminder Time', 'visible':'no', 'type':'text', 'size':'small'},
+            'flags7':{'label':'Pickup Reminder', 'type':'flagtoggle', 'field':'flags', 'bit':0x40, 'on_fields':['pickupreminder_date', 'pickupreminder_time']},
+            'pickupreminder_date':{'label':'Pickup Reminder Date', 'visible':'no', 'type':'date'},
+            'pickupreminder_time':{'label':'Pickup Reminder Time', 'visible':'no', 'type':'text', 'size':'small'},
             }},
         '_repeats':{'label':'Apply repeats on', 'fields':{
             'repeats_date':{'label':'Date', 'type':'date'},
             'repeats_time':{'label':'Time', 'type':'text', 'size':'small'},
             }},
-        '_notices':{'label':'Notices', 'fields':{
-            'notices':{'label':'', 'hidelabel':'yes', 'type':'textarea'},
-            }},
+//        '_notices':{'label':'Notices', 'fields':{
+//            'notices':{'label':'', 'hidelabel':'yes', 'type':'textarea'},
+//            }},
         '_buttons':{'label':'', 'buttons':{
             'save':{'label':'Save', 'fn':'M.ciniki_foodmarket_main.editdate.save();'},
             'delete':{'label':'Delete', 
@@ -2934,6 +2940,20 @@ function ciniki_foodmarket_main() {
             } else {
                 p.sections.general.fields.autolock_date.visible = 'no';
                 p.sections.general.fields.autolock_time.visible = 'no';
+            }
+/*            if( (rsp.date.flags&0x20) == 0x20 ) {
+                p.sections.general.fields.lockreminder_date.visible = 'yes';
+                p.sections.general.fields.lockreminder_time.visible = 'yes';
+            } else {
+                p.sections.general.fields.lockreminder_date.visible = 'no';
+                p.sections.general.fields.lockreminder_time.visible = 'no';
+            } */
+            if( (rsp.date.flags&0x40) == 0x40 ) {
+                p.sections.general.fields.pickupreminder_date.visible = 'yes';
+                p.sections.general.fields.pickupreminder_time.visible = 'yes';
+            } else {
+                p.sections.general.fields.pickupreminder_date.visible = 'no';
+                p.sections.general.fields.pickupreminder_time.visible = 'no';
             }
             p.refresh();
             p.show(cb);
