@@ -7,6 +7,7 @@ function ciniki_foodmarket_main() {
     this.weightFlags = {'2':{'name':'lb'}, '3':{'name':'oz'}, '6':{'name':'kg'}, '7':{'name':'g'}};
     this.unitFlags = {'9':{'name':'Each'}, '10':{'name':'Pair'}, '11':{'name':'Bunch'}, '12':{'name':'Bag'}};
     this.caseFlags = {'17':{'name':'Case'}, '18':{'name':'Bushel'}, };
+    this.packingToggles = {'10':'<span class="faicon">&#xf102;</span>', '30':'<span class="faicon">&#xf106;</span>', '50':' - ', '70':'<span class="faicon">&#xf107;</span>', '90':'<span class="faicon">&#xf103;</span>'};
 
     //
     // Food Market
@@ -1667,7 +1668,7 @@ function ciniki_foodmarket_main() {
             'fields':{
                 'status':{'label':'Status', 'type':'toggle', 'toggles':{'10':'Private', '40':'Public', '90':'Archived'}},
                 'flags':{'label':'Options', 'type':'flags', 'flags':{'1':{'name':'New'}}},
-                'packing_order':{'label':'Packing', 'type':'toggle', 'toggles':{'10':'Top', '50':'Middle', '90':'Bottom'}},
+                'packing_order':{'label':'Packing', 'type':'toggle', 'toggles':this.packingToggles},
             }},
         'inputs':{'label':'Purchase Options', 'type':'simplegrid', 'num_cols':'2', 'aside':'yes',
             'visible':function() { return (M.ciniki_foodmarket_main.product.inputVisible('inputs') == 'yes' && M.ciniki_foodmarket_main.product.product_id > 0 ? 'yes' : 'no'); },
