@@ -1672,7 +1672,7 @@ function ciniki_foodmarket_main() {
             }},
         'inputs':{'label':'Purchase Options', 'type':'simplegrid', 'num_cols':'2', 'aside':'yes',
             'visible':function() { return (M.ciniki_foodmarket_main.product.inputVisible('inputs') == 'yes' && M.ciniki_foodmarket_main.product.product_id > 0 ? 'yes' : 'no'); },
-            'cellClasses':['', 'alignright'],
+            'cellClasses':['', 'multiline alignright'],
             'addTxt':'Add',
             'addFn':'M.ciniki_foodmarket_main.product.addInput();',
             },
