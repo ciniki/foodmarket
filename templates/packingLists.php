@@ -222,9 +222,6 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
             $this->SetY(-15);
             $this->SetFont('helvetica', '', 10);
             $this->Cell(60, 12, $this->date_text, 0, false, 'L', 0, '', 0, false, 'M', 'M');
-//            $this->Cell(90, 10, $this->footer_msg, 0, false, 'L', 0, '', 0, false, 'T', 'M');
-//            $this->SetFont('helvetica', '', 10);
-//            $this->Cell(90, 10, 'Page ' . $this->pageNo().'/'.$this->getAliasNbPages(), 0, false, 'R', 0, '', 0, false, 'T', 'M');
         }
     }
 
@@ -312,7 +309,6 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
     //
     // Go through the sections, categories and classes
     //
-//    $w = array(8, 142, 5, 10, 15);
     foreach($orders as $order) {
         if( !isset($order['items']) || count($order['items']) == 0 ) {
             continue;
@@ -347,11 +343,8 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
                     }
                     return $a['packing_order'] > $b['packing_order'] ? -1 : 1;
                 });
-                $prev_packing_order = -1;
                 foreach($item['subitems'] as $sid => $subitem) {
                     if( isset($item['subitems'][$sid+1]) && $item['subitems'][$sid+1]['packing_order'] != $subitem['packing_order'] ) {
-//                    if( $prev_packing_order >= 0 && $prev_packing_order != $subitem['packing_order'] && $sid != count($item['subitems']) ) {
-                        error_log('0000=-' . $subitem['packing_order'] . ' - ' . $subitem['description']);
                         $pdf->SetDrawColor(128);
                     } else {
                         $pdf->SetDrawColor(224);
@@ -365,16 +358,8 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
                     $pdf->Cell($w[2], $lh, $subitem['quantity'], $border, 0, 'R', $subfill);
                     $pdf->Cell($w[3], $lh, $subitem['suffix'], $border, 0, 'L', $subfill);
                     $pdf->Cell($w[4], $lh, $subitem['description'], $border, 0, 'L', $subfill);
-    //                $pdf->SetFont('zapfdingbats', '', 14);
-    //                $pdf->Cell($w[0], $lh, 'o', $border, 0, 'C', $subfill);
-    //                $pdf->SetFont('helvetica', '', 12);
-    //                $pdf->Cell($w[1], $lh, $subitem['description'], $border, 0, 'L', $subfill);
-    //                $pdf->Cell($w[2], $lh, (isset($subitem['modified'])&&$subitem['modified']=='yes'?'M':''), $border, 0, 'L', $subfill);
-    //                $pdf->Cell($w[3], $lh, $subitem['quantity'], $border, 0, 'R', $subfill);
-    //                $pdf->Cell($w[4], $lh, $subitem['suffix'], $border, 0, 'L', $subfill);
                     $pdf->Ln();
                     $border = 'B';
-                    $prev_packing_order = $subitem['packing_order'];
                 }
                 $pdf->SetDrawColor(224);
             }
@@ -415,16 +400,8 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
             $pdf->Cell($w[1], $lh, $item['quantity'], $border, 0, 'R', $fill);
             $pdf->Cell($w[2], $lh, $item['suffix'], $border, 0, 'L', $fill);
             $pdf->Cell($w[3], $lh, $item['description'], $border, 0, 'L', $fill);
-//            $pdf->SetFont('zapfdingbats', '', 14);
-//            $pdf->Cell($w[0], $lh, 'o', $border, 0, 'C', $fill);
-//            $pdf->SetFont('helvetica', '', 12);
-//            $pdf->Cell($w[1], $lh, $item['description'], $border, 0, 'L', $fill);
-//            $pdf->Cell($w[2], $lh, '', $border, 0, 'L', $fill);
-//            $pdf->Cell($w[3], $lh, $item['quantity'], $border, 0, 'R', $fill);
-//            $pdf->Cell($w[4], $lh, $item['suffix'], $border, 0, 'L', $fill);
             $pdf->Ln();
             $border = 'B';
-            //$fill=!$fill;
         }
     }
 
