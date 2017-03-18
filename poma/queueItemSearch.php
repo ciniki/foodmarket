@@ -10,7 +10,7 @@
 // Returns
 // =======
 //
-function ciniki_foodmarket_poma_itemSearch($ciniki, $business_id, $args) {
+function ciniki_foodmarket_poma_queueItemSearch($ciniki, $business_id, $args) {
 
     if( !isset($args['keywords']) || $args['keywords'] == '' ) {
         return array('stat'=>'ok', 'items'=>array());
@@ -67,6 +67,7 @@ function ciniki_foodmarket_poma_itemSearch($ciniki, $business_id, $args) {
             . ") "
         . "AND ciniki_foodmarket_product_outputs.status > 5 "
         . "AND ciniki_foodmarket_product_outputs.otype < 71 "
+        . "AND (ciniki_foodmarket_product_outputs.flags&0x0400) = 0x0400 "
         . "AND ciniki_foodmarket_products.status > 5 "
         . "AND ciniki_foodmarket_products.status < 90 "
         . "";

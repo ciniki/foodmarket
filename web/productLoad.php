@@ -96,6 +96,7 @@ function ciniki_foodmarket_web_productLoad($ciniki, $settings, $business_id, $ar
         . "ciniki_foodmarket_product_outputs.units, "
         . "ciniki_foodmarket_product_outputs.flags, "
         . "ciniki_foodmarket_product_outputs.sequence AS osequence, "
+        . "ciniki_foodmarket_product_outputs.io_sequence, "
         . "ciniki_foodmarket_product_outputs.start_date, "
         . "ciniki_foodmarket_product_outputs.end_date, "
         . "ciniki_foodmarket_product_outputs.retail_price AS price, "
@@ -118,7 +119,7 @@ function ciniki_foodmarket_web_productLoad($ciniki, $settings, $business_id, $ar
     $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.foodmarket', array(
         array('container'=>'outputs', 'fname'=>'id', 
             'fields'=>array('id', 'product_id', 'input_id', 'name', 'permalink', 'status', 'status_text'=>'status', 'otype', 'otype_text'=>'otype', 
-                'units', 'units_text'=>'units', 'flags', 'flags_text'=>'flags', 'sequence', 'start_date', 'end_date', 
+                'units', 'units_text'=>'units', 'flags', 'flags_text'=>'flags', 'sequence'=>'io_sequence', 'start_date', 'end_date', 
                 'price', 'price_text', 'sale_price', 'sale_price_text', 'taxtype_id', 'inventory',
                 ),
             'maps'=>array(

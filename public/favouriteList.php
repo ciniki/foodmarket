@@ -31,8 +31,8 @@ function ciniki_foodmarket_favouriteList($ciniki) {
     //
     // Check access to business_id as owner, or sys admin.
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'poma', 'private', 'checkAccess');
-    $rc = ciniki_poma_checkAccess($ciniki, $args['business_id'], 'ciniki.poma.favouriteList');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'private', 'checkAccess');
+    $rc = ciniki_foodmarket_checkAccess($ciniki, $args['business_id'], 'ciniki.foodmarket.favouriteList');
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }

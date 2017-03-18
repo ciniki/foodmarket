@@ -20,7 +20,7 @@ function ciniki_foodmarket_convertOutputItem($ciniki, $business_id, $output) {
         'object_id'=>$output['id'],
         'description'=>$output['pio_name'],
         'name'=>isset($output['product_name']) ? $output['product_name'] : '',
-        'size'=>isset($output['input_name']) ? $output['input_name'] : '',
+        'size'=>isset($output['io_name']) ? $output['io_name'] : (isset($output['input_name']) ? $output['input_name'] : ''),
         'flags'=>0,
         'itype'=>(isset($output['otype']) ? $output['otype'] : 30),
         'units'=>(isset($output['units']) ? $output['units'] : 0),
@@ -49,6 +49,13 @@ function ciniki_foodmarket_convertOutputItem($ciniki, $business_id, $output) {
         $item['flags'] |= 0x80;
         $item['cdeposit_description'] = $output['cdeposit_name'];
         $item['cdeposit_amount'] = $output['cdeposit_amount'];
+    }
+
+    //
+    // Check if deposit required for queued item
+    //
+    if( isset($output['flags']) && ($output['flags']&0x0400) && $output['retail_deposit'] > 0 ) {
+        $item['qdeposit_amount'] = $output['retail_deposit'];
     }
 
     //

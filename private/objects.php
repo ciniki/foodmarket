@@ -102,6 +102,7 @@ function ciniki_foodmarket_objects($ciniki) {
             'retail_sdiscount_percent'=>array('name'=>'Retail Special Discount', 'default'=>'0'),
             'retail_sprice'=>array('name'=>'Retail Price', 'default'=>'0'),
             'retail_sprice_text'=>array('name'=>'Retail Price Text', 'default'=>''),
+            'retail_deposit'=>array('name'=>'Retail Deposit', 'default'=>'0'),
             'retail_taxtype_id'=>array('name'=>'Retail Taxtype', 'default'=>'0'),
             ),
         'history_table'=>'ciniki_foodmarket_history',

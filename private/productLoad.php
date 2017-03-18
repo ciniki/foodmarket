@@ -201,6 +201,7 @@ function ciniki_foodmarket_productLoad($ciniki, $business_id, $product_id) {
         . "ciniki_foodmarket_product_outputs.retail_percent, "
         . "ciniki_foodmarket_product_outputs.retail_sdiscount_percent, "
         . "ciniki_foodmarket_product_outputs.retail_price, "
+        . "ciniki_foodmarket_product_outputs.retail_deposit, "
         . "ciniki_foodmarket_product_outputs.retail_taxtype_id "
         . "FROM ciniki_foodmarket_product_outputs "
         . "WHERE ciniki_foodmarket_product_outputs.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
@@ -211,7 +212,7 @@ function ciniki_foodmarket_productLoad($ciniki, $business_id, $product_id) {
         array('container'=>'outputs', 'fname'=>'id', 
             'fields'=>array('id', 'product_id', 'input_id', 'name', 'permalink', 'status', 'status_text'=>'status', 'otype', 'otype_text'=>'otype', 
                 'units', 'units_text'=>'units', 'flags', 'flags_text'=>'flags', 'sequence', 'start_date', 'end_date', 
-                'wholesale_percent', 'wholesale_price', 'wholesale_taxtype_id', 'retail_percent', 'retail_sdiscount_percent', 'retail_price', 'retail_taxtype_id', 
+                'wholesale_percent', 'wholesale_price', 'wholesale_taxtype_id', 'retail_percent', 'retail_sdiscount_percent', 'retail_price', 'retail_deposit', 'retail_taxtype_id', 
                 ),
             'currency'=>array(
                 'wholesale_price'=>array('fmt'=>$intl_currency_fmt, 'currency'=>$intl_currency),
@@ -306,6 +307,11 @@ function ciniki_foodmarket_productLoad($ciniki, $business_id, $product_id) {
                 $product['input' . $idx . '_' . $output['otype'] . '_retail_percent'] = number_format($output['retail_percent'], 2);
                 $product['input' . $idx . '_' . $output['otype'] . '_retail_sdiscount_percent'] = number_format($output['retail_sdiscount_percent'], 2);
                 $product['input' . $idx . '_' . $output['otype'] . '_retail_price'] = $output['retail_price'];
+                if( $output['retail_deposit'] == 0 ) {
+                    $product['input' . $idx . '_' . $output['otype'] . '_retail_deposit'] = '';
+                } else {
+                    $product['input' . $idx . '_' . $output['otype'] . '_retail_deposit'] = number_format($output['retail_deposit'], 2);
+                }
                 $product['input' . $idx . '_' . $output['otype'] . '_retail_taxtype_id'] = $output['retail_taxtype_id'];
                 
                 //

@@ -258,6 +258,7 @@ function ciniki_foodmarket_productSuppliedUpdate(&$ciniki, $business_id, $produc
                 'input' . $idx . '_' . $type . '_retail_percent'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Input ' . $idx . ' Retail Percent'),
                 'input' . $idx . '_' . $type . '_retail_sdiscount_percent'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Input ' . $idx . ' Special Discount'),
                 'input' . $idx . '_' . $type . '_retail_price'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'currency', 'name'=>'Input ' . $idx . ' Retail Price'),
+                'input' . $idx . '_' . $type . '_retail_deposit'=>array('required'=>'no', 'blank'=>'yes', 'type'=>'currency', 'name'=>'Input ' . $idx . ' Retail Deposit'),
                 'input' . $idx . '_' . $type . '_retail_taxtype_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Input ' . $idx . ' Retail Tax'),
                 ));
             if( $rc['stat'] != 'ok' ) {

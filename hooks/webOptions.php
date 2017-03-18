@@ -64,6 +64,16 @@ function ciniki_foodmarket_hooks_webOptions(&$ciniki, $business_id, $args) {
             ),
         ); */
     $poptions[] = array(
+        'label'=>'Layout',
+        'setting'=>'page-foodmarket-categories-layout', 
+        'type'=>'toggle',
+        'value'=>(isset($settings['page-foodmarket-categories-layout']) ? $settings['page-foodmarket-categories-layout'] : 'categories'),
+        'toggles'=>array(
+            array('value'=>'categories', 'label'=>'Category List'),
+            array('value'=>'expandsubcategories', 'label'=>'Expand Subcategories'),
+            ),
+        ); 
+    $poptions[] = array(
         'label'=>'Category Format',
         'setting'=>'page-foodmarket-category-thumbnail-format', 
         'type'=>'toggle',

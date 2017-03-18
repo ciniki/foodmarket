@@ -17,23 +17,34 @@ function ciniki_foodmarket_web_categoryList($ciniki, $settings, $business_id, $a
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
 
-    $strsql = "SELECT ciniki_foodmarket_categories.id, "
-        . "ciniki_foodmarket_categories.name, "
-        . "ciniki_foodmarket_categories.permalink, "
-        . "ciniki_foodmarket_categories.ctype, "
-        . "ciniki_foodmarket_categories.image_id "
-        . "FROM ciniki_foodmarket_categories "
-        . "WHERE ciniki_foodmarket_categories.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
-        . "AND (ciniki_foodmarket_categories.flags&0x01) = 0x01 "
+    $strsql = "SELECT parents.id, "
+        . "parents.name, "
+        . "parents.permalink, "
+        . "parents.ctype, "
+        . "parents.image_id, "
+        . "children.id AS child_id, "
+        . "children.name AS child_name, "
+        . "children.permalink AS child_permalink, "
+        . "children.ctype AS child_ctype, "
+        . "children.image_id AS child_image_id "
+        . "FROM ciniki_foodmarket_categories AS parents "
+        . "LEFT JOIN ciniki_foodmarket_categories AS children ON ("
+            . "parents.id = children.parent_id "
+            . "AND children.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . ") "
+        . "WHERE parents.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND (parents.flags&0x01) = 0x01 "
         . "";
     if( isset($args['parent_id']) && $args['parent_id'] > 0 ) {
-        $strsql .= "AND parent_id = '" . ciniki_core_dbQuote($ciniki, $args['parent_id']) . "' ";
+        $strsql .= "AND parents.parent_id = '" . ciniki_core_dbQuote($ciniki, $args['parent_id']) . "' ";
     } else {
-        $strsql .= "AND parent_id = 0 ";
+        $strsql .= "AND parents.parent_id = 0 ";
     }
-    $strsql .= "ORDER BY sequence, name ";
+    $strsql .= "ORDER BY parents.sequence, parents.name, children.sequence, children.name ";
     $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.foodmarket', array(
         array('container'=>'categories', 'fname'=>'id', 'fields'=>array('id', 'name', 'permalink', 'ctype', 'image_id')),
+        array('container'=>'subcategories', 'fname'=>'child_id', 'fields'=>array('id'=>'child_id', 'name'=>'child_name', 
+            'permalink'=>'child_permalink', 'ctype'=>'child_ctype', 'image_id'=>'child_image_id')),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;

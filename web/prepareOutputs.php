@@ -149,15 +149,20 @@ function ciniki_foodmarket_web_prepareOutputs($ciniki, $settings, $business_id, 
         //
         if( ($output['flags']&0x0400) == 0x0400 ) {
             $output['queue'] = 'yes';
-            if( isset($item_types['queue']['items'][$output['id']]) ) {
-                $output['queue_quantity'] = $item_types['queue']['items'][$output['id']]['quantity'];
+            if( isset($item_types['queueactive']['items'][$output['id']]) ) {
+                $output['queue_quantity'] = $item_types['queueactive']['items'][$output['id']]['quantity'];
             } else {
                 $output['queue_quantity'] = 0;
+            }
+            if( isset($item_types['queueordered']['items'][$output['id']]) ) {
+                $output['queue_ordered_quantity'] = $item_types['queueordered']['items'][$output['id']]['quantity'];
+            } else {
+                $output['queue_ordered_quantity'] = 0;
             }
         } else {
             $output['queue'] = 'no';
         }
-$output['queue'] = 'no';
+//$output['queue'] = 'no';
 
         //
         // Check if limited

@@ -83,7 +83,7 @@ function ciniki_foodmarket_main() {
         'customers':{'label':'Customers', 'type':'simplegrid', 'num_cols':1, 'aside':'yes',
             'visible':function() { 
                 var t=M.ciniki_foodmarket_main.menu.sections._tabs.selected; 
-                return (t=='favourites' || t == 'repeats' || t == 'notes' ) ? 'yes':'no'; 
+                return (t=='favourites' || t == 'queue' || t == 'repeats' || t == 'notes' ) ? 'yes':'no'; 
                 },
             'noData':'No customers.',
             'addTxt':'',
@@ -357,6 +357,31 @@ function ciniki_foodmarket_main() {
             },
 
         /* Queue */
+        'queue_ordered':{'label':'Ordered Items', 'type':'simplegrid', 'num_cols':5,
+            'visible':function() { return (M.ciniki_foodmarket_main.menu.sections._tabs.selected == 'queue' && M.ciniki_foodmarket_main.menu.customer_id == 0 ) ? 'yes':'no'; },
+            'noData':'Nothing queued',
+            'headerValues':['SKU', 'Product', 'Cost', 'Required', 'Order'],
+            'cellClasses':['', '', 'nobreak', 'nobreak', 'nobreak'],
+            },
+        'queued_items':{'label':'Queued Items', 'type':'simplegrid', 'num_cols':5,
+            'visible':function() { return (M.ciniki_foodmarket_main.menu.sections._tabs.selected == 'queue' && M.ciniki_foodmarket_main.menu.customer_id == 0 ) ? 'yes':'no'; },
+            'noData':'Nothing queued',
+            'headerValues':['SKU', 'Product', 'Cost', 'Required', 'Order'],
+            'cellClasses':['', '', 'nobreak', 'nobreak', 'nobreak'],
+            },
+        'queue_search':{'label':'', 'type':'livesearchgrid', 'livesearchcols':3, 'hint':'Search',
+            'visible':function() { return (M.ciniki_foodmarket_main.menu.sections._tabs.selected == 'queue' && M.ciniki_foodmarket_main.menu.customer_id > 0 ) ? 'yes':'no'; },
+            'cellClasses':['', 'nobreak', 'alignright nobreak'],
+            'noData':'No products found',
+            },
+        'customer_queue':{'label':'Queued Items', 'type':'simplegrid', 'num_cols':4,
+            'visible':function() { return (M.ciniki_foodmarket_main.menu.sections._tabs.selected == 'queue' && M.ciniki_foodmarket_main.menu.customer_id > 0 ) ? 'yes':'no'; },
+            'headerValues':['Item', 'Quantity', 'Status', 'Deposits'],
+            'sortable':'yes', 'sortTypes':['text', 'number', 'text', 'number'],
+            'noData':'No queued items for customer',
+            'headerClasses':['', 'aligncenter', 'aligncenter', 'alignright'],
+            'cellClasses':['', 'aligncenter', 'aligncenter', 'alignright'],
+            },
 
         /* Favourites */
         'favourite_items':{'label':'Favourites', 'type':'simplegrid', 'num_cols':2,
@@ -522,9 +547,23 @@ function ciniki_foodmarket_main() {
                 }
             });
         }
+        if( s == 'queue_search' && v != '' ) {
+            M.api.getJSONBgCb('ciniki.poma.queueItemSearch', {'business_id':M.curBusinessID, 'start_needle':v, 'limit':'50'}, function(rsp) {
+                if( sN == M.ciniki_foodmarket_main.menu.liveSearchRN ) {
+                    M.ciniki_foodmarket_main.menu.liveSearchShow('queue_search',null,M.gE(M.ciniki_foodmarket_main.menu.panelUID + '_' + s), rsp.items);
+                }
+            });
+        }
     }
     this.menu.liveSearchResultClass = function(s, f, i, j, d) {
         if( s == 'checkout_itemsearch' ) { 
+            switch(j) {
+                case 1: return 'nobreak multiline';
+                case 2: return 'nobreak multiline';
+            }   
+            return '';
+        }
+        if( s == 'queue_search' ) { 
             switch(j) {
                 case 1: return 'nobreak multiline';
                 case 2: return 'nobreak multiline';
@@ -547,6 +586,13 @@ function ciniki_foodmarket_main() {
                     + '<button onclick=\'event.stopPropagation(); M.ciniki_foodmarket_main.menu.checkoutItemAdd("' + d.object + '","' + d.object_id + '","4");return false;\'>4</button>'
                     + '<button onclick=\'event.stopPropagation(); M.ciniki_foodmarket_main.menu.checkoutItemAdd("' + d.object + '","' + d.object_id + '","5");return false;\'>5</button>'
                     + '<button onclick=\'event.stopPropagation(); M.ciniki_foodmarket_main.menu.checkoutItemAdd("' + d.object + '","' + d.object_id + '","6");return false;\'>6</button>';
+            }
+        }
+        if( s == 'queue_search' ) { 
+            switch(j) {
+                case 0: return d.name;
+                case 1: return '<span class="maintext">' + d.size + '</span><span class="subtext">' + d.unit_price_text + '</span>';
+                case 2: return '<button onclick=\'event.stopPropagation(); M.ciniki_foodmarket_main.menu.queueItemAdd("' + d.object + '","' + d.object_id + '","1");return false;\'>Add</button>';
             }
         }
         if( s == 'availability_date_search' ) { 
@@ -624,6 +670,9 @@ function ciniki_foodmarket_main() {
         if( s == 'checkout_itemsearch' ) { 
             return 'M.ciniki_foodmarket_main.menu.checkoutItemAdd("' + d.object + '","' + d.object_id + '","1");';
         }
+        if( s == 'queue_search' ) { 
+            return 'M.ciniki_foodmarket_main.menu.queueItemAdd("' + d.object + '","' + d.object_id + '","1");';
+        }
         if( s == 'availability_date_search' ) {
             return 'M.ciniki_foodmarket_main.product.open(\'M.ciniki_foodmarket_main.menu.open();\',\'' + d.product_id + '\');';
         }
@@ -659,6 +708,13 @@ function ciniki_foodmarket_main() {
         }
         if( s == 'specials_search' || s == 'specials_outputs' ) {   
             return 'textfield toggle';
+        }
+        if( s == 'customer_queue' ) {
+            switch(d.status) {
+                case '10': return '';
+                case '40': return 'statusorange';
+                case '90': return 'statusgreen';
+            }
         }
         return '';
     }
@@ -871,6 +927,38 @@ function ciniki_foodmarket_main() {
         }
 
         /* Queue */ 
+        if( s == 'queue_ordered' ) {
+            switch(j) {
+                case 0: return d.sku;
+                case 1: return d.name;
+                case 2: return d.cost_text;
+                case 3: return d.required_quantity_text;
+                case 4: return d.order_quantity_text;
+            }
+        } else if( s == 'queued_items' ) {
+            switch(j) {
+                case 0: return d.sku;
+                case 1: return d.name;
+                case 2: return d.cost_text;
+                case 3: return d.required_quantity_text;
+                case 4: return d.order_quantity_text;
+            }
+        } else if( s == 'customer_queue' ) {
+            switch(j) {
+                case 0: return d.description;
+                case 1:
+                    if( d.status != '10' ) { return d.quantity; }
+                    var bid = d.id;
+                    var q = parseFloat(d.quantity);
+                    return '<span class="pmbutton"><span class="pm-down" onclick=\'event.stopPropagation(); M.ciniki_foodmarket_main.menu.queueItemUpdate("' + d.object + '","' + d.object_id + '","' + (q-1) + '");return false;\'>-</span>'
+                        + '<span class="pm-value" onclick=\'event.stopPropagation(); M.ciniki_foodmarket_main.menu.queueQuantityGet("' + d.object + '","' + d.object_id + '");return false;\'>' + q + '</span>'
+                        + '<span class="pm-up" onclick=\'event.stopPropagation(); M.ciniki_foodmarket_main.menu.queueItemUpdate("' + d.object + '","' + d.object_id + '","' + (q+1) + '");return false;\'>+</span>'
+                        + '</span>';
+                case 1: return d.quantity;
+                case 2: return d.status_text;
+                case 3: return d.deposited_amount_display;
+            }
+        }
 
         /* Favourites */
         if( s == 'favourite_items' ) {
@@ -992,6 +1080,10 @@ function ciniki_foodmarket_main() {
         if( s == 'order_dates' ) {
             return 'M.ciniki_foodmarket_main.editdate.open(\'M.ciniki_foodmarket_main.menu.open();\',\'' + d.id + '\',M.ciniki_foodmarket_main.menu.date_nplist);';
         }
+        /* Queue */
+        if( s == 'queued_items' || s == 'queue_ordered' ) {
+            return 'M.ciniki_foodmarket_main.queueinput.open(\'M.ciniki_foodmarket_main.menu.open();\',\'' + d.id + '\',null,M.ciniki_foodmarket_main.menu.nplists.queued_items);';
+        }
         /* Repeats */
         if( s == 'customer_repeats' ) {
             return 'M.ciniki_foodmarket_main.repeatitem.open(\'M.ciniki_foodmarket_main.menu.open();\',\'' + d.id + '\',\'' + d.customer_id + '\');'
@@ -1058,7 +1150,6 @@ function ciniki_foodmarket_main() {
         this.show();
     }
     this.menu.checkoutItemAdd = function(o,i,q) {
-        console.log(q);
         M.api.getJSONCb('ciniki.poma.dateCheckout', 
             {'business_id':M.curBusinessID, 'date_id':this.date_id, 'order_id':this.order_id, 'new_object':o, 'new_object_id':i, 'new_quantity':q, 'customer_id':this.customer_id}, 
             M.ciniki_foodmarket_main.menu.processCheckout);
@@ -1238,6 +1329,24 @@ function ciniki_foodmarket_main() {
         this.order_id = oid;
         this.open();
     }
+    /* Queue */
+    this.menu.queueQuantityGet = function(o, i) {
+        var q = prompt("Quantity: ", '');
+        if( q != null && q != '' ) {
+            this.queueItemUpdate(o, i, q);
+        }
+    }
+    this.menu.queueItemUpdate = function(o,i,q) {
+        M.api.getJSONCb('ciniki.foodmarket.queueList', 
+            {'business_id':M.curBusinessID, 'customers':'yes', 'customer_id':this.customer_id, 'object':o, 'object_id':i, 'quantity':q}, 
+            M.ciniki_foodmarket_main.menu.processQueue);
+    }
+    this.menu.queueItemAdd = function(o,i,q) {
+        M.api.getJSONCb('ciniki.foodmarket.queueList', 
+            {'business_id':M.curBusinessID, 'customers':'yes', 'customer_id':this.customer_id, 'object':o, 'object_id':i, 'add_quantity':q}, 
+            M.ciniki_foodmarket_main.menu.processQueue);
+    }
+    /* Favourites */
     this.menu.openFavourites = function(cid) {
         this.customer_id = cid; 
         this.customer_name = '';
@@ -1772,7 +1881,7 @@ function ciniki_foodmarket_main() {
         this.product.sections['input' + i].fields['input' + i + '_unit_cost'] = {'label':'Unit Cost', 'type':'text', 'visible':'no', 'size':'small', 'onkeyupFn':'M.ciniki_foodmarket_main.product.updatePrices'};
         this.product.sections['input' + i].fields['input' + i + '_case_units'] = {'label':'Units/Case', 'type':'text', 'visible':'no', 'size':'small', 'onkeyupFn':'M.ciniki_foodmarket_main.product.updatePrices'};
         this.product.sections['input' + i].fields['input' + i + '_unit_cost_calc'] = {'label':'Cost/Unit', 'type':'text', 'visible':'no', 'size':'small', 'editable':'no', 'history':'no'};
-        this.product.sections['input' + i].fields['input' + i + '_flags1'] = {'label':'Deposit', 'type':'flagtoggle', 'field':'input' + i + '_flags', 'bit':0x01, 'on_fields':['input' + i + '_cdeposit_name', 'input' + i + '_cdeposit_amount']};
+        this.product.sections['input' + i].fields['input' + i + '_flags1'] = {'label':'Refundable Deposit', 'type':'flagtoggle', 'field':'input' + i + '_flags', 'bit':0x01, 'on_fields':['input' + i + '_cdeposit_name', 'input' + i + '_cdeposit_amount']};
         this.product.sections['input' + i].fields['input' + i + '_cdeposit_name'] = {'label':'Invoice Item', 'visible':'no', 'type':'text'};
         this.product.sections['input' + i].fields['input' + i + '_cdeposit_amount'] = {'label':'Deposit', 'visible':'no', 'type':'text', 'size':'small'};
         this.product.sections['input' + i + '_10'] = {'label':'', 'inputnum':i,
@@ -1783,20 +1892,37 @@ function ciniki_foodmarket_main() {
         // Sell by weight
         //
         this.product.sections['input' + i + '_10'].fields['input' + i + '_10_id'] = {'label':'', 'visible':'no', 'type':'text'};
-        this.product.sections['input' + i + '_10'].fields['input' + i + '_10_status'] = {'label':'Sell by Weight', 'type':'toggle', 'default':'5', 'toggles':{'5':'Inactive', '10':'Private', '40':'Public'},
+        this.product.sections['input' + i + '_10'].fields['input' + i + '_10_status'] = {'label':'Sell by Weight', 'type':'toggle', 'default':'5', 
+            'toggles':{'5':'Inactive', '10':'Private', '40':'Public'},
             'onchange':'M.ciniki_foodmarket_main.product.updatePanel',
-            'on_fields':['input' + i + '_10_units1', 'input' + i + '_10_flags2', 'input' + i + '_10_retail_percent', 'input' + i + '_10_retail_sdiscount_percent', 'input' + i + '_10_retail_price_calc', 'input' + i + '_10_retail_taxtype_id'],
+            'on_fields':[
+                'input' + i + '_10_units1', 
+                'input' + i + '_10_flags2', 
+                'input' + i + '_10_retail_percent', 
+                'input' + i + '_10_retail_sdiscount_percent', 
+                'input' + i + '_10_retail_deposit', 
+                'input' + i + '_10_retail_price_calc', 
+                'input' + i + '_10_retail_taxtype_id',
+                ],
             'on_sections':['input' + i + '_71'],
             };
-        this.product.sections['input' + i + '_10'].fields['input' + i + '_10_units1'] = {'label':'Units', 'type':'flagspiece', 'visible':'no', 'field':'input' + i + '_10_units', 'mask':0xff, 'toggle':'yes', 'join':'yes', 
+        this.product.sections['input' + i + '_10'].fields['input' + i + '_10_units1'] = {'label':'Units', 'type':'flagspiece', 'visible':'no', 
+            'field':'input' + i + '_10_units', 'mask':0xff, 'toggle':'yes', 'join':'yes', 
             'onchange':'M.ciniki_foodmarket_main.product.updatePanel', 'flags':this.weightFlags,
             };
-        this.product.sections['input' + i + '_10'].fields['input' + i + '_10_flags2'] = {'label':'Availability', 'type':'flagspiece', 'visible':'no', 'field':'input' + i + '_10_flags', 'mask':0x1F00, 'toggle':'yes', 'join':'yes', 
+        this.product.sections['input' + i + '_10'].fields['input' + i + '_10_flags2'] = {'label':'Availability', 'type':'flagspiece', 'visible':'no', 
+            'field':'input' + i + '_10_flags', 'mask':0x1F00, 'toggle':'yes', 'join':'yes', 
             'flags':{'9':{'name':'Always'}, '10':{'name':'Dates'}, '11':{'name':'Queue'}, '12':{'name':'Limited'}},
+            'onchange':'M.ciniki_foodmarket_main.product.updatePanel',
             };
-        this.product.sections['input' + i + '_10'].fields['input' + i + '_10_retail_percent'] = {'label':'Cost +', 'type':'toggle', 'visible':'no', 'onchange':'M.ciniki_foodmarket_main.product.updatePrices', 'toggles':this.pricePercentToggles};
-        this.product.sections['input' + i + '_10'].fields['input' + i + '_10_retail_sdiscount_percent'] = {'label':'Specials Discount', 'type':'toggle', 'visible':'no', 'onchange':'M.ciniki_foodmarket_main.product.updatePrices', 'toggles':this.priceSpecialsPercentToggles};
+        this.product.sections['input' + i + '_10'].fields['input' + i + '_10_retail_percent'] = {'label':'Cost +', 'type':'toggle', 'visible':'no', 
+            'onchange':'M.ciniki_foodmarket_main.product.updatePrices', 'toggles':this.pricePercentToggles,
+            };
+        this.product.sections['input' + i + '_10'].fields['input' + i + '_10_retail_sdiscount_percent'] = {'label':'Specials Discount', 'type':'toggle', 'visible':'no', 
+            'onchange':'M.ciniki_foodmarket_main.product.updatePrices', 'toggles':this.priceSpecialsPercentToggles,
+            };
         this.product.sections['input' + i + '_10'].fields['input' + i + '_10_retail_price_calc'] = {'label':'Price', 'type':'info', 'visible':'no', 'editable':'no'};
+        this.product.sections['input' + i + '_10'].fields['input' + i + '_10_retail_deposit'] = {'label':'Deposit', 'type':'text', 'size':'small', 'visible':'no'};
         this.product.sections['input' + i + '_10'].fields['input' + i + '_10_retail_taxtype_id'] = {'label':'Taxes', 'type':'toggle', 'taxes':'yes', 'visible':'no', 'toggles':{}};
         this.product.sections['input' + i + '_71'] = {'label':'', 'inputnum':i,
             'visible':function() { 
@@ -1808,11 +1934,13 @@ function ciniki_foodmarket_main() {
             'fields':{},
             };
         this.product.sections['input' + i + '_71'].fields['input' + i + '_71_id'] = {'label':'', 'visible':'no', 'type':'text'};
-        this.product.sections['input' + i + '_71'].fields['input' + i + '_71_status'] = {'label':'Basket', 'type':'toggle', 'visible':'yes', 'default':'5', 'toggles':{'5':'Inactive', '10':'Private'},
+        this.product.sections['input' + i + '_71'].fields['input' + i + '_71_status'] = {'label':'Basket', 'type':'toggle', 'visible':'yes', 'default':'5', 
+            'toggles':{'5':'Inactive', '10':'Private'},
             'onchange':'M.ciniki_foodmarket_main.product.updatePanel',
             'on_fields':['input' + i + '_71_retail_discount', 'input' + i + '_71_retail_price_calc'],
             };
-        this.product.sections['input' + i + '_71'].fields['input' + i + '_71_retail_discount'] = {'label':'Discount', 'type':'toggle', 'visible':'no', 'default':'40', 'onchange':'M.ciniki_foodmarket_main.product.updatePrices', 
+        this.product.sections['input' + i + '_71'].fields['input' + i + '_71_retail_discount'] = {'label':'Discount', 'type':'toggle', 'visible':'no', 'default':'40', 
+            'onchange':'M.ciniki_foodmarket_main.product.updatePrices', 
             'toggles':{'0':'0%', '0.05':'5%', '0.10':'10%', '0.15':'15%'},
             };
         this.product.sections['input' + i + '_71'].fields['input' + i + '_71_units'] = {'label':'', 'visible':'no', 'type':'text'};
@@ -1826,23 +1954,38 @@ function ciniki_foodmarket_main() {
             'fields':{},
             };
         this.product.sections['input' + i + '_30'].fields['input' + i + '_30_id'] = {'label':'', 'visible':'no', 'type':'text'};
-        this.product.sections['input' + i + '_30'].fields['input' + i + '_30_status'] = {'label':'Sell by Unit', 'type':'toggle', 'default':'5', 'toggles':{'5':'Inactive', '10':'Private', '40':'Public'},
+        this.product.sections['input' + i + '_30'].fields['input' + i + '_30_status'] = {'label':'Sell by Unit', 'type':'toggle', 'default':'5', 
+            'toggles':{'5':'Inactive', '10':'Private', '40':'Public'},
             'onchange':'M.ciniki_foodmarket_main.product.updatePanel',
-            'on_fields':['input' + i + '_30_units2', 'input' + i + '_30_flags2', 'input' + i + '_30_retail_percent', 'input' + i + '_30_retail_sdiscount_percent', 'input' + i + '_30_retail_price_calc', 'input' + i + '_30_retail_taxtype_id'],
+            'on_fields':[
+                'input' + i + '_30_units2', 
+                'input' + i + '_30_flags2', 
+                'input' + i + '_30_retail_percent', 
+                'input' + i + '_30_retail_sdiscount_percent', 
+                'input' + i + '_30_retail_deposit', 
+                'input' + i + '_30_retail_price_calc', 
+                'input' + i + '_30_retail_taxtype_id',
+                ],
             'on_sections':['input' + i + '_72'],
             };
-        this.product.sections['input' + i + '_30'].fields['input' + i + '_30_units2'] = {'label':'Units', 'type':'flagspiece', 'visible':'no', 'field':'input' + i + '_30_units', 'mask':0x0f00, 'toggle':'yes', 'join':'yes', 'flags':this.unitFlags,
+        this.product.sections['input' + i + '_30'].fields['input' + i + '_30_units2'] = {'label':'Units', 'type':'flagspiece', 'visible':'no', 
+            'field':'input' + i + '_30_units', 'mask':0x0f00, 'toggle':'yes', 'join':'yes', 'flags':this.unitFlags,
             'onchange':'M.ciniki_foodmarket_main.product.updatePrices',
             };
-        this.product.sections['input' + i + '_30'].fields['input' + i + '_30_flags2'] = {'label':'Availability', 'type':'flagspiece', 'visible':'no', 'field':'input' + i + '_30_flags', 'mask':0x1F00, 'toggle':'yes', 'join':'yes', 
+        this.product.sections['input' + i + '_30'].fields['input' + i + '_30_flags2'] = {'label':'Availability', 'type':'flagspiece', 'visible':'no', 
+            'field':'input' + i + '_30_flags', 'mask':0x1F00, 'toggle':'yes', 'join':'yes', 
             'flags':{'9':{'name':'Always'}, '10':{'name':'Dates'}, '11':{'name':'Queue'}, '12':{'name':'Limited'}},
+            'onchange':'M.ciniki_foodmarket_main.product.updatePanel',
             };
         this.product.sections['input' + i + '_30'].fields['input' + i + '_30_retail_percent'] = {'label':'Cost +', 'type':'toggle', 'visible':'no', 
             'onchange':'M.ciniki_foodmarket_main.product.updatePrices', 
             'toggles':this.pricePercentToggles,
             };
-        this.product.sections['input' + i + '_30'].fields['input' + i + '_30_retail_sdiscount_percent'] = {'label':'Specials Discount', 'type':'toggle', 'visible':'no', 'onchange':'M.ciniki_foodmarket_main.product.updatePrices', 'toggles':this.priceSpecialsPercentToggles};
+        this.product.sections['input' + i + '_30'].fields['input' + i + '_30_retail_sdiscount_percent'] = {'label':'Specials Discount', 'type':'toggle', 'visible':'no', 
+            'onchange':'M.ciniki_foodmarket_main.product.updatePrices', 'toggles':this.priceSpecialsPercentToggles,
+            };
         this.product.sections['input' + i + '_30'].fields['input' + i + '_30_retail_price_calc'] = {'label':'Price', 'type':'info', 'visible':'no', 'editable':'no'};
+        this.product.sections['input' + i + '_30'].fields['input' + i + '_30_retail_deposit'] = {'label':'Deposit', 'type':'text', 'size':'small', 'visible':'no'};
         this.product.sections['input' + i + '_30'].fields['input' + i + '_30_retail_taxtype_id'] = {'label':'Taxes', 'type':'toggle', 'taxes':'yes', 'visible':'no', 'toggles':{}};
         this.product.sections['input' + i + '_72'] = {'label':'', 'inputnum':i,
             'visible':function() { 
@@ -1854,11 +1997,13 @@ function ciniki_foodmarket_main() {
             'fields':{},
             };
         this.product.sections['input' + i + '_72'].fields['input' + i + '_72_id'] = {'label':'', 'visible':'no', 'type':'text'};
-        this.product.sections['input' + i + '_72'].fields['input' + i + '_72_status'] = {'label':'Basket', 'type':'toggle', 'visible':'yes', 'default':'5', 'toggles':{'5':'Inactive', '10':'Private'},
+        this.product.sections['input' + i + '_72'].fields['input' + i + '_72_status'] = {'label':'Basket', 'type':'toggle', 'visible':'yes', 'default':'5', 
+            'toggles':{'5':'Inactive', '10':'Private'},
             'onchange':'M.ciniki_foodmarket_main.product.updatePanel',
             'on_fields':['input' + i + '_72_retail_discount', 'input' + i + '_72_retail_price_calc'],
             };
-        this.product.sections['input' + i + '_72'].fields['input' + i + '_72_retail_discount'] = {'label':'Discount', 'type':'toggle', 'visible':'no', 'default':'40', 'onchange':'M.ciniki_foodmarket_main.product.updatePrices', 
+        this.product.sections['input' + i + '_72'].fields['input' + i + '_72_retail_discount'] = {'label':'Discount', 'type':'toggle', 'visible':'no', 'default':'40', 
+            'onchange':'M.ciniki_foodmarket_main.product.updatePrices', 
             'toggles':{'0':'0%', '0.05':'5%', '0.10':'10%', '0.15':'15%'},
             };
         this.product.sections['input' + i + '_72'].fields['input' + i + '_72_units'] = {'label':'', 'visible':'no', 'type':'text'};
@@ -1872,24 +2017,42 @@ function ciniki_foodmarket_main() {
             'fields':{},
             };
         this.product.sections['input' + i + '_20'].fields['input' + i + '_20_id'] = {'label':'', 'visible':'no', 'type':'text'};
-        this.product.sections['input' + i + '_20'].fields['input' + i + '_20_status'] = {'label':'Sell by Weighted Unit', 'type':'toggle', 'default':'5', 'toggles':{'5':'Inactive', '10':'Private', '40':'Public'},
+        this.product.sections['input' + i + '_20'].fields['input' + i + '_20_status'] = {'label':'Sell by Weighted Unit', 'type':'toggle', 'default':'5', 
+            'toggles':{'5':'Inactive', '10':'Private', '40':'Public'},
             'onchange':'M.ciniki_foodmarket_main.product.updatePanel',
-            'on_fields':['input' + i + '_20_units1', 'input' + i + '_20_units2', 'input' + i + '_20_flags2', 'input' + i + '_20_retail_percent', 'input' + i + '_20_retail_sdiscount_percent', 'input' + i + '_20_retail_price_calc', 'input' + i + '_20_retail_taxtype_id'],
+            'on_fields':[
+                'input' + i + '_20_units1', 
+                'input' + i + '_20_units2', 
+                'input' + i + '_20_flags2', 
+                'input' + i + '_20_retail_percent', 
+                'input' + i + '_20_retail_sdiscount_percent', 
+                'input' + i + '_20_retail_deposit', 
+                'input' + i + '_20_retail_price_calc', 
+                'input' + i + '_20_retail_taxtype_id',
+                ],
             };
-        this.product.sections['input' + i + '_20'].fields['input' + i + '_20_units1'] = {'label':'Charge by', 'type':'flagspiece', 'visible':'no', 'field':'input' + i + '_20_units', 'mask':0xff, 'toggle':'yes', 'join':'yes',
+        this.product.sections['input' + i + '_20'].fields['input' + i + '_20_units1'] = {'label':'Charge by', 'type':'flagspiece', 'visible':'no', 
+            'field':'input' + i + '_20_units', 'mask':0xff, 'toggle':'yes', 'join':'yes',
             'onchange':'M.ciniki_foodmarket_main.product.updatePrices', 'flags':this.weightFlags,
             }; 
-        this.product.sections['input' + i + '_20'].fields['input' + i + '_20_units2'] = {'label':'Order by', 'type':'flagspiece', 'visible':'no', 'field':'input' + i + '_20_units', 'mask':0x0f00, 'toggle':'yes', 'join':'yes', 
+        this.product.sections['input' + i + '_20'].fields['input' + i + '_20_units2'] = {'label':'Order by', 'type':'flagspiece', 'visible':'no', 
+            'field':'input' + i + '_20_units', 'mask':0x0f00, 'toggle':'yes', 'join':'yes', 
             'flags':{'9':{'name':'each'}, '10':{'name':'pair'}, '11':{'name':'bunch'}, '12':{'name':'bag'}},
             }; 
-        this.product.sections['input' + i + '_20'].fields['input' + i + '_20_flags2'] = {'label':'Availability', 'type':'flagspiece', 'visible':'no', 'field':'input' + i + '_20_flags', 'mask':0x1F00, 'toggle':'yes', 'join':'yes', 
+        this.product.sections['input' + i + '_20'].fields['input' + i + '_20_flags2'] = {'label':'Availability', 'type':'flagspiece', 'visible':'no', 
+            'field':'input' + i + '_20_flags', 'mask':0x1F00, 'toggle':'yes', 'join':'yes', 
             'flags':{'9':{'name':'Always'}, '10':{'name':'Dates'}, '11':{'name':'Queue'}, '12':{'name':'Limited'}},
+            'onchange':'M.ciniki_foodmarket_main.product.updatePanel',
             };
-        this.product.sections['input' + i + '_20'].fields['input' + i + '_20_retail_percent'] = {'label':'Cost +', 'type':'toggle', 'visible':'no', 'onchange':'M.ciniki_foodmarket_main.product.updatePrices', 
+        this.product.sections['input' + i + '_20'].fields['input' + i + '_20_retail_percent'] = {'label':'Cost +', 'type':'toggle', 'visible':'no', 
+            'onchange':'M.ciniki_foodmarket_main.product.updatePrices', 
             'toggles':this.pricePercentToggles,
             };
-        this.product.sections['input' + i + '_20'].fields['input' + i + '_20_retail_sdiscount_percent'] = {'label':'Specials Discount', 'type':'toggle', 'visible':'no', 'onchange':'M.ciniki_foodmarket_main.product.updatePrices', 'toggles':this.priceSpecialsPercentToggles};
+        this.product.sections['input' + i + '_20'].fields['input' + i + '_20_retail_sdiscount_percent'] = {'label':'Specials Discount', 'type':'toggle', 'visible':'no', 
+            'onchange':'M.ciniki_foodmarket_main.product.updatePrices', 'toggles':this.priceSpecialsPercentToggles,
+            };
         this.product.sections['input' + i + '_20'].fields['input' + i + '_20_retail_price_calc'] = {'label':'Price', 'type':'info', 'visible':'no', 'editable':'no'};
+        this.product.sections['input' + i + '_20'].fields['input' + i + '_20_retail_deposit'] = {'label':'Deposit', 'type':'text', 'size':'small', 'visible':'no'};
         this.product.sections['input' + i + '_20'].fields['input' + i + '_20_retail_taxtype_id'] = {'label':'Taxes', 'type':'toggle', 'taxes':'yes', 'visible':'no', 'toggles':{}};
 
         //
@@ -1900,16 +2063,31 @@ function ciniki_foodmarket_main() {
             'fields':{},
             };
         this.product.sections['input' + i + '_50'].fields['input' + i + '_50_id'] = {'label':'', 'visible':'no', 'type':'text'};
-        this.product.sections['input' + i + '_50'].fields['input' + i + '_50_status'] = {'label':'Sell by Case', 'type':'toggle', 'default':'5', 'toggles':{'5':'Inactive', '10':'Private', '40':'Public'},
+        this.product.sections['input' + i + '_50'].fields['input' + i + '_50_status'] = {'label':'Sell by Case', 'type':'toggle', 'default':'5', 
+            'toggles':{'5':'Inactive', '10':'Private', '40':'Public'},
             'onchange':'M.ciniki_foodmarket_main.product.updatePanel',
-            'on_fields':['input' + i + '_50_flags2', 'input' + i + '_50_retail_percent', 'input' + i + '_50_retail_sdiscount_percent', 'input' + i + '_50_retail_price_calc', 'input' + i + '_50_retail_taxtype_id'],
+            'on_fields':[
+                'input' + i + '_50_flags2', 
+                'input' + i + '_50_retail_percent', 
+                'input' + i + '_50_retail_sdiscount_percent', 
+                'input' + i + '_50_retail_deposit', 
+                'input' + i + '_50_retail_price_calc', 
+                'input' + i + '_50_retail_taxtype_id',
+                ],
             };
-        this.product.sections['input' + i + '_50'].fields['input' + i + '_50_flags2'] = {'label':'Availability', 'type':'flagspiece', 'visible':'no', 'field':'input' + i + '_50_flags', 'mask':0x1F00, 'toggle':'yes', 'join':'yes', 
+        this.product.sections['input' + i + '_50'].fields['input' + i + '_50_flags2'] = {'label':'Availability', 'type':'flagspiece', 'visible':'no', 
+            'field':'input' + i + '_50_flags', 'mask':0x1F00, 'toggle':'yes', 'join':'yes', 
             'flags':{'9':{'name':'Always'}, '10':{'name':'Dates'}, '11':{'name':'Queue'}, '12':{'name':'Limited'}},
+            'onchange':'M.ciniki_foodmarket_main.product.updatePanel',
             };
-        this.product.sections['input' + i + '_50'].fields['input' + i + '_50_retail_percent'] = {'label':'Cost +', 'type':'toggle', 'visible':'no', 'onchange':'M.ciniki_foodmarket_main.product.updatePrices', 'toggles':this.pricePercentToggles};
-        this.product.sections['input' + i + '_50'].fields['input' + i + '_50_retail_sdiscount_percent'] = {'label':'Specials Discount', 'type':'toggle', 'visible':'no', 'onchange':'M.ciniki_foodmarket_main.product.updatePrices', 'toggles':this.priceSpecialsPercentToggles};
+        this.product.sections['input' + i + '_50'].fields['input' + i + '_50_retail_percent'] = {'label':'Cost +', 'type':'toggle', 'visible':'no', 
+            'onchange':'M.ciniki_foodmarket_main.product.updatePrices', 'toggles':this.pricePercentToggles,
+            };
+        this.product.sections['input' + i + '_50'].fields['input' + i + '_50_retail_sdiscount_percent'] = {'label':'Specials Discount', 'type':'toggle', 'visible':'no', 
+            'onchange':'M.ciniki_foodmarket_main.product.updatePrices', 'toggles':this.priceSpecialsPercentToggles,
+            };
         this.product.sections['input' + i + '_50'].fields['input' + i + '_50_retail_price_calc'] = {'label':'Price', 'type':'info', 'visible':'no', 'editable':'no'};
+        this.product.sections['input' + i + '_50'].fields['input' + i + '_50_retail_deposit'] = {'label':'Deposit', 'type':'text', 'size':'small', 'visible':'no'};
         this.product.sections['input' + i + '_50'].fields['input' + i + '_50_retail_taxtype_id'] = {'label':'Taxes', 'type':'toggle', 'taxes':'yes', 'visible':'no', 'toggles':{}};
         for(var j = 2; j < 7; j++ ) {
             this.product.sections['input' + i + '_5' + j] = {'label':'', 'inputnum':i, 'casesplit':j, 
@@ -1924,17 +2102,32 @@ function ciniki_foodmarket_main() {
                 'fields':{},
                 };
             this.product.sections['input' + i + '_5' + j].fields['input' + i + '_5' + j + '_id'] = {'label':'', 'visible':'no', 'type':'text'};
-            this.product.sections['input' + i + '_5' + j].fields['input' + i + '_5' + j + '_status'] = {'label':'Sell by 1/' + j + ' case', 'type':'toggle', 'default':'5', 'toggles':{'5':'Inactive', '10':'Private', '40':'Public'},
+            this.product.sections['input' + i + '_5' + j].fields['input' + i + '_5' + j + '_status'] = {'label':'Sell by 1/' + j + ' case', 'type':'toggle', 'default':'5', 
+                'toggles':{'5':'Inactive', '10':'Private', '40':'Public'},
                 'onchange':'M.ciniki_foodmarket_main.product.updatePanel',
-                'on_fields':['input' + i + '_5' + j + '_name', 'input' + i + '_5' + j + '_flags2', 'input' + i + '_5' + j + '_retail_percent', 'input' + i + '_5' + j + '_retail_sdiscount_percent', 'input' + i + '_5' + j + '_retail_price_calc', 'input' + i + '_5' + j + '_retail_taxtype_id'],
+                'on_fields':[
+                    'input' + i + '_5' + j + '_name', 
+                    'input' + i + '_5' + j + '_flags2', 
+                    'input' + i + '_5' + j + '_retail_percent', 
+                    'input' + i + '_5' + j + '_retail_sdiscount_percent', 
+                    'input' + i + '_5' + j + '_retail_deposit', 
+                    'input' + i + '_5' + j + '_retail_price_calc', 
+                    'input' + i + '_5' + j + '_retail_taxtype_id'],
                 };
             this.product.sections['input' + i + '_5' + j].fields['input' + i + '_5' + j + '_name'] = {'label':'Label', 'type':'text', 'visible':'no', 'hint':'1/' + j + ' case'},
-            this.product.sections['input' + i + '_5' + j].fields['input' + i + '_5' + j + '_flags2'] = {'label':'Availability', 'type':'flagspiece', 'visible':'no', 'field':'input' + i + '_5' + j + '_flags', 'mask':0x1F00, 'toggle':'yes', 'join':'yes', 
+            this.product.sections['input' + i + '_5' + j].fields['input' + i + '_5' + j + '_flags2'] = {'label':'Availability', 'type':'flagspiece', 'visible':'no', 
+                'field':'input' + i + '_5' + j + '_flags', 'mask':0x1F00, 'toggle':'yes', 'join':'yes', 
                 'flags':{'9':{'name':'Always'}, '10':{'name':'Dates'}, '11':{'name':'Queue'}, '12':{'name':'Limited'}},
+                'onchange':'M.ciniki_foodmarket_main.product.updatePanel',
                 };
-            this.product.sections['input' + i + '_5' + j].fields['input' + i + '_5' + j + '_retail_percent'] = {'label':'Cost +', 'type':'toggle', 'visible':'no', 'onchange':'M.ciniki_foodmarket_main.product.updatePrices', 'toggles':this.pricePercentToggles};
-            this.product.sections['input' + i + '_5' + j].fields['input' + i + '_5' + j + '_retail_sdiscount_percent'] = {'label':'Specials Discount', 'type':'toggle', 'visible':'no', 'onchange':'M.ciniki_foodmarket_main.product.updatePrices', 'toggles':this.priceSpecialsPercentToggles};
+            this.product.sections['input' + i + '_5' + j].fields['input' + i + '_5' + j + '_retail_percent'] = {'label':'Cost +', 'type':'toggle', 'visible':'no', 
+                'onchange':'M.ciniki_foodmarket_main.product.updatePrices', 'toggles':this.pricePercentToggles,
+                };
+            this.product.sections['input' + i + '_5' + j].fields['input' + i + '_5' + j + '_retail_sdiscount_percent'] = {'label':'Specials Discount', 'type':'toggle', 'visible':'no', 
+                'onchange':'M.ciniki_foodmarket_main.product.updatePrices', 'toggles':this.priceSpecialsPercentToggles,
+                };
             this.product.sections['input' + i + '_5' + j].fields['input' + i + '_5' + j + '_retail_price_calc'] = {'label':'Price', 'type':'info', 'visible':'no', 'editable':'no'};
+            this.product.sections['input' + i + '_5' + j].fields['input' + i + '_5' + j + '_retail_deposit'] = {'label':'Deposit', 'type':'text', 'size':'small', 'visible':'no'};
             this.product.sections['input' + i + '_5' + j].fields['input' + i + '_5' + j + '_retail_taxtype_id'] = {'label':'Taxes', 'type':'toggle', 'taxes':'yes', 'visible':'no', 'toggles':{}};
         }
     }
@@ -2432,12 +2625,28 @@ function ciniki_foodmarket_main() {
                     }
                     if( this.sections[s].fields[i].on_fields != null ) {
                         for(var j in this.sections[s].fields[i].on_fields) {
+                            var fvisible = visible; // Should this field be visible, start with 
                             var f = this.formField(this.sections[s].fields[i].on_fields[j]);
                             if( f != null ) {
+                                //
+                                // If the taxes module is not enabled, don't show the tax field
+                                //
                                 if( f.taxes == 'yes' && M.curBusiness.modules['ciniki.taxes'] == null ) {
-                                    visible = 'no';
+                                    fvisible = 'no';
                                 }
-                                f.visible = visible;
+                                //
+                                // Only show the retail_discount field for queue items
+                                //
+                                if( this.sections[s].fields[i].on_fields[j].match(/_retail_deposit/) ) {
+                                    if( M.gE(this.panelUID + '_' + s + '_flags2_9') == null ) {
+                                        if( (this.fieldValue(s + '_flags2')&0x0F00) != 0x0400 ) {
+                                            fvisible = 'no';
+                                        }
+                                    } else if( (this.formValue(s + '_flags2')&0x0F00) != 0x0400 ) {
+                                        fvisible = 'no';
+                                    }
+                                }
+                                f.visible = fvisible;
                                 this.showHideFormField(s, this.sections[s].fields[i].on_fields[j]);
                             }
                         }
@@ -2512,7 +2721,6 @@ function ciniki_foodmarket_main() {
                     }
                 }
             }
-            console.log(c);
             if( c != '' ) {
                 M.api.postJSONCb('ciniki.foodmarket.productUpdate', {'business_id':M.curBusinessID, 'product_id':this.product_id}, c,
                     function(rsp) {
@@ -3264,6 +3472,92 @@ function ciniki_foodmarket_main() {
     this.orderitem.addClose('Cancel');
     this.orderitem.addButton('next', 'Next');
     this.orderitem.addLeftButton('prev', 'Prev');
+
+    //
+    // The panel to manage a queued item
+    //
+    this.queueinput = new M.panel('Queue Item', 'ciniki_foodmarket_main', 'queueinput', 'mc', 'large', 'sectioned', 'ciniki.foodmarket.main.queueinput');
+    this.queueinput.data = {};
+    this.queueinput.input_id = 0;
+    this.queueinput.nplist = [];
+    this.queueinput.sections = {
+        'products':{'label':'', 'type':'simplegrid', 'num_cols':5,
+//            'headerValues':['SKU', 'Product', 'Cost', 'Required', 'Order'],
+            'cellClasses':['', '', 'nobreak', 'nobreak', 'nobreak'],
+            },
+        'ordered_items':{'label':'Ordered', 'type':'simplegrid', 'num_cols':5,
+            'visible':function() { return (M.ciniki_foodmarket_main.queueinput.data.ordered_items != null && M.ciniki_foodmarket_main.queueinput.data.ordered_items.length > 0 ? 'yes' : 'no');},
+            'headerValues':['Customer', 'Queued Date', 'Size', 'Quantity', 'Status'],
+            'headerClasses':['', '', '', '', 'multiline aligncenter'],
+            'cellClasses':['', '', '', '', 'multiline aligncenter'],
+            'noData':'No orders',
+            },
+        'queued_items':{'label':'Queued', 'type':'simplegrid', 'num_cols':5,
+            'headerValues':['Customer', 'Queued Date', 'Size', 'Quantity', 'Status'],
+            'headerClasses':['', '', '', '', 'multiline aligncenter'],
+            'cellClasses':['', '', '', '', 'multiline aligncenter'],
+            },
+    }
+    this.queueinput.cellValue = function(s, i, j, d) {
+        if( s == 'products' ) {
+            switch(j) {
+                case 0: return d.sku;
+                case 1: return d.name;
+                case 2: return d.cost_text;
+            }
+        }
+        if( s == 'ordered_items' || s == 'queued_items' ) {
+            switch(j) {
+                case 0: return d.display_name;
+                case 1: return d.queued_date;
+                case 2: return d.io_name;
+                case 3: return d.quantity;
+            }
+            if( j == 4 ) {
+                if( d.status == 10 ) {
+                    return '<button onclick=\'M.ciniki_foodmarket_main.queueinput.orderItem(' + d.id + ');\'>Order</button>';
+                } else {
+                    return '<button onclick=\'M.ciniki_foodmarket_main.queueinput.invoiceItem(' + d.id + ');\'>Invoice</button>';
+                }
+            }
+        }
+    }
+    this.queueinput.orderItem = function(i) {
+        M.api.getJSONCb('ciniki.foodmarket.queueInputGet', {'business_id':M.curBusinessID, 'input_id':this.input_id, 'order_item_id':i}, this.openFinish);
+    }
+    this.queueinput.open = function(cb, iid, list) {
+        if( cb != null ) { this.cb = cb; }
+        if( iid != null ) { this.input_id = iid; }
+        if( list != null ) { this.nplist = list; }
+        M.api.getJSONCb('ciniki.foodmarket.queueInputGet', {'business_id':M.curBusinessID, 'input_id':this.input_id}, this.openFinish);
+    }
+    this.queueinput.openFinish = function(rsp) {
+        if( rsp.stat != 'ok' ) {
+            M.api.err(rsp);
+            return false;
+        }
+        var p = M.ciniki_foodmarket_main.queueinput;
+        p.data = rsp;
+//        p.sections.ordered_items.label = rsp.name + ' - Ordered';
+//        p.sections.queued_items.label = rsp.name + ' - Queued';
+        p.refresh();
+        p.show();
+    }
+    this.queueinput.nextButtonFn = function() {
+        if( this.nplist != null && this.nplist.indexOf('' + this.item_id) < (this.nplist.length - 1) ) {
+            return 'M.ciniki_foodmarket_main.queueinput.open(null,' + this.nplist[this.nplist.indexOf('' + this.item_id) + 1] + ');';
+        }
+        return null;
+    }
+    this.queueinput.prevButtonFn = function() {
+        if( this.nplist != null && this.nplist.indexOf('' + this.item_id) > 0 ) {
+            return 'M.ciniki_foodmarket_main.queueinput.open(null,' + this.nplist[this.nplist.indexOf('' + this.item_id) - 1] + ');';
+        }
+        return null;
+    }
+    this.queueinput.addClose('Back');
+    this.queueinput.addButton('next', 'Next');
+    this.queueinput.addLeftButton('prev', 'Prev');
 
     //
     // The panel to update a customer favourite

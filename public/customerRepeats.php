@@ -31,8 +31,8 @@ function ciniki_foodmarket_customerRepeats($ciniki) {
     //
     // Check access to business_id as owner, or sys admin.
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'poma', 'private', 'checkAccess');
-    $rc = ciniki_poma_checkAccess($ciniki, $args['business_id'], 'ciniki.poma.customerRepeats');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'private', 'checkAccess');
+    $rc = ciniki_foodmarket_checkAccess($ciniki, $args['business_id'], 'ciniki.foodmarket.customerRepeats');
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -116,7 +116,7 @@ function ciniki_foodmarket_customerRepeats($ciniki) {
             }
         }
     } else {
-        $strsql = "SELECT CONCAT_WS(ciniki_poma_customer_items.object, ciniki_poma_customer_items.object_id, '-') AS oid, "
+        $strsql = "SELECT CONCAT_WS('-', ciniki_poma_customer_items.object, ciniki_poma_customer_items.object_id) AS oid, "
             . "ciniki_poma_customer_items.description, "
             . "COUNT(ciniki_poma_customer_items.customer_id) AS num_customers "
             . "FROM ciniki_poma_customer_items "

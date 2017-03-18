@@ -363,9 +363,34 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $busi
             return $rc;
         }
         if( isset($rc['categories']) && count($rc['categories']) > 0 ) {
-            $page['blocks'][] = array('type'=>'tagimages', 'base_url'=>$base_url, 'tags'=>$rc['categories'], 'size'=>'small',
-                'thumbnail_format'=>$category_thumbnail_format, 'thumbnail_padding_color'=>$category_thumbnail_padding_color,
-                );
+            if( isset($settings['page-foodmarket-categories-layout']) && $settings['page-foodmarket-categories-layout'] == 'expandsubcategories' ) {
+                $categories = array();
+                $subs = array();
+                foreach($rc['categories'] as $c) {
+                    if( !isset($c['subcategories']) ) {
+                        $categories[] = $c;
+                    } else {
+                        $subs[] = $c;
+                    }
+                }
+                $page['blocks'][] = array('type'=>'tagimages', 'base_url'=>$base_url, 'tags'=>$categories, 'size'=>'small',
+                    'thumbnail_format'=>$category_thumbnail_format, 'thumbnail_padding_color'=>$category_thumbnail_padding_color,
+                    );
+
+                if( count($subs) > 0 ) {
+                    foreach($subs as $sub) {
+                        $page['blocks'][] = array('type'=>'tagimages', 'base_url'=>$base_url, 
+                            'title'=>$sub['name'],
+                            'tags'=>$sub['subcategories'], 'size'=>'small',
+                            'thumbnail_format'=>$category_thumbnail_format, 'thumbnail_padding_color'=>$category_thumbnail_padding_color,
+                            );
+                    }
+                }
+            } else {
+                $page['blocks'][] = array('type'=>'tagimages', 'base_url'=>$base_url, 'tags'=>$rc['categories'], 'size'=>'small',
+                    'thumbnail_format'=>$category_thumbnail_format, 'thumbnail_padding_color'=>$category_thumbnail_padding_color,
+                    );
+            }
         }
 
         //
