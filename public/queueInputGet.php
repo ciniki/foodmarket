@@ -22,6 +22,7 @@ function ciniki_foodmarket_queueInputGet($ciniki) {
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'),
         'input_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Product Input'),
         'order_item_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Order Item'),
+        'invoice_item_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Invoice Item'),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
@@ -96,6 +97,18 @@ function ciniki_foodmarket_queueInputGet($ciniki) {
             }
         }
     }
+
+    //
+    // Check if the item should be invoiced
+    //
+    if( isset($args['invoice_item_id']) && $args['invoice_item_id'] > 0 ) {
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'poma', 'private', 'queueInvoiceItem');
+        $rc = ciniki_poma_queueInvoiceItem($ciniki, $args['business_id'], $args['invoice_item_id']);
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
+        }
+    }
+
 
     //
     // Looked the queued items 

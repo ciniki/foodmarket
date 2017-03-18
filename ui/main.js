@@ -1043,7 +1043,7 @@ function ciniki_foodmarket_main() {
             return 'return M.ciniki_foodmarket_main.menu.procurementUpdateCost(event,\'' + d.id + '\',\'' + d.itype + '\',"' + encodeURIComponent(d.name) + '",\'' + d.cost_suffix + '\');';
         }
         if( s == 'checkout_orderitems' && j == 3 && parseInt(d.itype) < 30 ) {
-            return 'return M.ciniki_foodmarket_main.menu.checkoutWeightQuantityGet(event,"' + d.id + '");';
+            return 'event.stopPropagation(); return M.ciniki_foodmarket_main.menu.checkoutWeightQuantityGet(event,"' + d.id + '");';
         }
         return null;
     }
@@ -1153,6 +1153,7 @@ function ciniki_foodmarket_main() {
         M.api.getJSONCb('ciniki.poma.dateCheckout', 
             {'business_id':M.curBusinessID, 'date_id':this.date_id, 'order_id':this.order_id, 'new_object':o, 'new_object_id':i, 'new_quantity':q, 'customer_id':this.customer_id}, 
             M.ciniki_foodmarket_main.menu.processCheckout);
+        return false;
     }
     this.menu.checkoutUnitQuantityGet = function(e, i) {
         var q = prompt("Quantity: ", '');
@@ -1172,6 +1173,7 @@ function ciniki_foodmarket_main() {
                 {'business_id':M.curBusinessID, 'date_id':this.date_id, 'order_id':this.order_id, 'item_id':i, 'new_weight_quantity':q, 'customer_id':this.customer_id}, 
                 M.ciniki_foodmarket_main.menu.processCheckout);
         }
+        return false;
     }
     this.menu.invoiceCreate = function() {
         M.api.getJSONCb('ciniki.poma.dateCheckout', 
@@ -3524,6 +3526,9 @@ function ciniki_foodmarket_main() {
     }
     this.queueinput.orderItem = function(i) {
         M.api.getJSONCb('ciniki.foodmarket.queueInputGet', {'business_id':M.curBusinessID, 'input_id':this.input_id, 'order_item_id':i}, this.openFinish);
+    }
+    this.queueinput.invoiceItem = function(i) {
+        M.api.getJSONCb('ciniki.foodmarket.queueInputGet', {'business_id':M.curBusinessID, 'input_id':this.input_id, 'invoice_item_id':i}, this.openFinish);
     }
     this.queueinput.open = function(cb, iid, list) {
         if( cb != null ) { this.cb = cb; }

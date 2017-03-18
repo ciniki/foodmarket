@@ -113,6 +113,7 @@ function ciniki_foodmarket_queueList($ciniki) {
                 . "ciniki_poma_orders.id = ciniki_poma_order_items.order_id "
                 . "AND ciniki_poma_queued_items.id = ciniki_poma_order_items.object_id "
                 . "AND ciniki_poma_order_items.object = 'ciniki.poma.queueditem' " 
+                . "AND (ciniki_poma_order_items.flags&0x40) = 0x40 "
                 . "AND ciniki_poma_order_items.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
                 . ") "
             . "WHERE ciniki_poma_queued_items.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
