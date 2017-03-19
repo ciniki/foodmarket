@@ -379,7 +379,7 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $busi
 
                 if( count($subs) > 0 ) {
                     foreach($subs as $sub) {
-                        $page['blocks'][] = array('type'=>'tagimages', 'base_url'=>$base_url, 
+                        $page['blocks'][] = array('type'=>'tagimages', 'base_url'=>$base_url . '/' . $sub['permalink'], 
                             'title'=>$sub['name'],
                             'tags'=>$sub['subcategories'], 'size'=>'small',
                             'thumbnail_format'=>$category_thumbnail_format, 'thumbnail_padding_color'=>$category_thumbnail_padding_color,
