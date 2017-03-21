@@ -64,6 +64,7 @@ function ciniki_foodmarket_productSuppliedUpdate(&$ciniki, $business_id, $produc
     //
     $inputs = array();
     foreach($input_idxs as $idx => $input_index) {
+
         //
         // Find all the required and optional arguments
         //
@@ -403,6 +404,7 @@ function ciniki_foodmarket_productSuppliedUpdate(&$ciniki, $business_id, $produc
                 . "FROM ciniki_foodmarket_product_outputs "
                 . "WHERE product_id = '" . ciniki_core_dbQuote($ciniki, $product_id) . "' "
                 . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . "AND input_id = '" . ciniki_core_dbQuote($ciniki, $input_id) . "' "
                 . "AND status > 5 "
                 . "AND otype NOT IN (" . ciniki_core_dbQuoteIDs($ciniki, $valid_otypes) . ") "
                 . "";
@@ -411,7 +413,8 @@ function ciniki_foodmarket_productSuppliedUpdate(&$ciniki, $business_id, $produc
                 return $rc;
             }
             if( isset($rc['rows']) && count($rc['rows']) > 0 ) {
-                foreach($rc['rows'] as $row) {  
+                $rows = $rc['rows'];
+                foreach($rows as $row) {  
                     $rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.foodmarket.output', $row['id'], array('status'=>5), 0x04);
                     if( $rc['stat'] != 'ok' ) {
                         return $rc;

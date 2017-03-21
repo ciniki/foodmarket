@@ -2373,13 +2373,8 @@ function ciniki_foodmarket_main() {
         this.refreshSection('inputs');
         this.updatePanel();
     }
-//    this.product.switchInput = function(i) {
-//        this.sections._inputs.selected = i;
-//        this.refreshSection('_inputs');
-//        this.updatePanel();
-//    }
     this.product.updatePanel = function() {
-        for(var i = 1;i <= 9;i++) {      // FIXME: Add when more inputs
+        for(var i = 1;i <= 9;i++) {
             this.updateInput('input' + i);
         }
         this.updatePrices();
