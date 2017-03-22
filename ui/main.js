@@ -460,7 +460,7 @@ function ciniki_foodmarket_main() {
             'hint':'Search products', 
             'noData':'No products found',
             },
-        'new_products':{'label':'Specials', 'type':'simplegrid', 'num_cols':3, 'sortable':'yes', 
+        'new_products':{'label':'New Products', 'type':'simplegrid', 'num_cols':3, 'sortable':'yes', 
             'visible':function() {var p=M.ciniki_foodmarket_main.menu; return (p.sections._tabs.selected=='products' && p.sections._product_tabs.selected=='new')?'yes':'no';},
             'headerValues':['Supplier', 'Name', ''],
             'cellClasses':['', '', 'multiline'],
