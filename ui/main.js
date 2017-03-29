@@ -192,6 +192,7 @@ function ciniki_foodmarket_main() {
                     'fn':'M.ciniki_foodmarket_main.ledgerentry.open(\'M.ciniki_foodmarket_main.menu.addPayment();\',0,60,M.ciniki_foodmarket_main.menu.data.order.balance_amount,M.ciniki_foodmarket_main.menu.customer_id);'},
                 'addcredit':{'label':'Apply Credit', 
                     'fn':'M.ciniki_foodmarket_main.ledgerentry.open(\'M.ciniki_foodmarket_main.menu.addCredit();\',0,10,M.ciniki_foodmarket_main.menu.data.order.default_payment_amount,M.ciniki_foodmarket_main.menu.customer_id);'},
+                'recalc':{'label':'Re-Calculate', 'fn':'M.ciniki_foodmarket_main.menu.recalcAccount();'},
             }},
 
         /* Packing */
@@ -1188,6 +1189,11 @@ function ciniki_foodmarket_main() {
     this.menu.addPayment = function() {
         M.api.getJSONCb('ciniki.poma.dateCheckout', 
             {'business_id':M.curBusinessID, 'date_id':this.date_id, 'order_id':this.order_id, 'customer_id':this.customer_id}, 
+            M.ciniki_foodmarket_main.menu.processCheckout);
+    }
+    this.menu.recalcAccount = function() {
+        M.api.getJSONCb('ciniki.poma.dateCheckout', 
+            {'business_id':M.curBusinessID, 'date_id':this.date_id, 'order_id':this.order_id, 'customer_id':this.customer_id, 'action':'recalc'},
             M.ciniki_foodmarket_main.menu.processCheckout);
     }
     this.menu.closeOrder = function() {
