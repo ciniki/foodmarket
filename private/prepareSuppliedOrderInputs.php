@@ -62,6 +62,9 @@ function ciniki_foodmarket_prepareSuppliedOrderInputs($ciniki, $business_id, $in
                 $input['order_quantity'] = (float)$input['min_quantity'];
             } else {
                 $extra_amount = bcsub($input['required_quantity'], $input['min_quantity'], 6);
+                if( $input['inc_quantity'] == 0 ) {
+                    $input['inc_quantity'] = $input['min_quantity'];
+                }
                 $multiples = ceil(bcdiv($extra_amount, $input['inc_quantity'], 6));
                 $input['order_quantity'] = (float)bcadd($input['min_quantity'], bcmul($input['inc_quantity'], $multiples, 2), 2);
             }

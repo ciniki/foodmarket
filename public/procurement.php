@@ -235,6 +235,8 @@ function ciniki_foodmarket_procurement($ciniki) {
         $rsp['procurement_suppliers'][] = $supplier;
     }
 
+    $rsp['procurement_suppliers'][] = array('id'=>0, 'name'=>'Misc Items');
+    
     //
     // Get the list of products to order from the supplier
     //
@@ -411,6 +413,51 @@ function ciniki_foodmarket_procurement($ciniki) {
                 'quantity'=>$input['order_quantity'],
                 'size'=>$input['sizetext'],
                 );
+        }
+    }
+
+    if( isset($args['supplier_id']) && $args['supplier_id'] == 0 ) {
+        //
+        // Get the list of misc items on invoices
+        //
+        $strsql = "SELECT ciniki_poma_order_items.id, "
+            . "ciniki_poma_orders.billing_name, "
+            . "ciniki_poma_order_items.code AS sku, "
+            . "ciniki_poma_order_items.description AS name, "
+            . "ciniki_poma_order_items.itype, "
+            . "ciniki_poma_order_items.weight_units, "
+            . "ciniki_poma_order_items.unit_suffix, "
+            . "ciniki_poma_order_items.weight_quantity, "
+            . "ciniki_poma_order_items.unit_quantity "
+            . "FROM ciniki_poma_orders "
+            . "INNER JOIN ciniki_poma_order_items ON ("
+                . "ciniki_poma_orders.id = ciniki_poma_order_items.order_id "
+                . "AND ciniki_poma_order_items.object = '' "
+                . "AND ciniki_poma_order_items.object_id = 0 "
+                . "AND ciniki_poma_order_items.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+                . "AND (ciniki_poma_order_items.flags&0xc8) = 0 "
+                . ") "
+            . "WHERE ciniki_poma_orders.date_id = '" . ciniki_core_dbQuote($ciniki, $args['date_id']) . "' "
+            . "AND ciniki_poma_orders.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "ORDER BY name "
+            . "";
+        $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.foodmarket', array(
+            array('container'=>'inputs', 'fname'=>'id', 
+                'fields'=>array('id', 'billing_name', 'sku', 'name', 'itype', 'weight_units', 'weight_quantity', 'unit_quantity')),
+            ));
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
+        }
+        $inputs = array();
+        if( isset($rc['inputs']) ) {
+            $rsp['procurement_misc_items'] = $rc['inputs'];
+            foreach($rsp['procurement_misc_items'] as $iid => $item) {
+                if( $item['itype'] == 10 ) {
+                    $rsp['procurement_misc_items'][$iid]['quantity'] = (float)$item['weight_quantity'];
+                } else {
+                    $rsp['procurement_misc_items'][$iid]['quantity'] = (float)$item['unit_quantity'];
+                }
+            }
         }
     }
 
