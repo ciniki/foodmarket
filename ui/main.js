@@ -3532,9 +3532,9 @@ function ciniki_foodmarket_main() {
             }
             if( j == 4 ) {
                 if( d.status == 10 ) {
-                    return '<button onclick=\'M.ciniki_foodmarket_main.queueinput.orderItem(' + d.id + ');\'>Order</button>';
+                    return '<button onclick=\'M.ciniki_foodmarket_main.queueinput.orderItem(' + d.id + ');\'>Add to Procurement</button>';
                 } else {
-                    return '<button onclick=\'M.ciniki_foodmarket_main.queueinput.invoiceItem(' + d.id + ');\'>Invoice</button>';
+                    return '<button onclick=\'M.ciniki_foodmarket_main.queueinput.invoiceItem(' + d.id + ');\'>Arrived - Add to Invoice</button>';
                 }
             }
         }
