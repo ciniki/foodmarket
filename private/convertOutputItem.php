@@ -54,7 +54,7 @@ function ciniki_foodmarket_convertOutputItem($ciniki, $business_id, $output) {
     //
     // Check if deposit required for queued item
     //
-    if( isset($output['flags']) && ($output['flags']&0x0400) && $output['retail_deposit'] > 0 ) {
+    if( isset($output['flags']) && ($output['flags']&0x0400) && isset($output['retail_deposit']) && $output['retail_deposit'] > 0 ) {
         $item['qdeposit_amount'] = $output['retail_deposit'];
     }
 
