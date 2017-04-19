@@ -355,7 +355,7 @@ function ciniki_foodmarket_main() {
         /* Queue */
         'queue_ordered':{'label':'Ordered Items', 'type':'simplegrid', 'num_cols':5,
             'visible':function() { return (M.ciniki_foodmarket_main.menu.sections._tabs.selected == 'queue' && M.ciniki_foodmarket_main.menu.customer_id == 0 ) ? 'yes':'no'; },
-            'noData':'Nothing queued',
+            'noData':'Nothing currently on order',
             'headerValues':['SKU', 'Product', 'Cost', 'Required', 'Order'],
             'cellClasses':['', '', 'nobreak', 'nobreak', 'nobreak'],
             },
@@ -724,6 +724,9 @@ function ciniki_foodmarket_main() {
         }
         if( s == 'specials_search' || s == 'specials_outputs' ) {   
             return 'textfield toggle';
+        }
+        if( s == 'checkout_orderitems' && d.itype == '20' && parseFloat(d.weight_quantity) == 0 ) { 
+            return 'statusorange';
         }
         if( s == 'customer_queue' ) {
             switch(d.status) {

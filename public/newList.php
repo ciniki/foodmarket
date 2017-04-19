@@ -40,7 +40,7 @@ function ciniki_foodmarket_newList($ciniki) {
     //
     // Get the current output
     //
-    if( $args['product_id'] && $args['product_id'] > 0 ) {
+    if( isset($args['product_id']) && $args['product_id'] > 0 ) {
         $strsql = "SELECT id, flags "
             . "FROM ciniki_foodmarket_products "
             . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['product_id']) . "' "
