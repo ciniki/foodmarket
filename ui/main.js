@@ -1097,6 +1097,8 @@ function ciniki_foodmarket_main() {
             return 'M.ciniki_foodmarket_main.menu.openOrder(\'' + d.id + '\');';
         } else if( s == 'checkout_orderitems' ) {
             return 'M.ciniki_foodmarket_main.orderitem.open(\'M.ciniki_foodmarket_main.menu.open();\',\'' + d.id + '\',null,M.ciniki_foodmarket_main.menu.nplists.orderitems);';
+        } else if( s == 'checkout_orderhistory' ) {
+            return 'M.startApp(\'ciniki.poma.main\',null,\'M.ciniki_foodmarket_main.menu.open();\',\'mc\',{\'customer_id\':M.ciniki_foodmarket_main.menu.customer_id,\'order_id\':\'' + d.id + '\'});';
         }
         /* Packing */
         if( s == 'unpacked_orders' || s == 'packed_orders' ) {
