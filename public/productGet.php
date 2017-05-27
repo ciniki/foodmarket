@@ -218,7 +218,7 @@ function ciniki_foodmarket_productGet($ciniki) {
                 . ") "
             . "WHERE c1.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
             . "AND c1.parent_id = 0 "
-            . "AND c1.ctype < 10 "
+            . "AND (c1.ctype < 10 || c1.ctype = 90) "
             . "ORDER BY c1.name, c2.name "
             . "";
         $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(

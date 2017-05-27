@@ -142,6 +142,13 @@ function ciniki_foodmarket_web_prepareOutputs($ciniki, $settings, $business_id, 
                     $output['available'] = 'yes';
                 }
             } */
+        
+            //
+            // Check if category type is Available products, and reject unavailable ones
+            //
+            if( isset($output['ctype']) && $output['ctype'] == '90' && $output['available'] == 'no' ) {
+                continue;
+            }
         }
 
         //
@@ -209,6 +216,7 @@ function ciniki_foodmarket_web_prepareOutputs($ciniki, $settings, $business_id, 
         } else {
             $output['favourite_value'] = 'off';
         }
+
         $outputs[] = $output;
     }
 

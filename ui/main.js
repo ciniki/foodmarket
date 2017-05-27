@@ -2864,7 +2864,8 @@ function ciniki_foodmarket_main() {
             'parent_id':{'label':'Parent', 'type':'select', 'complex_options':{'name':'name', 'value':'id'}, 'options':{}},
             'name':{'label':'Name', 'type':'text'},
             'sequence':{'label':'Sequence', 'type':'text', 'size':'small'},
-            'ctype':{'label':'Type', 'type':'toggle', 'default':'0', 'toggles':{'0':'Products', '10':'Favourites', '30':'Specials', '50':'New Products'}},
+            'ctype':{'label':'Type', 'type':'select', 'default':'0', 'options':{'0':'Products', '10':'Favourites', '30':'Specials', '50':'New Products', '90':'Available Products'}},
+//            'ctype':{'label':'Type', 'type':'toggle', 'default':'0', 'toggles':{'0':'Products', '10':'Favourites', '30':'Specials', '50':'New Products', '90':'Available Products'}},
             }},
         '_synopsis':{'label':'Synopsis', 'fields':{
             'synopsis':{'label':'', 'hidelabel':'yes', 'hint':'', 'size':'small', 'type':'textarea'},

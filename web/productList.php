@@ -29,6 +29,7 @@ function ciniki_foodmarket_web_productList($ciniki, $settings, $business_id, $ar
             . "ciniki_foodmarket_products.legend_names, "
             . "ciniki_foodmarket_products.synopsis, "
             . "ciniki_foodmarket_product_outputs.id AS price_id, "
+            . "ciniki_foodmarket_product_outputs.flags, "
             . "ciniki_foodmarket_product_outputs.io_name, "
             . "ciniki_foodmarket_product_outputs.retail_price, "
             . "ciniki_foodmarket_product_outputs.retail_price_text, "
@@ -56,6 +57,7 @@ function ciniki_foodmarket_web_productList($ciniki, $settings, $business_id, $ar
             . "ciniki_foodmarket_products.legend_names, "
             . "ciniki_foodmarket_products.synopsis, "
             . "ciniki_foodmarket_product_outputs.id AS price_id, "
+            . "ciniki_foodmarket_product_outputs.flags, "
             . "ciniki_foodmarket_product_outputs.io_name, "
             . "ciniki_foodmarket_product_outputs.retail_price, "
             . "ciniki_foodmarket_product_outputs.retail_price_text, "
@@ -85,6 +87,7 @@ function ciniki_foodmarket_web_productList($ciniki, $settings, $business_id, $ar
             . "ciniki_foodmarket_products.legend_names, "
             . "ciniki_foodmarket_products.synopsis, "
             . "ciniki_foodmarket_product_outputs.id AS price_id, "
+            . "ciniki_foodmarket_product_outputs.flags, "
             . "ciniki_foodmarket_product_outputs.io_name, "
             . "ciniki_foodmarket_product_outputs.retail_price, "
             . "ciniki_foodmarket_product_outputs.retail_price_text, "
@@ -110,7 +113,6 @@ function ciniki_foodmarket_web_productList($ciniki, $settings, $business_id, $ar
     // Get the new products
     //
     elseif( isset($args['type']) && $args['type'] == 'newproducts' ) {
-        // FIXME: Implement new product listings
         $strsql .= "AND (ciniki_foodmarket_products.flags&0x01) = 0x01 ";
     }
 
@@ -118,7 +120,7 @@ function ciniki_foodmarket_web_productList($ciniki, $settings, $business_id, $ar
 
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(
         array('container'=>'products', 'fname'=>'id', 'fields'=>array('id', 'name', 'permalink', 'image_id', 'legend_codes', 'legend_names', 'synopsis')),
-        array('container'=>'options', 'fname'=>'price_id', 'fields'=>array('id'=>'price_id', 'name'=>'io_name', 
+        array('container'=>'options', 'fname'=>'price_id', 'fields'=>array('id'=>'price_id', 'flags', 'name'=>'io_name', 
             'price_display'=>'retail_price_text', 'price'=>'retail_price', 'sale_price_display'=>'retail_sprice_text')),
         ));
     if( $rc['stat'] != 'ok' ) {
