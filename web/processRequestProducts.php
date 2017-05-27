@@ -212,6 +212,7 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $busi
             if( isset($rc['outputs']) ) {
                 $date_items = $rc['outputs'];
             } 
+        } else {
         }
 
         //
@@ -246,7 +247,6 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $busi
                 if( $visible == 'no' ) {
                     unset($rc['products'][$pid]);
                 }
-
             }
             $page['blocks'][] = array('type'=>'productcards',
                 'title'=>(isset($subcategories) || isset($specials) ? 'Products' : ''),  // No title if only block

@@ -15,7 +15,36 @@
 //
 function ciniki_foodmarket_web_prepareOutputs($ciniki, $settings, $business_id, $args) {
 
+    //
+    // Load the list of items for a date
+    //
+    $date_items = array();
+    if( isset($ciniki['session']['ciniki.poma']['date']['id']) && $ciniki['session']['ciniki.poma']['date']['id'] > 0 ) {
+        $strsql = "SELECT output_id "
+            . "FROM ciniki_foodmarket_date_items "
+            . "WHERE date_id = '" . ciniki_core_dbQuote($ciniki, $ciniki['session']['ciniki.poma']['date']['id']) . "' "
+            . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "";
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQueryList');
+        $rc = ciniki_core_dbQueryList($ciniki, $strsql, 'ciniki.foodmarket', 'outputs', 'output_id');
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
+        }
+        if( isset($rc['outputs']) ) {
+            $date_items = $rc['outputs'];
+        } 
+    }
+
     if( !isset($ciniki['session']['customer']['id']) || $ciniki['session']['customer']['id'] < 1 ) {
+        //
+        // Remove unavailable items
+        //
+        foreach($args['outputs'] as $oid => $o) {
+            if( isset($o['ctype']) && $o['ctype'] == '90' && ($o['flags']&0x0200) > 0 && !in_array($o['id'], $date_items) ) {
+                unset($args['outputs'][$oid]);
+            }
+        }
+
         return array('stat'=>'ok', 'outputs'=>$args['outputs']);
     }
 
@@ -76,26 +105,6 @@ function ciniki_foodmarket_web_prepareOutputs($ciniki, $settings, $business_id, 
         $item_types = $rc['types'];
     } else {
         $item_types = array();
-    }
-
-    //
-    // Load the list of items for a date
-    //
-    $date_items = array();
-    if( isset($ciniki['session']['ciniki.poma']['date']['id']) && $ciniki['session']['ciniki.poma']['date']['id'] > 0 ) {
-        $strsql = "SELECT output_id "
-            . "FROM ciniki_foodmarket_date_items "
-            . "WHERE date_id = '" . ciniki_core_dbQuote($ciniki, $ciniki['session']['ciniki.poma']['date']['id']) . "' "
-            . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
-            . "";
-        ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQueryList');
-        $rc = ciniki_core_dbQueryList($ciniki, $strsql, 'ciniki.foodmarket', 'outputs', 'output_id');
-        if( $rc['stat'] != 'ok' ) {
-            return $rc;
-        }
-        if( isset($rc['outputs']) ) {
-            $date_items = $rc['outputs'];
-        } 
     }
 
     $outputs = array();
