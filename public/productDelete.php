@@ -128,11 +128,14 @@ function ciniki_foodmarket_productDelete(&$ciniki) {
         // 
         // Check for any orders with the product in the item list 
         //
-        $strsql = "SELECT COUNT(DISTINCT order_id) AS orders "
-            . "FROM ciniki_poma_order_items "
-            . "WHERE object = 'ciniki.foodmarket.output' "
-            . "AND object_id IN (" . ciniki_core_dbQuoteIDs($ciniki, $output_ids) . ") "
-            . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        $strsql = "SELECT COUNT(DISTINCT ciniki_poma_order_items.order_id) AS orders "
+            . "FROM ciniki_poma_order_items, ciniki_poma_orders "
+            . "WHERE ciniki_poma_order_items.object = 'ciniki.foodmarket.output' "
+            . "AND ciniki_poma_order_items.object_id IN (" . ciniki_core_dbQuoteIDs($ciniki, $output_ids) . ") "
+            . "AND ciniki_poma_order_items.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_poma_order_items.order_id = ciniki_poma_orders.id "
+            . "AND ciniki_poma_orders.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_poma_orders.status < 70 "
             . "";
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbSingleCount');
         $rc = ciniki_core_dbSingleCount($ciniki, $strsql, 'ciniki.foodmarket', 'num');
