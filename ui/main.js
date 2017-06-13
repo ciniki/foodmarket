@@ -1999,7 +1999,7 @@ function ciniki_foodmarket_main() {
             };
         this.product.sections['input' + i + '_71'].fields['input' + i + '_71_retail_discount'] = {'label':'Discount', 'type':'toggle', 'visible':'no', 'default':'40', 
             'onchange':'M.ciniki_foodmarket_main.product.updatePrices', 
-            'toggles':{'0':'0%', '0.05':'5%', '0.10':'10%', '0.15':'15%'},
+            'toggles':{'0':'0%', '0.05':'5%', '0.10':'10%', '0.15':'15%', '0.20':'20%', '0.25':'25%', '0.30':'30%', '0.40':'40%'},
             };
         this.product.sections['input' + i + '_71'].fields['input' + i + '_71_units'] = {'label':'', 'visible':'no', 'type':'text'};
         this.product.sections['input' + i + '_71'].fields['input' + i + '_71_retail_percent'] = {'label':'', 'visible':'no', 'type':'text'};
@@ -2062,7 +2062,7 @@ function ciniki_foodmarket_main() {
             };
         this.product.sections['input' + i + '_72'].fields['input' + i + '_72_retail_discount'] = {'label':'Discount', 'type':'toggle', 'visible':'no', 'default':'40', 
             'onchange':'M.ciniki_foodmarket_main.product.updatePrices', 
-            'toggles':{'0':'0%', '0.05':'5%', '0.10':'10%', '0.15':'15%'},
+            'toggles':{'0':'0%', '0.05':'5%', '0.10':'10%', '0.15':'15%', '0.20':'20%', '0.25':'25%', '0.30':'30%', '0.40':'40%'},
             };
         this.product.sections['input' + i + '_72'].fields['input' + i + '_72_units'] = {'label':'', 'visible':'no', 'type':'text'};
         this.product.sections['input' + i + '_72'].fields['input' + i + '_72_retail_percent'] = {'label':'', 'visible':'no', 'type':'text'};
