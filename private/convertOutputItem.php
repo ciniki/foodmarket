@@ -63,6 +63,20 @@ function ciniki_foodmarket_convertOutputItem($ciniki, $business_id, $output) {
     //
     if( $output['otype'] == 70 ) {
         $item['flags'] |= 0x02;
+        //
+        // Check if the product charges a modification fee
+        //
+        error_log('check');
+        if( isset($output['product_flags']) && ($output['product_flags']&0x02) ) {
+            $item['flags'] |= 0x0100;
+        }
+    }
+
+    //
+    // Check if price should be visible on orders/invoices. This is used for CSA/prepaid baskets currently.
+    //
+    if( isset($output['product_flags']) && ($output['product_flags']&0x04) == 0x04 ) {
+        $item['flags'] |= 0x0200;
     }
 
     //

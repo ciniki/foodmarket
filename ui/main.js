@@ -1855,7 +1855,7 @@ function ciniki_foodmarket_main() {
         'general':{'label':'', 'aside':'yes', 
             'fields':{
                 'status':{'label':'Status', 'type':'toggle', 'toggles':{'10':'Private', '40':'Public', '90':'Archived'}},
-                'flags':{'label':'Options', 'type':'flags', 'flags':{'1':{'name':'New'}}},
+                'flags1':{'label':'New Product', 'type':'flagtoggle', 'field':'flags', 'bit':0x01, 'default':'off'},
                 'packing_order':{'label':'Packing', 'type':'toggle', 'toggles':this.packingToggles},
             }},
         'inputs':{'label':'Purchase Options', 'type':'simplegrid', 'num_cols':'2', 'aside':'yes',
@@ -1868,6 +1868,8 @@ function ciniki_foodmarket_main() {
             'visible':function() { return M.ciniki_foodmarket_main.product.sections.ptype.selected == '70' ? 'yes' : 'hidden';},
             'fields':{
                 'basket_retail_price':{'label':'Price', 'type':'text', 'size':'small'},
+                'flags2':{'label':'Modification Fee', 'type':'flagtoggle', 'field':'flags', 'bit':0x02, 'default':'on'},
+                'flags3':{'label':'Prepaid', 'type':'flagtoggle', 'field':'flags', 'bit':0x04, 'default':'off'},
                 'basket_retail_taxtype_id':{'label':'Tax', 'type':'toggle', 'toggles':{}},
             }},
         '_supplier':{'label':'Supplier', 'aside':'yes',
@@ -2751,6 +2753,7 @@ function ciniki_foodmarket_main() {
             c += this.serializeFormSection('no', '_supplier');
             c += this.serializeFormSection('no', 'ptype');
             c += this.serializeFormSection('no', 'general');
+            c += this.serializeFormSection('no', 'basket');
             c += this.serializeFormSection('no', '_name');
             c += this.serializeFormSection('no', '_legends');
             c += this.serializeFormSection('no', '_categories');
@@ -2791,6 +2794,7 @@ function ciniki_foodmarket_main() {
             c += this.serializeFormSection('yes', '_supplier');
             c += this.serializeFormSection('yes', 'ptype');
             c += this.serializeFormSection('yes', 'general');
+            c += this.serializeFormSection('yes', 'basket');
             c += this.serializeFormSection('yes', '_name');
             c += this.serializeFormSection('yes', '_legends');
             c += this.serializeFormSection('yes', '_categories');

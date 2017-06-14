@@ -55,7 +55,8 @@ function ciniki_foodmarket_basketsUpdateOrders(&$ciniki, $business_id, $args) {
         . "items.retail_price, "
         . "items.retail_taxtype_id, "
         . "IFNULL(ciniki_foodmarket_product_inputs.inventory, 0) AS inventory, "
-        . "IFNULL(ciniki_foodmarket_products.packing_order, 10) AS packing_order "
+        . "IFNULL(ciniki_foodmarket_products.packing_order, 10) AS packing_order, "
+        . "IFNULL(ciniki_foodmarket_products.flags, 0) AS product_flags "
         . "FROM ciniki_foodmarket_basket_items "
         . "INNER JOIN ciniki_foodmarket_product_outputs AS items ON ("
             . "ciniki_foodmarket_basket_items.item_output_id = items.id "
@@ -78,7 +79,7 @@ function ciniki_foodmarket_basketsUpdateOrders(&$ciniki, $business_id, $args) {
         . "";
     $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.poma', array(
         array('container'=>'items', 'fname'=>'basket_item_id', 'fields'=>array('id'=>'item_id', 'item_id', 'basket_item_id', 'basket_id', 'quantity', 'pio_name',
-            'otype', 'flags', 'units', 'retail_price', 'retail_taxtype_id', 'inventory', 'packing_order',
+            'otype', 'flags', 'units', 'retail_price', 'retail_taxtype_id', 'inventory', 'packing_order', 'product_flags',
             )),
         ));
     if( $rc['stat'] != 'ok' ) {

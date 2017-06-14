@@ -24,6 +24,7 @@
 #                           10 - Supplied via supplier
 #                           30 - Manufactured **future**
 #                           70 - Product Basket
+#                           80 - CSA Basket **future**
 #                           100 - Grown **future**
 #                           130 - Raised **future**
 #
@@ -32,8 +33,8 @@
 #                       is weighted on checkout or previously and charged per pound. Customers order the squash by number of items.
 #
 #                           0x01 - New Product
-#                           0x02 - 
-#                           0x04 - 
+#                           0x02 - Basket Modification Fee
+#                           0x04 - Prepaid, no price on invoices
 #                           0x08 - 
 #
 # legend_codes:         The rolled up string of legend codes.
