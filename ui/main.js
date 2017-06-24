@@ -224,6 +224,7 @@ function ciniki_foodmarket_main() {
             'visible':function() { return (M.ciniki_foodmarket_main.menu.sections._tabs.selected == 'packing' && M.ciniki_foodmarket_main.menu.sections.packing_tabs.selected == 'orders' ) ? 'yes':'no'; },
             'buttons':{
                 'pack':{'label':'Print Packing Lists', 'fn':'M.ciniki_foodmarket_main.menu.packingPrintDate();'},
+                'pack2':{'label':'Half Page Packing Lists', 'fn':'M.ciniki_foodmarket_main.menu.packingPrintDateHalfPage();'},
             }},
         'packed_orders':{'label':'Packed', 'type':'simplegrid', 'num_cols':1, 'aside':'yes',
             'visible':function() { return (M.ciniki_foodmarket_main.menu.sections._tabs.selected == 'packing' && M.ciniki_foodmarket_main.menu.sections.packing_tabs.selected == 'orders') ? 'yes':'no'; },
@@ -1273,6 +1274,9 @@ function ciniki_foodmarket_main() {
     }
     this.menu.packingPrintDate = function() {
         M.api.openPDF('ciniki.foodmarket.datePackingLists', {'business_id':M.curBusinessID, 'date_id':this.date_id});
+    }
+    this.menu.packingPrintDateHalfPage = function() {
+        M.api.openPDF('ciniki.foodmarket.datePackingLists', {'business_id':M.curBusinessID, 'date_id':this.date_id, 'size':'halfpage'});
     }
     this.menu.packingOrderPacked = function() {
         M.api.getJSONCb('ciniki.foodmarket.datePacking', 

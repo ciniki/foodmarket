@@ -22,6 +22,7 @@ function ciniki_foodmarket_datePackingLists($ciniki) {
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'),
         'date_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Order Date'),
         'order_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Order'),
+        'size'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Size'),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;

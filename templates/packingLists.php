@@ -194,6 +194,8 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
 
     class MYPDF extends TCPDF {
         //Page header
+        public $size = 'fullpage';
+        public $usable_width = 180;
         public $left_margin = 18;
         public $top_margin = 15;
         public $right_margin = 18;
@@ -212,8 +214,13 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
             //
             $this->SetFont('helvetica', 'B', 18);
             $this->Ln(8);
-            $this->Cell(120, 12, $this->name, 0, false, 'L', 0, '', 0, false, 'M', 'M');
-            $this->Cell(60, 12, $this->modified, 0, false, 'R', 0, '', 0, false, 'M', 'M');
+            if( $this->size == 'halfpage' ) {
+                $this->Cell(80, 12, $this->name, 0, false, 'L', 0, '', 0, false, 'M', 'M');
+                $this->Cell(40, 12, $this->modified, 0, false, 'R', 0, '', 0, false, 'M', 'M');
+            } else {
+                $this->Cell(120, 12, $this->name, 0, false, 'L', 0, '', 0, false, 'M', 'M');
+                $this->Cell(60, 12, $this->modified, 0, false, 'R', 0, '', 0, false, 'M', 'M');
+            }
         }
 
         // Page footer
@@ -228,7 +235,27 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
     //
     // Start a new document
     //
-    $pdf = new MYPDF('P', PDF_UNIT, 'LETTER', true, 'UTF-8', false);
+    if( isset($args['size']) && $args['size'] == 'halfpage' ) {
+        $pdf = new MYPDF('P', PDF_UNIT, 'STATEMENT', true, 'UTF-8', false);
+        $w = array(60, 20, 40);
+        $pdf->usable_width = 120;
+        $pdf->header_height = 12;
+        $pdf->left_margin = 10;
+        $pdf->right_margin = 10;
+        $pdf->SetMargins($pdf->left_margin, $pdf->header_height+10, $pdf->right_margin);
+        $pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
+        $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
+        $pdf->size = $args['size'];
+        $pdf->SetCellPadding(1.2);
+    } else {
+        $pdf = new MYPDF('P', PDF_UNIT, 'LETTER', true, 'UTF-8', false);
+        $w = array(80, 40, 60);
+        // set margins
+        $pdf->SetMargins($pdf->left_margin, $pdf->header_height+10, $pdf->right_margin);
+        $pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
+        $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
+        $pdf->SetCellPadding(1.5);
+    }
 
     //
     // Setup the PDF basics
@@ -239,14 +266,9 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
     $pdf->SetSubject('');
     $pdf->SetKeywords('');
 
-    // set margins
-    $pdf->SetMargins($pdf->left_margin, $pdf->header_height+10, $pdf->right_margin);
-    $pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
-    $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
 
     // set font
     $pdf->SetFont('helvetica', '', 12);
-    $pdf->SetCellPadding(1.5);
 
     // add a page
     $pdf->SetFillColor(246);
@@ -260,11 +282,10 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
     $pdf->name = 'Summary';
     $pdf->modified = '';
     $pdf->AddPage();
-    $w = array(80, 40, 60);
     $lh = 10;
     $pdf->SetFillColor(232);
     $pdf->SetFont('helvetica', 'B', 14);
-    $pdf->Cell(180, 10, 'Baskets', 0, 1, 'L', 1);
+    $pdf->Cell($pdf->usable_width, 10, 'Baskets', 0, 1, 'L', 1);
     $border = 'TB';
     $pdf->SetFont('helvetica', '', 12);
     foreach($orders as $order) {
@@ -284,7 +305,11 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
     //
     // Check if there are weighted items and add a page for them
     //
-    $w = array(140, 15, 10, 15);
+    if( isset($args['size']) && $args['size'] == 'halfpage' ) {
+        $w = array(80, 15, 10, 15);
+    } else {
+        $w = array(140, 15, 10, 15);
+    }
     if( isset($weighted_items) && count($weighted_items) > 0 ) {
         if( $pdf->GetY() > 160 ) {
             $pdf->AddPage();
@@ -293,7 +318,7 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
         }
         $pdf->SetFillColor(232);
         $pdf->SetFont('helvetica', 'B', 14);
-        $pdf->Cell(180, 10, 'Weighted Items', 0, 1, 'L', 1);
+        $pdf->Cell($pdf->usable_width, 10, 'Weighted Items', 0, 1, 'L', 1);
         $pdf->SetFont('helvetica', '', 12);
         foreach($weighted_items as $item) {
             foreach($item['quantities'] as $quantity) {
@@ -323,7 +348,11 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
 
         $pdf->AddPage();
 
-        $w = array(5, 8, 10, 15, 142);
+        if( isset($args['size']) && $args['size'] == 'halfpage' ) {
+            $w = array(5, 5, 10, 15, 85);
+        } else {
+            $w = array(5, 8, 10, 15, 142);
+        }
         $num_baskets = 0;
         foreach($order['items'] as $item) {
             if( !isset($item['basket']) || $item['basket'] != 'yes' ) {
@@ -331,7 +360,7 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
             }
             $pdf->SetFillColor(232);
             $pdf->SetFont('helvetica', 'B', 14);
-            $pdf->Cell(180, 10, $item['description'] . (isset($item['modified'])&&$item['modified'] == 'yes' ? ' - Modified':''), 0, 0, 'L', 1);
+            $pdf->Cell($pdf->usable_width, 10, $item['description'] . (isset($item['modified'])&&$item['modified'] == 'yes' ? ' - Modified':''), 0, 0, 'L', 1);
             $pdf->Ln(10);
             $pdf->SetFillColor(246);
             $subfill = 0;
@@ -369,7 +398,7 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
         if( $num_baskets > 0 && $num_baskets < count($order['items']) ) {
             $pdf->SetFillColor(232);
             $pdf->SetFont('helvetica', 'B', 14);
-            $pdf->Cell(180, 10, 'Additional Items', 0, 0, 'L', 1);
+            $pdf->Cell($pdf->usable_width, 10, 'Additional Items', 0, 0, 'L', 1);
             $pdf->Ln(10);
             $pdf->SetFillColor(246);
         }
@@ -380,7 +409,11 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
         //
         $fill = 0;
         $border = 'TB';
-        $w = array(8, 10, 15, 147);
+        if( isset($args['size']) && $args['size'] == 'halfpage' ) {
+            $w = array(8, 10, 15, 147);
+        } else {
+            $w = array(8, 10, 15, 82);
+        }
         foreach($order['items'] as $item) {
             if( isset($item['basket']) && $item['basket'] == 'yes' ) {  
                 continue;
@@ -389,7 +422,7 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
                 $pdf->AddPage();
                 $pdf->SetFillColor(232);
                 $pdf->SetFont('helvetica', 'B', 14);
-                $pdf->Cell(180, 10, 'Additional Items (continued)', 0, 0, 'L', 1);
+                $pdf->Cell($pdf->usable_width, 10, 'Additional Items (continued)', 0, 0, 'L', 1);
                 $pdf->Ln(10);
                 $pdf->SetFillColor(246);
             }
