@@ -21,6 +21,7 @@ function ciniki_foodmarket_customerRepeats($ciniki) {
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
         'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'),
         'customer_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Customer ID'),
+        'allitems'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Return All Items'),
         'customers'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Customers'),
         ));
     if( $rc['stat'] != 'ok' ) {
@@ -135,6 +136,45 @@ function ciniki_foodmarket_customerRepeats($ciniki) {
             $rsp['repeat_items'] = array();
         } else {
             $rsp['repeat_items'] = $rc['items'];
+        }
+    }
+
+    //
+    // Get the complete list of items and customers
+    //
+    if( (!isset($args['customer_id']) || $args['customer_id'] == 0) && isset($args['allitems']) && $args['allitems'] == 'yes' ) {
+        $strsql = "SELECT i.id, "
+            . "i.customer_id, "
+            . "c.display_name, "
+            . "i.description, "
+            . "i.repeat_days, "
+            . "i.last_order_date, "
+            . "i.next_order_date, "
+            . "i.quantity "
+            . "FROM ciniki_poma_customer_items AS i "
+            . "LEFT JOIN ciniki_customers AS c ON ("
+                . "i.customer_id = c.id "
+                . "AND c.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+                . ") "
+            . "WHERE i.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND i.itype = 40 "
+            . "ORDER BY c.display_name, description "
+            . "";
+        $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.poma', array(
+            array('container'=>'items', 'fname'=>'id', 
+                'fields'=>array('id', 'customer_id', 'display_name', 'description', 'repeat_days', 'quantity', 'last_order_date', 'next_order_date'),
+                'utctotz'=>array(
+                    'last_order_date'=>array('format'=>$date_format, 'timezone'=>'UTC'),
+                    'next_order_date'=>array('format'=>$date_format, 'timezone'=>'UTC'),
+                )),
+            ));
+        if( $rc['stat'] != 'ok' ) { 
+            return $rc;
+        }
+        if( !isset($rc['items']) ) {
+            $rsp['repeat_list'] = array();
+        } else {
+            $rsp['repeat_list'] = $rc['items'];
         }
     }
 
