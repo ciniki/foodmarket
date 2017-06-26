@@ -175,6 +175,9 @@ function ciniki_foodmarket_customerRepeats($ciniki) {
             $rsp['repeat_list'] = array();
         } else {
             $rsp['repeat_list'] = $rc['items'];
+            foreach($rsp['repeat_list'] as $i => $item) {
+                $rsp['repeat_list'][$i]['quantity'] = (float)$item['quantity'];
+            }
         }
     }
 

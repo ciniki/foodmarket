@@ -1718,7 +1718,7 @@ function ciniki_foodmarket_main() {
             return false;
         }
         var p = M.ciniki_foodmarket_main.menu;
-        p.size = 'xlarge';
+        p.size = 'full';
         p.data = rsp;
 //        p.data.customers.unshift({'id':'0', 'display_name':'All Customers'});
 //        if( p.customer_id > 0 ) {
