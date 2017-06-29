@@ -467,7 +467,7 @@ function ciniki_foodmarket_main() {
             'noData':'No standing order items',
             }, */
         'repeat_list':{'label':'Standing Items', 'type':'simplegrid', 'num_cols':5,
-            'visible':function() {var p=M.ciniki_foodmarket_main.menu; return (p.sections._product_tabs.selected=='repeats')?'yes':'no';},
+            'visible':function() {var p=M.ciniki_foodmarket_main.menu; return (p.sections._tabs.selected=='products' && p.sections._product_tabs.selected=='repeats')?'yes':'no';},
             'headerValues':['Customer', 'Item', 'Qty', 'Last', 'Next'],
             'sortable':'yes', 'sortTypes':['text', 'text', 'number', 'date', 'date'],
             'noData':'No standing orders for customer',
