@@ -112,6 +112,7 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
     $orders = $rc['orders'];
 
     $weighted_items = array();
+
     //
     // Add parent name to subitems
     //
@@ -199,7 +200,7 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
         public $left_margin = 18;
         public $top_margin = 15;
         public $right_margin = 18;
-        public $header_height = 15;
+        public $header_height = 0;
         public $name = '';
         public $date_text = '';
         public $modified = '';
@@ -212,15 +213,15 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
             // be displayed as well.  Otherwise, image is scaled to be 100% page width
             // but only to a maximum height of the header_height (set far below).
             //
-            $this->SetFont('helvetica', 'B', 18);
-            $this->Ln(8);
-            if( $this->size == 'halfpage' ) {
-                $this->Cell(80, 12, $this->name, 0, false, 'L', 0, '', 0, false, 'M', 'M');
-                $this->Cell(40, 12, $this->modified, 0, false, 'R', 0, '', 0, false, 'M', 'M');
-            } else {
-                $this->Cell(120, 12, $this->name, 0, false, 'L', 0, '', 0, false, 'M', 'M');
-                $this->Cell(60, 12, $this->modified, 0, false, 'R', 0, '', 0, false, 'M', 'M');
-            }
+//            $this->SetFont('helvetica', 'B', 18);
+//            $this->Ln(8);
+//            if( $this->size == 'halfpage' ) {
+//                $this->Cell(80, 12, $this->name, 0, false, 'L', 0, '', 0, false, 'M', 'M');
+//                $this->Cell(40, 12, $this->modified, 0, false, 'R', 0, '', 0, false, 'M', 'M');
+//            } else {
+//                $this->Cell(120, 12, $this->name, 0, false, 'L', 0, '', 0, false, 'M', 'M');
+//                $this->Cell(60, 12, $this->modified, 0, false, 'R', 0, '', 0, false, 'M', 'M');
+//            }
         }
 
         // Page footer
@@ -228,7 +229,13 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
             // Position at 15 mm from bottom
             $this->SetY(-15);
             $this->SetFont('helvetica', '', 10);
-            $this->Cell(60, 12, $this->date_text, 0, false, 'L', 0, '', 0, false, 'M', 'M');
+            if( $this->size == 'halfpage' ) {
+                $this->Cell(120, 12, $this->date_text, 0, false, 'C', 0, '', 0, false, 'M', 'M');
+                $this->Cell(20, 12, '', 0, false, 'C', 0, '', 0, false, 'M', 'M');
+                $this->Cell(120, 12, $this->date_text, 0, false, 'C', 0, '', 0, false, 'M', 'M');
+            } else {
+                $this->Cell(60, 12, $this->date_text, 0, false, 'L', 0, '', 0, false, 'M', 'M');
+            }
         }
     }
 
@@ -236,13 +243,14 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
     // Start a new document
     //
     if( isset($args['size']) && $args['size'] == 'halfpage' ) {
-        $pdf = new MYPDF('P', PDF_UNIT, 'STATEMENT', true, 'UTF-8', false);
-        $w = array(60, 20, 40);
-        $pdf->usable_width = 120;
-        $pdf->header_height = 12;
+        $pdf = new MYPDF('L', PDF_UNIT, 'LETTER', true, 'UTF-8', false);
+        $w = array(60, 20, 39);
+        $pdf->usable_width = 119;
+        $pdf->header_height = 15;
         $pdf->left_margin = 10;
         $pdf->right_margin = 10;
-        $pdf->SetMargins($pdf->left_margin, $pdf->header_height+10, $pdf->right_margin);
+        $pdf->setEqualColumns(2, 140);
+        $pdf->SetMargins($pdf->left_margin, $pdf->header_height, $pdf->right_margin);
         $pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
         $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
         $pdf->size = $args['size'];
@@ -251,7 +259,8 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
         $pdf = new MYPDF('P', PDF_UNIT, 'LETTER', true, 'UTF-8', false);
         $w = array(80, 40, 60);
         // set margins
-        $pdf->SetMargins($pdf->left_margin, $pdf->header_height+10, $pdf->right_margin);
+        $pdf->header_height = 15;
+        $pdf->SetMargins($pdf->left_margin, $pdf->header_height, $pdf->right_margin);
         $pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
         $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
         $pdf->SetCellPadding(1.5);
@@ -282,37 +291,101 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
     $pdf->name = 'Summary';
     $pdf->modified = '';
     $pdf->AddPage();
+    $pdf->selectColumn(0);
+    $pdf->SetFont('helvetica', 'B', 18);
+    if( $pdf->size == 'halfpage' ) {
+        $pdf->Cell($pdf->usable_width, 14, 'Summary', 0, 1, 'L', 0, '', 0, false, 'M', 'T');
+    } else {
+        $pdf->Cell($pdf->usable_width, 14, 'Summary', 0, 1, 'L', 0, '', 0, false, 'M', 'T');
+    }
     $lh = 10;
     $pdf->SetFillColor(232);
     $pdf->SetFont('helvetica', 'B', 14);
     $pdf->Cell($pdf->usable_width, 10, 'Baskets', 0, 1, 'L', 1);
     $border = 'TB';
     $pdf->SetFont('helvetica', '', 12);
+    $nobasket_orders = array(); 
     foreach($orders as $order) {
         $pdf->date_text = $order['order_date_text'];
+        $basket = 'no';
         if( isset($order['items']) ) {
             foreach($order['items'] as $item) {
                 if( isset($item['basket']) && $item['basket'] == 'yes' ) {
+                    if( $pdf->getY() > ($pdf->getPageHeight() - 30) ) {
+                        if( $pdf->size == 'halfpage' && $pdf->getColumn() == 0 ) {
+                            $pdf->selectColumn(1);
+                            $pdf->Cell($pdf->usable_width, 14, '', 0, 1, 'L', 0, '', 0, false, 'M', 'T');
+                        } else {
+                            $pdf->AddPage();
+                            $pdf->selectColumn(0);
+                            $pdf->SetFont('helvetica', 'B', 18);
+                            $pdf->Cell($pdf->usable_width, 14, 'Summary', 0, 1, 'L', 0, '', 0, false, 'M', 'T');
+                        }
+                        $pdf->SetFillColor(232);
+                        $pdf->SetFont('helvetica', 'B', 14);
+                        $pdf->Cell($pdf->usable_width, 10, 'Baskets (continued)', 0, 1, 'L', 1);
+                        $pdf->SetFont('helvetica', '', 12);
+                    }
+                    $basket = 'yes';
                     $pdf->Cell($w[0], $lh, $order['sort_name'], $border, 0, 'L', 0);
                     $pdf->Cell($w[1], $lh, (isset($item['modified']) && $item['modified'] == 'yes' ? 'Modified' : ''), $border, 0, 'R', 0);
                     $pdf->Cell($w[2], $lh, $item['description'], $border, 0, 'R', 0);
                     $pdf->Ln($lh);
                 }
             }
+            if( $basket == 'no' ) {
+                $nobasket_orders[] = $order;
+            }
         }
     }
+
+    //
+    // Add the other orders
+    //
+    if( count($nobasket_orders) > 0 ) {
+        if( $pdf->getY() > ($pdf->getPageHeight() - 60) ) {
+            if( $pdf->size == 'halfpage' && $pdf->getColumn() == 0 ) {
+                $pdf->selectColumn(1);
+                $pdf->Cell($pdf->usable_width, 14, '', 0, 1, 'L', 0, '', 0, false, 'M', 'T');
+            } else {
+                $pdf->AddPage();
+                $pdf->selectColumn(0);
+                $pdf->Cell($pdf->usable_width, 14, 'Summary', 0, 1, 'L', 0, '', 0, false, 'M', 'T');
+            }
+        } else {
+            $pdf->Ln(5);
+        }
+        $pdf->SetFillColor(232);
+        $pdf->SetFont('helvetica', 'B', 14);
+        $pdf->Cell($pdf->usable_width, 10, 'Other Orders', 0, 1, 'L', 1);
+        $border = 'TB';
+        $pdf->SetFont('helvetica', '', 12);
+        foreach($nobasket_orders as $order) {
+            $pdf->Cell($w[0]+$w[1]+$w[2], $lh, $order['sort_name'], $border, 0, 'L', 0);
+            $pdf->Ln($lh);
+        }
+    }
+
 
     //
     // Check if there are weighted items and add a page for them
     //
     if( isset($args['size']) && $args['size'] == 'halfpage' ) {
-        $w = array(80, 15, 10, 15);
+        $w = array(80, 15, 9, 15);
     } else {
         $w = array(140, 15, 10, 15);
     }
     if( isset($weighted_items) && count($weighted_items) > 0 ) {
-        if( $pdf->GetY() > 160 ) {
-            $pdf->AddPage();
+        if( $pdf->getY() > ($pdf->getPageHeight() - 60 - (count($weighted_items) * 10)) ) {
+            if( $pdf->size == 'halfpage' && $pdf->getColumn() == 0 ) {
+                $pdf->selectColumn(1);
+                $pdf->Cell($pdf->usable_width, 14, '', 0, 1, 'L', 0, '', 0, false, 'M', 'T');
+            } else {
+                $pdf->AddPage();
+                $pdf->selectColumn(0);
+                $pdf->SetFont('helvetica', 'B', 18);
+                $pdf->Cell($pdf->usable_width, 14, 'Summary', 0, 1, 'L', 0, '', 0, false, 'M', 'T');
+            }
         } else {
             $pdf->Ln();
         }
@@ -346,10 +419,27 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
         $pdf->date_text = $order['order_date_text'];
         $pdf->modified = $order['modified'];
 
-        $pdf->AddPage();
+        if( $pdf->size == 'halfpage' && $pdf->getColumn() == 0 ) {
+            error_log('col0');
+            $pdf->selectColumn(1);
+            error_log($pdf->getColumn());
+        } else {
+            error_log('col1');
+            $pdf->AddPage();
+            $pdf->selectColumn(0);
+        }
+        $pdf->SetFont('helvetica', 'B', 18);
+        $num_pages = 1;
+        if( $pdf->size == 'halfpage' ) {
+            $pdf->Cell($pdf->usable_width-20, 14, $order['sort_name'], 0, false, 'L', 0, '', 0, false, 'M', 'T');
+            $pdf->Cell(20, 14, $order['modified'], 0, 1, 'R', 0, '', 0, 1, 'M', 'T');
+        } else {
+            $pdf->Cell($pdf->usable_width-20, 14, $order['sort_name'], 0, false, 'L', 0, '', 0, false, 'M', 'T');
+            $pdf->Cell(20, 14, $order['modified'], 0, 1, 'R', 0, '', 0, 1, 'M', 'T');
+        }
 
         if( isset($args['size']) && $args['size'] == 'halfpage' ) {
-            $w = array(5, 5, 10, 15, 85);
+            $w = array(5, 5, 10, 15, 84);
         } else {
             $w = array(5, 8, 10, 15, 142);
         }
@@ -373,6 +463,24 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
                     return $a['packing_order'] > $b['packing_order'] ? -1 : 1;
                 });
                 foreach($item['subitems'] as $sid => $subitem) {
+                    if( $pdf->getY() > ($pdf->getPageHeight() - 30) ) {
+                        if( $pdf->size == 'halfpage' && $pdf->getColumn() == 0 ) {
+                            $pdf->selectColumn(1);
+                        } else {
+                            $pdf->AddPage();
+                            $pdf->selectColumn(0);
+                            $pdf->SetFont('helvetica', 'B', 18);
+                        }
+                        $num_pages++;
+                        $pdf->SetFont('helvetica', 'B', 18);
+                        $pdf->Cell($pdf->usable_width-20, 14, $order['sort_name'], 0, false, 'L', 0, '', 0, false, 'M', 'T');
+                        $pdf->Cell(20, 14, $num_pages, 0, 1, 'R', 0, '', 0, 1, 'M', 'T');
+                        $pdf->SetFillColor(232);
+                        $pdf->SetFont('helvetica', 'B', 14);
+                        $pdf->Cell($pdf->usable_width, 10, $item['description'] . ' (continued)', 0, 0, 'L', 1);
+                        $pdf->Ln(10);
+                        $pdf->SetFillColor(246);
+                    }
                     if( isset($item['subitems'][$sid+1]) && $item['subitems'][$sid+1]['packing_order'] != $subitem['packing_order'] ) {
                         $pdf->SetDrawColor(128);
                     } else {
@@ -410,16 +518,25 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
         $fill = 0;
         $border = 'TB';
         if( isset($args['size']) && $args['size'] == 'halfpage' ) {
-            $w = array(8, 10, 15, 147);
+            $w = array(8, 10, 15, 86);
         } else {
-            $w = array(8, 10, 15, 82);
+            $w = array(8, 10, 15, 146);
         }
         foreach($order['items'] as $item) {
             if( isset($item['basket']) && $item['basket'] == 'yes' ) {  
                 continue;
             }
             if( $pdf->getY() > ($pdf->getPageHeight() - 30) ) {
-                $pdf->AddPage();
+                if( $pdf->size == 'halfpage' && $pdf->getColumn() == 0 ) {
+                    $pdf->selectColumn(1);
+                } else {
+                    $pdf->AddPage();
+                    $pdf->selectColumn(0);
+                }
+                $pdf->SetFont('helvetica', 'B', 18);
+                $pdf->Cell($pdf->usable_width-20, 14, $order['sort_name'], 0, false, 'L', 0, '', 0, false, 'M', 'T');
+                $pdf->Cell(20, 14, $order['modified'], 0, 1, 'R', 0, '', 0, false, 'M', 'T');
+                // $pdf->AddPage();
                 $pdf->SetFillColor(232);
                 $pdf->SetFont('helvetica', 'B', 14);
                 $pdf->Cell($pdf->usable_width, 10, 'Additional Items (continued)', 0, 0, 'L', 1);

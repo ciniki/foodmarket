@@ -5,8 +5,8 @@ function ciniki_foodmarket_settings() {
     //
     this.menu = new M.panel('Settings', 'ciniki_foodmarket_settings', 'menu', 'mc', 'narrow', 'sectioned', 'ciniki.foodmarket.settings.menu');
     this.menu.sections = {
-        'general':{'label':'Food Market', 'list':{
-            'reindex':{'label':'Update Searching', 'fn':'M.ciniki_foodmarket_settings.menu.keywordsUpdate();'},
+        'search':{'label':'', 'list':{
+            'reindex':{'label':'Update Search Index', 'fn':'M.ciniki_foodmarket_settings.menu.keywordsUpdate();'},
             }},
     };
     this.menu.open = function(cb) {
