@@ -58,6 +58,9 @@ function ciniki_foodmarket_prepareSuppliedOrderInputs($ciniki, $business_id, $in
         if( $input['itype'] == 10 ) {
             $input['sizetext'] = 'Single';
             $input['required_quantity'] = (float)$input['weight_quantity'];
+            if( $input['min_quantity'] <= 0 ) {
+                $input['min_quantity'] = 1;
+            }
             if( $input['required_quantity'] <= $input['min_quantity'] ) {
                 $input['order_quantity'] = (float)$input['min_quantity'];
             } else {
