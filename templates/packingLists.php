@@ -420,11 +420,8 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
         $pdf->modified = $order['modified'];
 
         if( $pdf->size == 'halfpage' && $pdf->getColumn() == 0 ) {
-            error_log('col0');
             $pdf->selectColumn(1);
-            error_log($pdf->getColumn());
         } else {
-            error_log('col1');
             $pdf->AddPage();
             $pdf->selectColumn(0);
         }
