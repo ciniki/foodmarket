@@ -1132,7 +1132,8 @@ function ciniki_foodmarket_main() {
             return 'M.ciniki_foodmarket_main.menu.openProcurementSupplier(\'' + d.id + '\');';
         }
         if( s == 'procurement_supplier_inputs' ) {
-            return 'M.ciniki_foodmarket_main.product.open(\'M.ciniki_foodmarket_main.menu.open();\',\'' + d.product_id + '\',null,M.ciniki_foodmarket_main.menu.nplist);';
+            return 'M.ciniki_foodmarket_main.procurementitem.open(\'M.ciniki_foodmarket_main.menu.open();\',\'' + d.id + '\',\'' + M.ciniki_foodmarket_main.menu.date_id + '\');';
+//            return 'M.ciniki_foodmarket_main.product.open(\'M.ciniki_foodmarket_main.menu.open();\',\'' + d.product_id + '\',null,M.ciniki_foodmarket_main.menu.nplist);';
         }
         /* Availability */
         if( s == 'baskets_items' ) {
@@ -3554,6 +3555,84 @@ function ciniki_foodmarket_main() {
     this.orderitem.addClose('Cancel');
     this.orderitem.addButton('next', 'Next');
     this.orderitem.addLeftButton('prev', 'Prev');
+
+    //
+    // The panel to list the customers who ordered a procurement item
+    //
+    this.procurementitem = new M.panel('Procurement Item', 'ciniki_foodmarket_main', 'procurementitem', 'mc', 'xlarge', 'sectioned', 'ciniki.foodmarket.main.procurementitem');
+    this.procurementitem.data = null;
+    this.procurementitem.input_id = 0;
+    this.procurementitem.date_id = 0;
+    this.procurementitem.nplist = [];
+    this.procurementitem.sections = {
+        'product':{'label':'', 'list':{
+            'product_name':{'label':'Product', 'value':''},
+            }},
+        'orderitems':{'label':'Ordered Items', 'type':'simplegrid', 'num_cols':5,
+            'headerValues':['Customer', 'Quantity', 'Type', 'Date Added', 'Last Updated'],
+            'sortable':'yes',
+            'sortTypes':['text', 'number', 'text', 'altnumber', 'altnumber'],
+            'noData':'No ordered items',
+            },
+        'queueitems':{'label':'Queued Items', 'type':'simplegrid', 'num_cols':5,
+            'headerValues':['Customer', 'Quantity', 'Type', 'Date Added', 'Last Updated'],
+            'sortable':'yes',
+            'sortTypes':['text', 'number', 'text', 'altnumber', 'altnumber'],
+            'noData':'No queued items',
+            },
+    }
+    this.procurementitem.cellSortValue = function(s, i, j, d) {
+        switch(j) {
+            case 3: return d.date_added_ts;
+            case 4: return d.last_updated_ts;
+        }
+    }
+    this.procurementitem.listLabel = function(s, i, d) {
+        return d.label;
+    }
+    this.procurementitem.listValue = function(s, i, d) {
+        return d.value;
+    }
+    this.procurementitem.cellValue = function(s, i, j, d) {
+        switch(j) {
+            case 0: return d.display_name;
+            case 1: return d.quantity;
+            case 2: return d.io_name;
+            case 3: return d.date_added;
+            case 4: return d.last_updated;
+        }
+    }
+    this.procurementitem.open = function(cb, iid, did, list) {
+        if( iid != null ) { this.input_id = iid; }
+        if( did != null ) { this.date_id = did; }
+        if( list != null ) { this.nplist = list; }
+        M.api.getJSONCb('ciniki.foodmarket.procurementItemOrders', {'business_id':M.curBusinessID, 'input_id':this.input_id, 'date_id':this.date_id}, function(rsp) {
+            if( rsp.stat != 'ok' ) {
+                M.api.err(rsp);
+                return false;
+            }
+            var p = M.ciniki_foodmarket_main.procurementitem;
+            p.data = rsp;
+            p.sections.product.list.product_name.value = rsp.product_name;
+            p.refresh();
+            p.show(cb);
+        });
+    }
+    this.procurementitem.nextButtonFn = function() {
+        if( this.nplist != null && this.nplist.indexOf('' + this.item_id) < (this.nplist.length - 1) ) {
+            return 'M.ciniki_foodmarket_main.procurementitem.save(\'M.ciniki_foodmarket_main.procurementitem.open(null,' + this.nplist[this.nplist.indexOf('' + this.item_id) + 1] + ');\');';
+        }
+        return null;
+    }
+    this.procurementitem.prevButtonFn = function() {
+        if( this.nplist != null && this.nplist.indexOf('' + this.item_id) > 0 ) {
+            return 'M.ciniki_foodmarket_main.procurementitem.save(\'M.ciniki_foodmarket_main.procurementitem.open(null,' + this.nplist[this.nplist.indexOf('' + this.item_id) - 1] + ');\');';
+        }
+        return null;
+    }
+    this.procurementitem.addClose('Back');
+//    this.procurementitem.addButton('next', 'Next');
+//    this.procurementitem.addLeftButton('prev', 'Prev');
 
     //
     // The panel to manage a queued item
