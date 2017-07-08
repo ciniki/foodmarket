@@ -1544,7 +1544,7 @@ function ciniki_foodmarket_main() {
 //        else if( this.sections._tabs.selected == 'repeats' ) {
         else if( this.sections._tabs.selected == 'products' && this.sections._product_tabs.selected == 'repeats' ) {
             M.api.getJSONCb('ciniki.foodmarket.customerRepeats', 
-                {'business_id':M.curBusinessID, 'allitems':'yes', 'customers':'no', 'customer_id':this.customer_id}, 
+                {'business_id':M.curBusinessID, 'allitems':'yes', 'customers':'no'}, //, 'customer_id':this.customer_id}, 
                 M.ciniki_foodmarket_main.menu.processRepeats);
         }
 //        else if( this.sections._tabs.selected == 'favourites' ) {
