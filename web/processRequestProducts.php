@@ -198,10 +198,30 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $busi
         // Load the list of items for a date
         //
         $date_items = array();
+        $date_id = 0;
         if( isset($ciniki['session']['ciniki.poma']['date']['id']) && $ciniki['session']['ciniki.poma']['date']['id'] > 0 ) {
+            $date_id = $ciniki['session']['ciniki.poma']['date']['id'];
+        } else {
+            $strsql = "SELECT id, order_date, display_name, status, flags "
+                . "FROM ciniki_poma_order_dates "
+                . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . "AND status < 50 "
+                . "AND order_date >= UTC_TIMESTAMP() "
+                . "ORDER BY order_date ASC "
+                . "LIMIT 1 "
+                . "";
+            $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.poma', 'date');
+            if( $rc['stat'] != 'ok' ) {
+                return $rc;
+            }
+            if( isset($rc['date']) ) {
+                $date_id = $rc['date']['id'];
+            }
+        }
+        if( $date_id > 0 ) {
             $strsql = "SELECT output_id "
                 . "FROM ciniki_foodmarket_date_items "
-                . "WHERE date_id = '" . ciniki_core_dbQuote($ciniki, $ciniki['session']['ciniki.poma']['date']['id']) . "' "
+                . "WHERE date_id = '" . ciniki_core_dbQuote($ciniki, $date_id) . "' "
                 . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
                 . "";
             ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQueryList');
