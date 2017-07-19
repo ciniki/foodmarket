@@ -140,7 +140,7 @@ function ciniki_foodmarket_procurementItemOrders($ciniki) {
             if( $rsp['product_name'] == '' && $item['name'] != '' ) {
                 $rsp['product_name'] = $item['name'];
             }
-            if( $input['itype'] == 10 ) {
+            if( $item['itype'] == 10 ) {
                 $rsp['orderitems'][$iid]['quantity'] = (float)$item['weight_quantity'];
             } else {
                 $rsp['orderitems'][$iid]['quantity'] = (float)$item['unit_quantity'];
