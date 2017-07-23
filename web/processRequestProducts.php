@@ -232,7 +232,6 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $busi
             if( isset($rc['outputs']) ) {
                 $date_items = $rc['outputs'];
             } 
-        } else {
         }
 
         //
@@ -258,6 +257,7 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $busi
             foreach($rc['products'] as $pid => $p) {
                 $visible = 'no';
                 if( isset($p['options']) ) {
+                    error_log(print_r($date_items, true));
                     foreach($p['options'] as $o) {
                         if( ($o['flags']&0x0100) > 0 || in_array($o['id'], $date_items) ) {
                             $visible = 'yes';
