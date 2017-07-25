@@ -9,8 +9,6 @@ function ciniki_foodmarket_main() {
     this.caseFlags = {'17':{'name':'Case'}, '18':{'name':'Bushel'}, };
     this.packingToggles = {'10':'<span class="faicon">&#xf102;</span>', '30':'<span class="faicon">&#xf106;</span>', '50':' - ', '70':'<span class="faicon">&#xf107;</span>', '90':'<span class="faicon">&#xf103;</span>'};
 
-    this.appMenu
-
     //
     // Food Market
     //
