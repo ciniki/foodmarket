@@ -26,6 +26,7 @@ function ciniki_foodmarket_dateBaskets($ciniki) {
         'item_output_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Item'),
         'remove_item_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Remove Item'),
         'quantity'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Quantity'),
+        'copylast'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Copy Last'),
         'outputs'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Products'),
         ));
     if( $rc['stat'] != 'ok' ) {
@@ -178,6 +179,7 @@ function ciniki_foodmarket_dateBaskets($ciniki) {
                 }
             }
         }
+
         //
         // Set the date to allow substitutions
         //
@@ -219,18 +221,17 @@ function ciniki_foodmarket_dateBaskets($ciniki) {
     foreach($rsp['dates'] as $did => $date) {
         $rsp['dates'][$did]['name_status'] = $date['display_name'] . ' - ' . $poma_maps['orderdate']['status'][$date['status']];
         if( $date['id'] == $args['date_id'] ) {
+            $cur_order_date = $date['order_date'];
             $found = 1;
         }
         $last_date = $date;
     }
     if( $found == 0 ) {
         $args['date_id'] = $last_date['id'];
-        $args['date_id'] = $last_date['id'];
         $rsp['date_id'] = $last_date['id'];
         $rsp['date_status'] = $last_date['status'];
+        $cur_order_date = $last_date['order_date'];
     }
-
-
 
     //
     // FIXME: Check if date is still open for new items
@@ -326,7 +327,74 @@ function ciniki_foodmarket_dateBaskets($ciniki) {
             }
         }
     }
-    
+
+    //
+    // Check if previous basket should be copied
+    //
+    if( isset($args['copylast']) && $args['copylast'] == 'yes' ) {
+        //
+        // Check there are no items in this dates baskets
+        //
+        $strsql = "SELECT COUNT(*) as num_items "
+            . "FROM ciniki_foodmarket_basket_items "
+            . "WHERE date_id = '" . ciniki_core_dbQuote($ciniki, $args['date_id']) . "' "
+            . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "";
+        $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.foodmarket', 'item');
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
+        }
+        if( isset($rc['item']['num_items']) && $rc['item']['num_items'] > 0 ) {
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.77', 'msg'=>'There are already items in the basket, it must be empty before copying previous')); 
+        }
+        //
+        // Get previous date
+        //
+        $strsql = "SELECT date_id "
+            . "FROM ciniki_poma_order_dates AS d, ciniki_foodmarket_basket_items AS i "
+            . "WHERE d.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND d.order_date < '" . ciniki_core_dbQuote($ciniki, $cur_order_date) . "' "
+            . "AND d.id = i.date_id "
+            . "ORDER BY d.order_date DESC "
+            . "LIMIT 1 "
+            . "";
+        $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.foodmarket', 'item');
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
+        }
+        if( !isset($rc['item']['date_id']) ) {
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.78', 'msg'=>'Could not find a previous basket to copy.')); 
+        }
+        $prev_basket_date_id = $rc['item']['date_id'];
+
+        //
+        // Get the previous basket items
+        //
+        $strsql = "SELECT id, basket_output_id, item_output_id, quantity "
+            . "FROM ciniki_foodmarket_basket_items "
+            . "WHERE date_id = '" . ciniki_core_dbQuote($ciniki, $prev_basket_date_id) . "' "
+            . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "";
+        $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.foodmarket', 'item');
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
+        }
+        if( isset($rc['rows']) ) {  
+            $items = $rc['rows'];
+            foreach($items as $item) {
+                $rc = ciniki_core_objectAdd($ciniki, $args['business_id'], 'ciniki.foodmarket.basketitem', array(
+                    'basket_output_id'=>$item['basket_output_id'],
+                    'date_id'=>$args['date_id'],
+                    'item_output_id'=>$item['item_output_id'],
+                    'quantity'=>$item['quantity'],
+                    ), 0x07);
+                if( $rc['stat'] != 'ok' ) {
+                    return $rc;
+                }
+            }
+        }
+    }
+
     //
     // Get the baskets
     //
