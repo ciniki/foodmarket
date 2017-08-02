@@ -554,11 +554,13 @@ function ciniki_foodmarket_datePacking($ciniki) {
         if( isset($rc['baskets']) ) {   
             foreach($rc['baskets'] as $basket) {
                 $basket_total = 0;
-                foreach($basket['items'] as $item) {
-                    if( $item['itype'] == 10 ) {
-                        $basket_total = bcadd($basket_total, bcmul($item['weight_quantity'], $item['unit_amount'], 6), 2);
-                    } else {
-                        $basket_total = bcadd($basket_total, bcmul($item['unit_quantity'], $item['unit_amount'], 6), 2);
+                if( isset($basket['items']) ) {
+                    foreach($basket['items'] as $item) {
+                        if( $item['itype'] == 10 ) {
+                            $basket_total = bcadd($basket_total, bcmul($item['weight_quantity'], $item['unit_amount'], 6), 2);
+                        } else {
+                            $basket_total = bcadd($basket_total, bcmul($item['unit_quantity'], $item['unit_amount'], 6), 2);
+                        }
                     }
                 }
                 $rsp['packing_baskets'][] = array(

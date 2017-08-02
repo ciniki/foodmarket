@@ -27,6 +27,7 @@ function ciniki_foodmarket_convertOutputItem($ciniki, $business_id, $output) {
         'unit_amount'=>$output['retail_price'],
         'taxtype_id'=>(isset($output['retail_taxtype_id']) ? $output['retail_taxtype_id'] : 0),
         'packing_order'=>(isset($output['packing_order']) ? $output['packing_order'] : 10),
+        'retail_price_text'=>(isset($output['retail_price_text']) ? $output['retail_price_text'] : ''),
         );
 
     if( isset($output['retail_sdiscount_percent']) && $output['retail_sdiscount_percent'] > 0 ) {
