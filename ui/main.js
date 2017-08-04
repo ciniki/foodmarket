@@ -1376,7 +1376,7 @@ function ciniki_foodmarket_main() {
     }
     this.menu.basketItemAdd = function(e, oid) {
         M.api.getJSONCb('ciniki.foodmarket.dateBaskets', {'business_id':M.curBusinessID, 
-            'date_id':this.date_id, 'basket_output_id':0, 'item_output_id':oid, 'quantity':0}, M.ciniki_foodmarket_main.menu.processBaskets); /*function(rsp) {
+            'date_id':this.date_id, 'basket_output_id':0, 'item_output_id':oid, 'quantity':0, 'outputs':'yes'}, M.ciniki_foodmarket_main.menu.processBaskets); /*function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
