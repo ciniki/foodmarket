@@ -74,6 +74,16 @@ function ciniki_foodmarket_hooks_webOptions(&$ciniki, $business_id, $args) {
             ),
         ); 
     $poptions[] = array(
+        'label'=>'Public Prices',
+        'setting'=>'page-foodmarket-public-prices', 
+        'type'=>'toggle',
+        'value'=>(isset($settings['page-foodmarket-public-prices']) ? $settings['page-foodmarket-public-prices'] : 'yes'),
+        'toggles'=>array(
+            array('value'=>'no', 'label'=>'No'),
+            array('value'=>'yes', 'label'=>'Yes'),
+            ),
+        ); 
+    $poptions[] = array(
         'label'=>'Category Format',
         'setting'=>'page-foodmarket-category-thumbnail-format', 
         'type'=>'toggle',

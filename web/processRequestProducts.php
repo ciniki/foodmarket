@@ -265,8 +265,12 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $busi
                 }
                 if( $visible == 'no' ) {
                     unset($rc['products'][$pid]);
-                }
+                } 
+//                elseif( isset($settings['page-foodmarket-public-prices']) && $settings['page-foodmarket-public-prices'] == 'no' ) {
+//                    $rc['products'][$pid]['price_text'] = '';
+//                } 
             }
+            
             $page['blocks'][] = array('type'=>'productcards',
                 'title'=>(isset($subcategories) || isset($specials) ? 'Products' : ''),  // No title if only block
                 'base_url'=>$base_url, 'cards'=>$rc['products'],
@@ -426,10 +430,21 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $busi
             return $rc;
         }
         if( isset($rc['products']) && count($rc['products']) > 0 ) {
+            //
+            // Check if prices should be hidden
+            //
+            $hide_prices = 'no';
+            if( isset($settings['page-foodmarket-public-prices']) && $settings['page-foodmarket-public-prices'] == 'no'
+                && !isset($ciniki['session']['customer']['id']) || $ciniki['session']['customer']['id'] < 1 
+                ) {
+                $hide_prices = 'yes';  
+            }
 // $page['blocks'][] = array('type'=>'content', 'content'=>"Products<br/><pre>" . print_r($rc, true) . "</pre>");
             $page['blocks'][] = array('type'=>'productcards',
                 'title'=>(isset($subcategories) || isset($specials) ? 'Products' : ''),  // No title if only block
                 'base_url'=>$base_url, 'cards'=>$rc['products'],
+                'hide_prices'=>$hide_prices,
+                'hide_details'=>$hide_prices,
                 'thumbnail_format'=>$product_thumbnail_format, 'thumbnail_padding_color'=>$product_thumbnail_padding_color,
                 );
         }

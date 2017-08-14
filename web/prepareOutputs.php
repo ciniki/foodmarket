@@ -36,12 +36,18 @@ function ciniki_foodmarket_web_prepareOutputs($ciniki, $settings, $business_id, 
     }
 
     if( !isset($ciniki['session']['customer']['id']) || $ciniki['session']['customer']['id'] < 1 ) {
-        //
-        // Remove unavailable items
-        //
         foreach($args['outputs'] as $oid => $o) {
+            //
+            // Remove unavailable items
+            //
             if( isset($o['ctype']) && $o['ctype'] == '90' && ($o['flags']&0x0200) > 0 && !in_array($o['id'], $date_items) ) {
                 unset($args['outputs'][$oid]);
+            }
+            //
+            // Check if price is to be hidden
+            //
+            if( isset($settings['page-foodmarket-public-prices']) && $settings['page-foodmarket-public-prices'] == 'no' ) {
+                $args['outputs'][$oid]['price_text'] = '';
             }
         }
 
