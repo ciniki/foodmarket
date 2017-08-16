@@ -65,7 +65,7 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $busi
     //
     $hide_prices = 'no';
     if( isset($settings['page-foodmarket-public-prices']) && $settings['page-foodmarket-public-prices'] == 'no'
-        && !isset($ciniki['session']['customer']['id']) || $ciniki['session']['customer']['id'] < 1 
+        && (!isset($ciniki['session']['customer']['id']) || $ciniki['session']['customer']['id'] < 1)
         ) {
         $hide_prices = 'yes';  
     }
