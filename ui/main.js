@@ -362,7 +362,7 @@ function ciniki_foodmarket_main() {
             'headerValues':['Status', 'Date', '# Orders'],
             'noData':'No order dates have been setup.',
             'addTxt':'Add Order Date',
-            'addFn':'M.ciniki_foodmarket_main.editdate.open(\'M.ciniki_foodmarket_main.menu.open();\',0,null);'
+            'addFn':'M.ciniki_foodmarket_main.adddate.open(\'M.ciniki_foodmarket_main.menu.open();\',0,null);'
             },
 
         /* Queue */
@@ -3207,6 +3207,48 @@ function ciniki_foodmarket_main() {
     }
     this.supplier.addButton('save', 'Save', 'M.ciniki_foodmarket_main.supplier.save();');
     this.supplier.addClose('Cancel');
+
+    //
+    // The panel to add new dates
+    //
+    this.adddate = new M.panel('Order Date', 'ciniki_foodmarket_main', 'adddate', 'mc', 'medium', 'sectioned', 'ciniki.foodmarket.main.adddate');
+    this.adddate.sections = {
+        'general':{'label':'', 'fields':{
+            'order_date':{'label':'Date', 'required':'yes', 'type':'date'},
+            'repeat_days':{'label':'# of days', 'type':'toggle', 'default':'1', 'toggles':{'1':'1', '2':'2', '3':'3', '4':'4', '5':'5', '6':'6', '7':'7'}},
+//            'repeat_weeks':{'label':'# of weeks', 'type':'toggle', 'default':'1', 'toggles':{'1':'1', '2':'2', '3':'3', '4':'4'}},
+            }},
+        '_buttons':{'label':'', 'buttons':{
+            'save':{'label':'Save', 'fn':'M.ciniki_foodmarket_main.adddate.save();'},
+            }},
+        };
+    this.adddate.fieldValue = function(s, i, d) { return this.data[i]; }
+    this.adddate.open = function(cb, did, list) {
+        M.api.getJSONCb('ciniki.poma.dateGet', {'business_id':M.curBusinessID, 'date_id':0}, function(rsp) {
+            if( rsp.stat != 'ok' ) {
+                M.api.err(rsp);
+                return false;
+            }
+            var p = M.ciniki_foodmarket_main.adddate;
+            p.data = rsp.date;
+            p.refresh();
+            p.show(cb);
+        });
+    }
+    this.adddate.save = function() {
+        if( !this.checkForm() ) { return false; }
+        var c = this.serializeForm('yes');
+        M.api.postJSONCb('ciniki.poma.datesAdd', {'business_id':M.curBusinessID}, c, function(rsp) {
+            if( rsp.stat != 'ok' ) {
+                M.api.err(rsp);
+                return false;
+            }
+            M.ciniki_foodmarket_main.adddate.date_id = rsp.id;
+            M.ciniki_foodmarket_main.adddate.close();
+        });
+    }
+    this.adddate.addButton('save', 'Save', 'M.ciniki_foodmarket_main.adddate.save();');
+    this.adddate.addClose('Cancel');
 
     //
     // The panel to edit Order Date
