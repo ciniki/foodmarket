@@ -391,6 +391,18 @@ function ciniki_foodmarket_dateBaskets($ciniki) {
                 if( $rc['stat'] != 'ok' ) {
                     return $rc;
                 }
+                //
+                // Update the basket item in the orders
+                //
+                $rc = ciniki_foodmarket_basketsUpdateOrders($ciniki, $args['business_id'], array(
+                    'date_id'=>$args['date_id'],
+                    'basket_output_id'=>$item['basket_output_id'],
+                    'item_output_id'=>$item['item_output_id'],
+                    'quantity'=>$item['quantity'],
+                    ));
+                if( $rc['stat'] != 'ok' ) {
+                    return $rc;
+                }
             }
         }
     }
