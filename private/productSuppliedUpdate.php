@@ -240,6 +240,7 @@ function ciniki_foodmarket_productSuppliedUpdate(&$ciniki, $business_id, $produc
         //
         // Check for any outputs for this input
         //
+        $output_type_ids = array();
         foreach($otypes as $type => $type_details) {
             //
             // Parse the args
@@ -319,6 +320,7 @@ function ciniki_foodmarket_productSuppliedUpdate(&$ciniki, $business_id, $produc
                 // Add the output to the products outputs incase and output is attached
                 //
                 $product['outputs'][$output_id] = $new_output;
+                $output_type_ids[$type] = $output_id;
             } 
 
             //
@@ -364,6 +366,9 @@ function ciniki_foodmarket_productSuppliedUpdate(&$ciniki, $business_id, $produc
                         return $rc;
                     }
                 }
+                if( isset($old_output['otype']) ) {
+                    $output_type_ids[$old_output['otype']] = $output_id;
+                }
             }
         }
 
@@ -400,7 +405,7 @@ function ciniki_foodmarket_productSuppliedUpdate(&$ciniki, $business_id, $produc
         // Check if there are any outputs that should be removed
         //
         if( count($valid_otypes) > 0 ) {
-            $strsql = "SELECT id, uuid, product_id, status "
+            $strsql = "SELECT id, otype, uuid, product_id, status "
                 . "FROM ciniki_foodmarket_product_outputs "
                 . "WHERE product_id = '" . ciniki_core_dbQuote($ciniki, $product_id) . "' "
                 . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
@@ -418,6 +423,31 @@ function ciniki_foodmarket_productSuppliedUpdate(&$ciniki, $business_id, $produc
                     $rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.foodmarket.output', $row['id'], array('status'=>5), 0x04);
                     if( $rc['stat'] != 'ok' ) {
                         return $rc;
+                    }
+
+                    //
+                    // Check if there is a replacement object, and send to poma for customer and queued items
+                    //
+                    $new_object_id = 0;
+                    if( $row['otype'] == 10 && isset($output_type_ids[20]) ) {
+                        $new_object_id = $output_type_ids[20];
+                    } elseif( $row['otype'] == 10 && isset($output_type_ids[30]) ) {
+                        $new_object_id = $output_type_ids[30];
+                    } elseif( $row['otype'] == 20 && isset($output_type_ids[10]) ) {
+                        $new_object_id = $output_type_ids[10];
+                    } elseif( $row['otype'] == 20 && isset($output_type_ids[30]) ) {
+                        $new_object_id = $output_type_ids[30];
+                    } elseif( $row['otype'] == 30 && isset($output_type_ids[20]) ) {
+                        $new_object_id = $output_type_ids[20];
+                    } elseif( $row['otype'] == 30 && isset($output_type_ids[10]) ) {
+                        $new_object_id = $output_type_ids[10];
+                    }
+                    if( $new_object_id > 0 ) {
+                        ciniki_core_loadMethod($ciniki, 'ciniki', 'poma', 'hooks', 'updateObjectID');
+                        $rc = ciniki_poma_hooks_updateObjectID($ciniki, $business_id, array('object'=>'ciniki.foodmarket.output', 'old_object_id'=>$row['id'], 'new_object_id'=>$new_object_id));
+                        if( $rc['stat'] != 'ok' ) {
+                            return $rc;
+                        }
                     }
                 }
             }
