@@ -191,6 +191,9 @@ function ciniki_foodmarket_main() {
                 'downloadpdf':{'label':'Print Invoice', 
 //                    'visible':function() {return (M.ciniki_foodmarket_main.menu.data.order.payment_status > 0 ?'yes':'no');},
                     'fn':'M.ciniki_foodmarket_main.menu.printOrder();'},
+                'downloadrawpdf':{'label':'Print Invoice/No Balance', 
+//                    'visible':function() {return (M.ciniki_foodmarket_main.menu.data.order.payment_status > 0 ?'yes':'no');},
+                    'fn':'M.ciniki_foodmarket_main.menu.printOrderNoBalance();'},
             }},
         'checkout_accountbuttons':{'label':'', 
             'visible':function() { return ( M.ciniki_foodmarket_main.menu.sections._tabs.selected == 'checkout' 
@@ -1286,6 +1289,9 @@ function ciniki_foodmarket_main() {
     }
     this.menu.printOrder = function() {
         M.api.openPDF('ciniki.poma.invoicePDF', {'business_id':M.curBusinessID, 'order_id':this.order_id});
+    }
+    this.menu.printOrderNoBalance = function() {
+        M.api.openPDF('ciniki.poma.invoicePDF', {'business_id':M.curBusinessID, 'order_id':this.order_id, 'template':'rawinvoice'});
     }
 
     /* Packing */
