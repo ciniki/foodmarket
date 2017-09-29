@@ -126,7 +126,7 @@ function ciniki_foodmarket_datePacking($ciniki) {
 //        . "AND ciniki_poma_order_dates.order_date >= '" . ciniki_core_dbQuote($ciniki, $dt->format('Y-m-d')) . "' "
 //        . "GROUP BY ciniki_poma_order_dates.id "
         . "ORDER BY ciniki_poma_order_dates.order_date DESC "
-        . "LIMIT 15"
+        . "LIMIT 25"
         . "";
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.poma', array(
         array('container'=>'dates', 'fname'=>'id', 
