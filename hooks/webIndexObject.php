@@ -46,27 +46,47 @@ function ciniki_foodmarket_hooks_webIndexObject($ciniki, $business_id, $args) {
         if( !isset($rc['item']) ) {
             return array('stat'=>'noexist', 'err'=>array('code'=>'ciniki.foodmarket.68', 'msg'=>'Object not found'));
         }
+        $item = $rc['item'];
+
+        //
+        // Get the list of inputs to add to the search words
+        //
+        $strsql = "SELECT name "
+            . "FROM ciniki_foodmarket_product_inputs "
+            . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND status = 40 "
+            . "AND product_id = '" . ciniki_core_dbQuote($ciniki, $args['object_id']) . "' "
+            . "";
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQueryList');
+        $rc = ciniki_core_dbQueryList($ciniki, $strsql, 'ciniki.foodmarket', 'inputs', 'name');
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
+        }
+        $inputs = '';
+        if( isset($rc['inputs']) ) {
+            $inputs = ' ' . implode(' ', $rc['inputs']);
+        }
 
         //
         // Check if item is visible on website
         //
-        if( $rc['item']['status'] != '40' ) {
+        if( $item['status'] != '40' ) {
             return array('stat'=>'ok');
         }
         $object = array(
             'label'=>'Products',
-            'title'=>$rc['item']['name'] . (isset($rc['item']['legend_codes']) && $rc['item']['legend_codes'] != '' ? ' ' . $rc['item']['legend_codes'] : ''),
+            'title'=>$item['name'] . (isset($item['legend_codes']) && $item['legend_codes'] != '' ? ' ' . $item['legend_codes'] : ''),
             'subtitle'=>'',
             'meta'=>'',
-            'primary_image_id'=>$rc['item']['primary_image_id'],
-            'synopsis'=>$rc['item']['synopsis'],
+            'primary_image_id'=>$item['primary_image_id'],
+            'synopsis'=>$item['synopsis'],
             'object'=>'ciniki.foodmarket.product',
-            'object_id'=>$rc['item']['id'],
-            'primary_words'=>$rc['item']['name'],
-            'secondary_words'=>$rc['item']['synopsis'],
-            'tertiary_words'=>$rc['item']['description'] . ' ' . $rc['item']['ingredients'],
+            'object_id'=>$item['id'],
+            'primary_words'=>$item['name'] . $inputs,
+            'secondary_words'=>$item['synopsis'],
+            'tertiary_words'=>$item['description'] . ' ' . $item['ingredients'],
             'weight'=>10000,
-            'url'=>$base_url . '/' . $rc['item']['permalink']
+            'url'=>$base_url . '/' . $item['permalink']
             );
         
         //
