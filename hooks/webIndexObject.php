@@ -51,11 +51,12 @@ function ciniki_foodmarket_hooks_webIndexObject($ciniki, $business_id, $args) {
         //
         // Get the list of inputs to add to the search words
         //
-        $strsql = "SELECT name "
-            . "FROM ciniki_foodmarket_product_inputs "
-            . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
-            . "AND status = 40 "
-            . "AND product_id = '" . ciniki_core_dbQuote($ciniki, $args['object_id']) . "' "
+        $strsql = "SELECT i.name "
+            . "FROM ciniki_foodmarket_product_inputs AS i, ciniki_foodmarket_product_outputs AS o "
+            . "WHERE i.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND i.product_id = '" . ciniki_core_dbQuote($ciniki, $args['object_id']) . "' "
+            . "AND i.id = o.input_id "
+            . "AND o.status = 40 "
             . "";
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQueryList');
         $rc = ciniki_core_dbQueryList($ciniki, $strsql, 'ciniki.foodmarket', 'inputs', 'name');
