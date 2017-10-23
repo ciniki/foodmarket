@@ -230,12 +230,6 @@ function ciniki_foodmarket_objects($ciniki) {
             ),
         'history_table'=>'ciniki_foodmarket_history',
         );
-    $objects['setting'] = array(
-        'type'=>'settings',
-        'name'=>'Food Market Settings',
-        'table'=>'ciniki_foodmarket_settings',
-        'history_table'=>'ciniki_foodmarket_history',
-        );
     
     return array('stat'=>'ok', 'objects'=>$objects);
 }
