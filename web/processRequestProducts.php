@@ -18,6 +18,14 @@
 //
 function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $business_id, $args) {
 
+    //
+    // Check if request is for a slideshow
+    //
+    if( isset($args['uri_split'][1]) && $args['uri_split'][0] == 'slideshow' && $args['uri_split'][1] != '' ) {
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'web', 'processRequestSlideshow');
+        return ciniki_foodmarket_web_processRequestSlideshow($ciniki, $settings, $business_id, $args);
+    }
+
     $page = array(
         'title'=>$args['page_title'],
         'breadcrumbs'=>$args['breadcrumbs'],

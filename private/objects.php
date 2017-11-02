@@ -215,6 +215,36 @@ function ciniki_foodmarket_objects($ciniki) {
             ),
         'history_table'=>'ciniki_foodmarket_history',
         );
+    $objects['slideshow'] = array(
+        'name' => 'Slideshow',
+        'sync' => 'yes',
+        'o_name' => 'slideshow',
+        'o_container' => 'slideshows',
+        'table' => 'ciniki_foodmarket_slideshows',
+        'fields' => array(
+            'name' => array('name'=>'Name'),
+            'permalink' => array('name'=>'Permalink'),
+            'type' => array('name'=>'Type', 'default'=>'10'),
+            'effect' => array('name'=>'Effect', 'default'=>'10'),
+            'speed' => array('name'=>'Speed', 'default'=>'10'),
+            'flags' => array('name'=>'Options', 'default'=>'17'),
+            ),
+        'history_table' => 'ciniki_foodmarket_history',
+        );
+    $objects['slide'] = array(
+        'name' => 'Slide',
+        'sync' => 'yes',
+        'o_name' => 'slide',
+        'o_container' => 'slides',
+        'table' => 'ciniki_foodmarket_slides',
+        'fields' => array(
+            'slideshow_id,' => array('name'=>'Slideshow', 'ref'=>'ciniki_foodmarket_slideshows'),
+            'product_id,' => array('name'=>'Product', 'ref'=>'ciniki_foodmarket_products'),
+            'sequence' => array('name'=>'Order', 'default'=>'1'),
+            'overlay_position' => array('name'=>'Overlay Position', 'default'=>'right-top'),
+            ),
+        'history_table' => 'ciniki_foodmarket_history',
+        );
     $objects['tag'] = array(
         'name'=>'Tag',
         'sync'=>'yes',
