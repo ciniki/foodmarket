@@ -76,7 +76,8 @@ function ciniki_foodmarket_web_processRequestSlideshow(&$ciniki, $settings, $bus
             . ") "
         . "WHERE p.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
         . "AND p.status = 40 "
-        . "ANd p.primary_image_id > 0 "
+        . "AND p.primary_image_id > 0 "
+        . "ORDER BY rand() "
         . "";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(
@@ -125,7 +126,7 @@ function ciniki_foodmarket_web_processRequestSlideshow(&$ciniki, $settings, $bus
         $content .= "</div>";
         $content .= "</div>";
 
-        if( $c > 10 ) { break; }
+//        if( $c > 10 ) { break; }
         $c++;
     }
 
