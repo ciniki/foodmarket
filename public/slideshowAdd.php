@@ -25,6 +25,7 @@ function ciniki_foodmarket_slideshowAdd(&$ciniki) {
         'effect'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Effect'),
         'speed'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Speed'),
         'flags'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Options'),
+        'categories'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Categories'),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
@@ -75,6 +76,14 @@ function ciniki_foodmarket_slideshowAdd(&$ciniki) {
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
+
+    //
+    // Setup slideshow data
+    //
+    $slides = array(
+        'categories' => isset($args['categories']) ? $args['categories'] : array(),
+        );
+    $args['slides'] = serialize($slides);
 
     //
     // Add the slideshow to the database

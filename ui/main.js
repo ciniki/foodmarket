@@ -4370,6 +4370,10 @@ function ciniki_foodmarket_main() {
 //            'speed':{'label':'Speed', 'type':'text'},
 //            'flags':{'label':'Options', 'type':'flags', 'flags':{'1':{'name':'All Products'}}},
             }},
+        '_categories':{'label':'Categories', 
+            'fields':{
+                'categories':{'label':'', 'hidelabel':'yes', 'type':'idlist', 'list':[], 'hint':'Enter a new category: '},
+            }},
         '_buttons':{'label':'', 'buttons':{
             'save':{'label':'Save', 'fn':'M.ciniki_foodmarket_main.slideshow.save();'},
             'delete':{'label':'Delete', 
@@ -4391,6 +4395,7 @@ function ciniki_foodmarket_main() {
             }
             var p = M.ciniki_foodmarket_main.slideshow;
             p.data = rsp.slideshow;
+            p.sections._categories.fields.categories.list = rsp.categories;
             p.refresh();
             p.show(cb);
         });

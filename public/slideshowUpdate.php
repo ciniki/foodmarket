@@ -22,6 +22,7 @@ function ciniki_foodmarket_slideshowUpdate(&$ciniki) {
         'effect'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Effect'),
         'speed'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Speed'),
         'flags'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Options'),
+        'categories'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Categories'),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
@@ -38,6 +39,26 @@ function ciniki_foodmarket_slideshowUpdate(&$ciniki) {
         return $rc;
     }
 
+    //
+    // Get the current data
+    //
+    $strsql = "SELECT id, slides "
+        . "FROM ciniki_foodmarket_slideshows "
+        . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['slideshow_id']) . "' "
+        . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "";
+    $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.foodmarket', 'slideshow');
+    if( $rc['stat'] != 'ok' ) {
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.83', 'msg'=>'Unable to find slideshow', 'err'=>$rc['err']));
+    }
+    if( !isset($rc['slideshow']) ) {
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.84', 'msg'=>'Unable to find slideshow'));
+    }
+    $slideshow = $rc['slideshow'];
+
+    //
+    // Check if name changed, check permalink
+    //
     if( isset($args['name']) ) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'makePermalink');
         $args['permalink'] = ciniki_core_makePermalink($ciniki, $args['name']);
@@ -57,6 +78,15 @@ function ciniki_foodmarket_slideshowUpdate(&$ciniki) {
         if( $rc['num_rows'] > 0 ) {
             return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.91', 'msg'=>'You already have an slideshow with this name, please choose another.'));
         }
+    }
+
+    //
+    // Setup slideshow data
+    //
+    $slides = unserialize($slideshow['slides']);
+    if( isset($args['categories']) && (!isset($slides['categories']) || $slides['categories'] != $args['categories']) ) {
+        $slides['categories'] = $args['categories'];
+        $args['slides'] = serialize($slides);
     }
 
     //

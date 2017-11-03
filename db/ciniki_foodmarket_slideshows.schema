@@ -28,10 +28,14 @@
 #                       0x02 - 
 #                       0x04 - 
 #                       0x08 - 
-#                       0x10 - All products
-#                       0x20 - New products
+#                       0x10 - Selected Categories
+#                       0x20 - 
 #                       0x40 - 
 #                       0x80 - 
+#
+# slides:           This is a php serialized array of the slide data.
+#                   The slide data could be a list of categories, list of slides, 
+#                   list of products, etc.
 #
 # date_added:       The date and time the domain was added to the table.
 # last_updated:     The date and time the domain was last updated.
@@ -46,6 +50,7 @@ create table ciniki_foodmarket_slideshows (
     effect tinyint unsigned not null,
     speed int not null,
     flags smallint unsigned not null,
+    slides text not null,
     date_added datetime not null,
     last_updated datetime not null,
     primary key (id),

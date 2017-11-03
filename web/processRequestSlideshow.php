@@ -36,7 +36,7 @@ function ciniki_foodmarket_web_processRequestSlideshow(&$ciniki, $settings, $bus
     //
     // Get the slideshow details
     //
-    $strsql = "SELECT id, name, permalink, type, effect, speed, flags "
+    $strsql = "SELECT id, name, permalink, type, effect, speed, flags, slides "
         . "FROM ciniki_foodmarket_slideshows "
         . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
         . "AND permalink = '" . ciniki_core_dbQuote($ciniki, $slideshow_permalink) . "' "
@@ -50,47 +50,108 @@ function ciniki_foodmarket_web_processRequestSlideshow(&$ciniki, $settings, $bus
         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.80', 'msg'=>'Slideshow does not exist'));
     }
     $slideshow = $rc['slideshow'];
+    $slides = unserialize($slideshow['slides']);
 
     //
-    // Load the products
+    // Check if products should be loaded from categories
     //
-    $strsql = "SELECT p.id, "
-        . "p.uuid, "
-        . "p.primary_image_id AS image_id, "
-        . "p.name, "
-        . "p.synopsis, "
-        . "p.ingredients, "
-        . "o.id AS oid, "
-        . "o.io_name, "
-        . "o.retail_price_text AS price_text "
-        . "FROM ciniki_foodmarket_products AS p "
-        . "LEFT JOIN ciniki_foodmarket_product_inputs AS i ON ("
-            . "p.id = i.product_id "
-            . "AND i.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
-            . ") "
-        . "LEFT JOIN ciniki_foodmarket_product_outputs AS o ON ("
-            . "i.id = o.input_id "
-            . "AND p.id = o.product_id "
-            . "AND o.status = 40 "
-            . "AND o.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
-            . ") "
-        . "WHERE p.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
-        . "AND p.status = 40 "
-        . "AND p.primary_image_id > 0 "
-        . "ORDER BY rand() "
-        . "";
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
-    $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(
-        array('container'=>'products', 'fname'=>'id', 'fields'=>array('id', 'uuid', 'image_id', 'name', 'synopsis', 'ingredients')),
-        array('container'=>'outputs', 'fname'=>'oid', 'fields'=>array('id'=>'oid', 'uuid', 'io_name', 'price_text')),
-        ));
-    if( $rc['stat'] != 'ok' ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.81', 'msg'=>'', 'err'=>$rc['err']));
+    $products = array();
+    if( isset($slides['categories']) && $slides['categories'] != '' ) {
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuoteIDs');
+        //
+        // Load the products
+        //
+        $strsql = "SELECT p.id, "
+            . "p.uuid, "
+            . "p.primary_image_id AS image_id, "
+            . "p.name, "
+            . "p.synopsis, "
+            . "p.ingredients, "
+            . "o.id AS oid, "
+            . "o.io_name, "
+            . "o.retail_price_text AS price_text "
+            . "FROM ciniki_foodmarket_categories AS c "
+            . "LEFT JOIN ciniki_foodmarket_category_items AS ci ON ("
+                . "c.id = ci.category_id "
+                . "AND ci.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . ") "
+            . "LEFT JOIN ciniki_foodmarket_products AS p ON ("
+                . "ci.product_id = p.id "
+                . "AND p.status = 40 "
+                . "AND p.primary_image_id > 0 "
+                . "AND p.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . ") "
+            . "LEFT JOIN ciniki_foodmarket_product_inputs AS i ON ("
+                . "p.id = i.product_id "
+                . "AND i.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . ") "
+            . "LEFT JOIN ciniki_foodmarket_product_outputs AS o ON ("
+                . "i.id = o.input_id "
+                . "AND p.id = o.product_id "
+                . "AND o.status = 40 "
+                . "AND o.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . ") "
+            . "WHERE c.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND c.id IN (" . ciniki_core_dbQuoteIDs($ciniki, explode(',', $slides['categories'])) . ") "
+            . "ORDER BY rand() "
+            . "";
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
+        $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(
+            array('container'=>'products', 'fname'=>'id', 'fields'=>array('id', 'uuid', 'image_id', 'name', 'synopsis', 'ingredients')),
+            array('container'=>'outputs', 'fname'=>'oid', 'fields'=>array('id'=>'oid', 'uuid', 'io_name', 'price_text')),
+            ));
+        if( $rc['stat'] != 'ok' ) {
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.81', 'msg'=>'', 'err'=>$rc['err']));
+        }
+        if( !isset($rc['products']) ) {
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.82', 'msg'=>''));
+        }
+        $products = $rc['products'];
+        
     }
-    if( !isset($rc['products']) ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.82', 'msg'=>''));
+
+    if( isset($slides['allproducts']) && $slides['allproducts'] == 'yes' ) {
+        //
+        // Load the products
+        //
+        $strsql = "SELECT p.id, "
+            . "p.uuid, "
+            . "p.primary_image_id AS image_id, "
+            . "p.name, "
+            . "p.synopsis, "
+            . "p.ingredients, "
+            . "o.id AS oid, "
+            . "o.io_name, "
+            . "o.retail_price_text AS price_text "
+            . "FROM ciniki_foodmarket_products AS p "
+            . "LEFT JOIN ciniki_foodmarket_product_inputs AS i ON ("
+                . "p.id = i.product_id "
+                . "AND i.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . ") "
+            . "LEFT JOIN ciniki_foodmarket_product_outputs AS o ON ("
+                . "i.id = o.input_id "
+                . "AND p.id = o.product_id "
+                . "AND o.status = 40 "
+                . "AND o.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . ") "
+            . "WHERE p.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND p.status = 40 "
+            . "AND p.primary_image_id > 0 "
+            . "ORDER BY rand() "
+            . "";
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
+        $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(
+            array('container'=>'products', 'fname'=>'id', 'fields'=>array('id', 'uuid', 'image_id', 'name', 'synopsis', 'ingredients')),
+            array('container'=>'outputs', 'fname'=>'oid', 'fields'=>array('id'=>'oid', 'uuid', 'io_name', 'price_text')),
+            ));
+        if( $rc['stat'] != 'ok' ) {
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.81', 'msg'=>'', 'err'=>$rc['err']));
+        }
+        if( !isset($rc['products']) ) {
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.82', 'msg'=>''));
+        }
+        $products = $rc['products'];
     }
-    $products = $rc['products'];
 
 
     $content = "<div id='slideshow' class='slideshow'>";

@@ -64,6 +64,8 @@ function ciniki_foodmarket_slideshowGet($ciniki) {
             'effect'=>'10',
             'speed'=>'10',
             'flags'=>'1',
+            'categories'=>'',
+            'slides'=>array(),
         );
     }
 
@@ -77,7 +79,8 @@ function ciniki_foodmarket_slideshowGet($ciniki) {
             . "ciniki_foodmarket_slideshows.type, "
             . "ciniki_foodmarket_slideshows.effect, "
             . "ciniki_foodmarket_slideshows.speed, "
-            . "ciniki_foodmarket_slideshows.flags "
+            . "ciniki_foodmarket_slideshows.flags, "
+            . "ciniki_foodmarket_slideshows.slides "
             . "FROM ciniki_foodmarket_slideshows "
             . "WHERE ciniki_foodmarket_slideshows.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
             . "AND ciniki_foodmarket_slideshows.id = '" . ciniki_core_dbQuote($ciniki, $args['slideshow_id']) . "' "
@@ -85,7 +88,7 @@ function ciniki_foodmarket_slideshowGet($ciniki) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
         $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(
             array('container'=>'slideshows', 'fname'=>'id', 
-                'fields'=>array('name', 'permalink', 'type', 'effect', 'speed', 'flags'),
+                'fields'=>array('name', 'permalink', 'type', 'effect', 'speed', 'flags', 'slides'),
                 ),
             ));
         if( $rc['stat'] != 'ok' ) {
@@ -95,8 +98,58 @@ function ciniki_foodmarket_slideshowGet($ciniki) {
             return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.90', 'msg'=>'Unable to find Slideshow'));
         }
         $slideshow = $rc['slideshows'][0];
+
+        $slides = unserialize($slideshow['slides']);
+        $slideshow['categories'] = isset($slides['categories']) ? $slides['categories'] : array();
     }
 
-    return array('stat'=>'ok', 'slideshow'=>$slideshow);
+    $rsp = array('stat'=>'ok', 'slideshow'=>$slideshow);
+
+    //
+    // Get the list of categories
+    //
+    $strsql = "SELECT c1.id AS id, c1.name AS name, "
+        . "c2.id AS sub_id, "
+        . "c2.name AS sub_name "
+        . "FROM ciniki_foodmarket_categories AS c1 "
+        . "LEFT JOIN ciniki_foodmarket_categories AS c2 ON ("
+            . "c1.id = c2.parent_id "
+            . "AND c2.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . ") "
+        . "WHERE c1.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "AND c1.parent_id = 0 "
+        . "AND (c1.ctype < 10 || c1.ctype = 90) "
+        . "ORDER BY c1.name, c2.name "
+        . "";
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
+    $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(
+        array('container'=>'parents', 'fname'=>'id', 'fields'=>array('id', 'name')),
+        array('container'=>'children', 'fname'=>'sub_id', 'fields'=>array('id'=>'sub_id', 'name'=>'sub_name')),
+        ));
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+    $rsp['categories'] = array();
+    if( isset($rc['parents']) ) {
+        //
+        // Flatten the array
+        //
+        foreach($rc['parents'] as $parent) {
+            $rsp['categories'][] = array(
+                'id'=>$parent['id'], 
+                'name'=>$parent['name'],
+                );
+            if( isset($parent['children']) ) {
+                foreach($parent['children'] as $child) {
+                    $rsp['categories'][] = array(
+                        'id'=>$child['id'], 
+                        'name'=>$parent['name'] . ' - ' . $child['name'],
+                        );
+                }
+            }
+        }
+    } 
+
+    return $rsp;
 }
 ?>
