@@ -4367,7 +4367,7 @@ function ciniki_foodmarket_main() {
             'name':{'label':'Name', 'required':'yes', 'type':'text'},
 //            'type':{'label':'Type', 'type':'toggle', 'toggles':{'},
 //            'effect':{'label':'Effect', 'type':'text'},
-//            'speed':{'label':'Speed', 'type':'text'},
+            'speed':{'label':'Slide Seconds', 'type':'text', 'size':'small'},
 //            'flags':{'label':'Options', 'type':'flags', 'flags':{'1':{'name':'All Products'}}},
             }},
         '_categories':{'label':'Categories', 

@@ -51,6 +51,7 @@ function ciniki_foodmarket_web_processRequestSlideshow(&$ciniki, $settings, $bus
     }
     $slideshow = $rc['slideshow'];
     $slides = unserialize($slideshow['slides']);
+    $slider_pause_time = ($slideshow['speed'] * 1000);
 
     //
     // Check if products should be loaded from categories
@@ -192,9 +193,9 @@ function ciniki_foodmarket_web_processRequestSlideshow(&$ciniki, $settings, $bus
     }
 
     $content .= "</div>";
+    $content .= "<style>html {overflow:hidden;}</style>";
 
-    $slider_pause_time = 10000;
-    $content .= "<script type='text/javascript'>"
+    $ciniki['request']['inline_javascript'] = "<script type='text/javascript'>"
         . "var cur_slide = 0;"
         . "function startSlideshow() {"
             . "var el = document.getElementById('slideshow'),"
@@ -215,7 +216,7 @@ function ciniki_foodmarket_web_processRequestSlideshow(&$ciniki, $settings, $bus
             . "var e=document.getElementById('slideshow-'+cur_slide);"
             . "e.classList.add('slideshow-slide-active');"
         . "}"
-        . "window.onload = function() {console.log('test');slider_timer = setInterval(nextSlide, $slider_pause_time);}"
+        . "window.onload = function() {slider_timer = setInterval(nextSlide, $slider_pause_time);}"
 //        . "window.onload = function() {startSlideshow();}"
         . "</script>";
 
