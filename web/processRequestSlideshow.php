@@ -208,6 +208,7 @@ function ciniki_foodmarket_web_processRequestSlideshow(&$ciniki, $settings, $bus
             . "slider_timer = setInterval(nextSlide, $slider_pause_time);"
         . "}"
         . "function nextSlide() {"
+            . "if(cur_slide >=$c){cur_slide=0;}"
             . "var e=document.getElementById('slideshow-'+cur_slide);"
             . "e.classList.remove('slideshow-slide-active');"
             . "cur_slide++;"
