@@ -193,7 +193,7 @@ function ciniki_foodmarket_web_processRequestSlideshow(&$ciniki, $settings, $bus
 
     $content .= "</div>";
 
-    $slider_pause_time = 4500;
+    $slider_pause_time = 10000;
     $content .= "<script type='text/javascript'>"
         . "var cur_slide = 0;"
         . "function startSlideshow() {"
