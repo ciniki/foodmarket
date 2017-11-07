@@ -161,7 +161,7 @@ function ciniki_foodmarket_web_processRequestSlideshow(&$ciniki, $settings, $bus
         if( !isset($product['outputs']) ) {
             continue;
         }
-        $content .= "<div id='slideshow-$c' class='slideshow-slide" . ($c == 0 ?' slideshow-slide-active':'') . "'>";
+        $content .= "<div id='slideshow-$c' class='slideshow-slide" . ($c == 0 ?' slideshow-slide-active':'') . " slideshow-fullscreen'>";
         $content .= "<div class='slideshow-image'>";
         ciniki_core_loadMethod($ciniki, 'ciniki', 'web', 'private', 'getScaledImageURL');
         $rc = ciniki_web_getScaledImageURL($ciniki, $product['image_id'], 'original', '1024', 0);
@@ -192,7 +192,6 @@ function ciniki_foodmarket_web_processRequestSlideshow(&$ciniki, $settings, $bus
     }
 
     $content .= "</div>";
-    $content .= "<button onclick='startSlideshow();'>Start Slideshow</button>";
 
     $slider_pause_time = 4500;
     $content .= "<script type='text/javascript'>"
@@ -216,8 +215,11 @@ function ciniki_foodmarket_web_processRequestSlideshow(&$ciniki, $settings, $bus
             . "var e=document.getElementById('slideshow-'+cur_slide);"
             . "e.classList.add('slideshow-slide-active');"
         . "}"
+        . "window.onload = function() {console.log('test');slider_timer = setInterval(nextSlide, $slider_pause_time);}"
+//        . "window.onload = function() {startSlideshow();}"
         . "</script>";
 
+    $page['fullscreen-content'] = 'yes';
     $page['blocks'][] = array('type'=>'content', 'html'=>$content);
 
     return array('stat'=>'ok', 'page'=>$page);
