@@ -170,7 +170,7 @@ function ciniki_foodmarket_basketsUpdateOrders(&$ciniki, $business_id, $args) {
                 //
                 // Check of item on order was not substituted, then update the order quantity
                 //
-                if( ($order_item['flags']&0x04) == 0 && $order_item['quantity'] != $basket_item['quantity'] ) {
+                if( ($order_item['flags']&0x14) == 0 && $order_item['quantity'] != $basket_item['quantity'] ) {
                     if( $basket_item['quantity'] == 0 ) {
                         $rc = ciniki_core_objectDelete($ciniki, $business_id, 'ciniki.poma.orderitem', $order_item['id'], $order_item['uuid'], 0x04);
                         if( $rc['stat'] != 'ok' ) {
@@ -183,6 +183,8 @@ function ciniki_foodmarket_basketsUpdateOrders(&$ciniki, $business_id, $args) {
                         } else {
                             $update_args['unit_quantity'] = $basket_item['quantity'];
                         }
+                        error_log('update:' . $order_item['flags']);
+                        error_log('update:' . $order_item['id']);
                         $rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.poma.orderitem', $order_item['id'], $update_args, 0x04);
                         if( $rc['stat'] != 'ok' ) {
                             return $rc;

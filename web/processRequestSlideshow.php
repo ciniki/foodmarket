@@ -162,7 +162,7 @@ function ciniki_foodmarket_web_processRequestSlideshow(&$ciniki, $settings, $bus
         if( !isset($product['outputs']) ) {
             continue;
         }
-        $content .= "<div id='slideshow-$c' class='slideshow-slide" . ($c == 0 ?' slideshow-slide-active':'') . " slideshow-fullscreen'>";
+        $content .= "<div id='slideshow-$c' class='slideshow-slide" . ($c == 0 ?' slideshow-slide-activ':'') . " slideshow-fullscreen'>";
         $content .= "<div class='slideshow-image'>";
         ciniki_core_loadMethod($ciniki, 'ciniki', 'web', 'private', 'getScaledImageURL');
         $rc = ciniki_web_getScaledImageURL($ciniki, $product['image_id'], 'original', '1024', 0);
@@ -195,9 +195,14 @@ function ciniki_foodmarket_web_processRequestSlideshow(&$ciniki, $settings, $bus
     $content .= "</div>";
     $content .= "<style>html {overflow:hidden;}</style>";
 
+    //
+    // Set the page to be fullscreen when run as webapp
+    //
+    $ciniki['response']['web-app'] = 'yes';
+
     $ciniki['request']['inline_javascript'] = "<script type='text/javascript'>"
         . "var cur_slide = 0;"
-        . "function startSlideshow() {"
+/*        . "function startSlideshow() {"
             . "var el = document.getElementById('slideshow'),"
             . "rfs = el.requestFullscreen"
                 . "|| el.webkitRequestFullScreen"
@@ -207,17 +212,30 @@ function ciniki_foodmarket_web_processRequestSlideshow(&$ciniki, $settings, $bus
             . "el.classList.add('slideshow-fullscreen');"
             . "rfs.call(el);"
             . "slider_timer = setInterval(nextSlide, $slider_pause_time);"
+        . "}" */
+        . "function startSlideshow() {"
+            . "var e=document.getElementById('content');"
+            . "e.style.height = (window.innerHeight) + 'px';"
+            . "var e=document.getElementById('slideshow-'+(cur_slide+1));"
+            . "if(e!=null){e.style.height = (window.innerHeight) + 'px';};"
+            . "if(e.children[0]!=null){e.children[0].style.height = (window.innerHeight-20) + 'px';};"
+            . "nextSlide();"
+            . "slider_timer = setInterval(nextSlide, $slider_pause_time);"
         . "}"
         . "function nextSlide() {"
+            . "var e=document.getElementById('slideshow-'+(cur_slide+1));"
+            . "if(e!=null){e.style.height = (window.innerHeight) + 'px';};"
             . "var e=document.getElementById('slideshow-'+cur_slide);"
             . "e.classList.remove('slideshow-slide-active');"
             . "cur_slide++;"
             . "if( cur_slide >= $c ) { cur_slide = 0; }"
             . "var e=document.getElementById('slideshow-'+cur_slide);"
             . "e.classList.add('slideshow-slide-active');"
+            . "e.style.height = (window.innerHeight) + 'px';"
+            . "if(e.children[0]!=null){e.children[0].style.height = (window.innerHeight-20) + 'px';};"
         . "}"
-        . "window.onload = function() {slider_timer = setInterval(nextSlide, $slider_pause_time);}"
-//        . "window.onload = function() {startSlideshow();}"
+//        . "window.onload = function() {slider_timer = setInterval(nextSlide, $slider_pause_time);}"
+        . "window.onload = function() {startSlideshow();}"
         . "</script>";
 
     $page['fullscreen-content'] = 'yes';
