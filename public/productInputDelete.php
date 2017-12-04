@@ -8,7 +8,7 @@
 // ---------
 // api_key:
 // auth_token:
-// business_id:            The ID of the business the product is attached to.
+// tnid:            The ID of the tenant the product is attached to.
 // product_id:            The ID of the product to be removed.
 //
 // Returns
@@ -21,7 +21,7 @@ function ciniki_foodmarket_productInputDelete(&$ciniki) {
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'),
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'),
         'input_id'=>array('required'=>'yes', 'blank'=>'yes', 'name'=>'Input'),
         ));
     if( $rc['stat'] != 'ok' ) {
@@ -30,10 +30,10 @@ function ciniki_foodmarket_productInputDelete(&$ciniki) {
     $args = $rc['args'];
 
     //
-    // Check access to business_id as owner
+    // Check access to tnid as owner
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'private', 'checkAccess');
-    $rc = ciniki_foodmarket_checkAccess($ciniki, $args['business_id'], 'ciniki.foodmarket.productDelete');
+    $rc = ciniki_foodmarket_checkAccess($ciniki, $args['tnid'], 'ciniki.foodmarket.productDelete');
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -45,7 +45,7 @@ function ciniki_foodmarket_productInputDelete(&$ciniki) {
     //
     $strsql = "SELECT id, uuid, product_id "
         . "FROM ciniki_foodmarket_product_inputs "
-        . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "AND id = '" . ciniki_core_dbQuote($ciniki, $args['input_id']) . "' "
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.foodmarket', 'input');
@@ -62,7 +62,7 @@ function ciniki_foodmarket_productInputDelete(&$ciniki) {
     //
     $strsql = "SELECT id, uuid "
         . "FROM ciniki_foodmarket_product_outputs "
-        . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "AND input_id = '" . ciniki_core_dbQuote($ciniki, $args['input_id']) . "' "
         . "AND product_id = '" . ciniki_core_dbQuote($ciniki, $input['product_id']) . "' "
         . "";
@@ -85,7 +85,7 @@ function ciniki_foodmarket_productInputDelete(&$ciniki) {
             . "FROM ciniki_poma_customer_items "
             . "WHERE object = 'ciniki.foodmarket.output' "
             . "AND object_id IN (" . ciniki_core_dbQuoteIDs($ciniki, $output_ids) . ") "
-            . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "";
         $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.foodmarket', 'item');
         if( $rc['stat'] != 'ok' ) {
@@ -102,7 +102,7 @@ function ciniki_foodmarket_productInputDelete(&$ciniki) {
             . "FROM ciniki_poma_order_items "
             . "WHERE object = 'ciniki.foodmarket.output' "
             . "AND object_id IN (" . ciniki_core_dbQuoteIDs($ciniki, $output_ids) . ") "
-            . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "";
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbSingleCount');
         $rc = ciniki_core_dbSingleCount($ciniki, $strsql, 'ciniki.foodmarket', 'num');
@@ -132,7 +132,7 @@ function ciniki_foodmarket_productInputDelete(&$ciniki) {
     // Remove the customer items
     //
     foreach($customer_items as $item) {
-        $rc = ciniki_core_objectDelete($ciniki, $args['business_id'], 'ciniki.poma.customeritem', $item['id'], $item['uuid'], 0x04);
+        $rc = ciniki_core_objectDelete($ciniki, $args['tnid'], 'ciniki.poma.customeritem', $item['id'], $item['uuid'], 0x04);
         if( $rc['stat'] != 'ok' ) {
             ciniki_core_dbTransactionRollback($ciniki, 'ciniki.foodmarket');
             return $rc;
@@ -143,7 +143,7 @@ function ciniki_foodmarket_productInputDelete(&$ciniki) {
     // Remove the outputs
     //
     foreach($outputs as $item) {
-        $rc = ciniki_core_objectDelete($ciniki, $args['business_id'], 'ciniki.foodmarket.output', $item['id'], $item['uuid'], 0x04);
+        $rc = ciniki_core_objectDelete($ciniki, $args['tnid'], 'ciniki.foodmarket.output', $item['id'], $item['uuid'], 0x04);
         if( $rc['stat'] != 'ok' ) {
             ciniki_core_dbTransactionRollback($ciniki, 'ciniki.foodmarket');
             return $rc;
@@ -153,7 +153,7 @@ function ciniki_foodmarket_productInputDelete(&$ciniki) {
     //
     // Remove the product
     //
-    $rc = ciniki_core_objectDelete($ciniki, $args['business_id'], 'ciniki.foodmarket.input', $args['input_id'], $input['uuid'], 0x04);
+    $rc = ciniki_core_objectDelete($ciniki, $args['tnid'], 'ciniki.foodmarket.input', $args['input_id'], $input['uuid'], 0x04);
     if( $rc['stat'] != 'ok' ) {
         ciniki_core_dbTransactionRollback($ciniki, 'ciniki.foodmarket');
         return $rc;
@@ -168,17 +168,17 @@ function ciniki_foodmarket_productInputDelete(&$ciniki) {
     }
 
     //
-    // Update the last_change date in the business modules
+    // Update the last_change date in the tenant modules
     // Ignore the result, as we don't want to stop user updates if this fails.
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'updateModuleChangeDate');
-    ciniki_businesses_updateModuleChangeDate($ciniki, $args['business_id'], 'ciniki', 'foodmarket');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'updateModuleChangeDate');
+    ciniki_tenants_updateModuleChangeDate($ciniki, $args['tnid'], 'ciniki', 'foodmarket');
 
     //
     // Update the web index if enabled
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'hookExec');
-    ciniki_core_hookExec($ciniki, $args['business_id'], 'ciniki', 'web', 'indexObject', array('object'=>'ciniki.foodmarket.product', 'object_id'=>$input['product_id']));
+    ciniki_core_hookExec($ciniki, $args['tnid'], 'ciniki', 'web', 'indexObject', array('object'=>'ciniki.foodmarket.product', 'object_id'=>$input['product_id']));
 
     return array('stat'=>'ok');
 }

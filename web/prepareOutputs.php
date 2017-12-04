@@ -7,13 +7,13 @@
 // Arguments
 // ---------
 // ciniki:
-// business_id:         The ID of the business the product is attached to.
+// tnid:         The ID of the tenant the product is attached to.
 // product_id:          The ID of the product to get the details for.
 //
 // Returns
 // -------
 //
-function ciniki_foodmarket_web_prepareOutputs($ciniki, $settings, $business_id, $args) {
+function ciniki_foodmarket_web_prepareOutputs($ciniki, $settings, $tnid, $args) {
 
     //
     // Load the list of items for a date
@@ -23,7 +23,7 @@ function ciniki_foodmarket_web_prepareOutputs($ciniki, $settings, $business_id, 
         $strsql = "SELECT output_id "
             . "FROM ciniki_foodmarket_date_items "
             . "WHERE date_id = '" . ciniki_core_dbQuote($ciniki, $ciniki['session']['ciniki.poma']['date']['id']) . "' "
-            . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "";
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQueryList');
         $rc = ciniki_core_dbQueryList($ciniki, $strsql, 'ciniki.foodmarket', 'outputs', 'output_id');
@@ -55,10 +55,10 @@ function ciniki_foodmarket_web_prepareOutputs($ciniki, $settings, $business_id, 
     }
 
     //
-    // Load business settings
+    // Load tenant settings
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');
-    $rc = ciniki_businesses_intlSettings($ciniki, $business_id);
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'intlSettings');
+    $rc = ciniki_tenants_intlSettings($ciniki, $tnid);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -81,7 +81,7 @@ function ciniki_foodmarket_web_prepareOutputs($ciniki, $settings, $business_id, 
     // Load the items from the current order
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'poma', 'web', 'orderItemsByObjectID');
-    $rc = ciniki_poma_web_orderItemsByObjectID($ciniki, $business_id, array(
+    $rc = ciniki_poma_web_orderItemsByObjectID($ciniki, $tnid, array(
         'customer_id'=>$ciniki['session']['customer']['id'],
         'object'=>'ciniki.foodmarket.output',
         'object_ids'=>$output_ids,
@@ -99,7 +99,7 @@ function ciniki_foodmarket_web_prepareOutputs($ciniki, $settings, $business_id, 
     // Load the items the customer has favourited, repeat order, or queued
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'poma', 'hooks', 'customerItemsByType');
-    $rc = ciniki_poma_hooks_customerItemsByType($ciniki, $business_id, array(
+    $rc = ciniki_poma_hooks_customerItemsByType($ciniki, $tnid, array(
         'customer_id'=>$ciniki['session']['customer']['id'],
         'object'=>'ciniki.foodmarket.output',
         'object_ids'=>$output_ids,

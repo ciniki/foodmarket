@@ -8,7 +8,7 @@
 // ---------
 // api_key:
 // auth_token:
-// business_id:         The ID of the business the product is attached to.
+// tnid:         The ID of the tenant the product is attached to.
 // product_id:          The ID of the product to get the details for.
 //
 // Returns
@@ -20,7 +20,7 @@ function ciniki_foodmarket_productGet($ciniki) {
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'),
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'),
         'product_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Product'),
         'suppliers'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Suppliers'),
         'categories'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Categories'),
@@ -34,19 +34,19 @@ function ciniki_foodmarket_productGet($ciniki) {
 
     //
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'private', 'checkAccess');
-    $rc = ciniki_foodmarket_checkAccess($ciniki, $args['business_id'], 'ciniki.foodmarket.productGet');
+    $rc = ciniki_foodmarket_checkAccess($ciniki, $args['tnid'], 'ciniki.foodmarket.productGet');
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
 
     //
-    // Load business settings
+    // Load tenant settings
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');
-    $rc = ciniki_businesses_intlSettings($ciniki, $args['business_id']);
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'intlSettings');
+    $rc = ciniki_tenants_intlSettings($ciniki, $args['tnid']);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -155,7 +155,7 @@ function ciniki_foodmarket_productGet($ciniki) {
         // Load the product
         //
         ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'private', 'productLoad');
-        $rc = ciniki_foodmarket_productLoad($ciniki, $args['business_id'], $args['product_id']);
+        $rc = ciniki_foodmarket_productLoad($ciniki, $args['tnid'], $args['product_id']);
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }
@@ -189,7 +189,7 @@ function ciniki_foodmarket_productGet($ciniki) {
     if( isset($args['suppliers']) && $args['suppliers'] == 'yes' ) {
         $strsql = "SELECT id, code, name, CONCAT_WS(' - ', code, name) AS display_name "
             . "FROM ciniki_foodmarket_suppliers "
-            . "WHERE ciniki_foodmarket_suppliers.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "WHERE ciniki_foodmarket_suppliers.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "ORDER BY name "
             . "";
         $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(array('container'=>'suppliers', 'fname'=>'id', 'fields'=>array('id', 'name', 'display_name'))));
@@ -214,9 +214,9 @@ function ciniki_foodmarket_productGet($ciniki) {
             . "FROM ciniki_foodmarket_categories AS c1 "
             . "LEFT JOIN ciniki_foodmarket_categories AS c2 ON ("
                 . "c1.id = c2.parent_id "
-                . "AND c2.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+                . "AND c2.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
                 . ") "
-            . "WHERE c1.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "WHERE c1.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND c1.parent_id = 0 "
             . "AND (c1.ctype < 10 || c1.ctype = 90) "
             . "ORDER BY c1.name, c2.name "
@@ -256,7 +256,7 @@ function ciniki_foodmarket_productGet($ciniki) {
     if( isset($args['legends']) && $args['legends'] == 'yes' ) {
         $strsql = "SELECT legends.id, legends.name "
             . "FROM ciniki_foodmarket_legends AS legends "
-            . "WHERE legends.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "WHERE legends.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "ORDER BY legends.name "
             . "";
         $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(

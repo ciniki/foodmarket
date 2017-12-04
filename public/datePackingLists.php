@@ -8,7 +8,7 @@
 // ---------
 // api_key:
 // auth_token:
-// business_id:        The ID of the business to get Order Date Item for.
+// tnid:        The ID of the tenant to get Order Date Item for.
 //
 // Returns
 // -------
@@ -19,7 +19,7 @@ function ciniki_foodmarket_datePackingLists($ciniki) {
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'),
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'),
         'date_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Order Date'),
         'order_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Order'),
         'size'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Size'),
@@ -30,19 +30,19 @@ function ciniki_foodmarket_datePackingLists($ciniki) {
     $args = $rc['args'];
 
     //
-    // Check access to business_id as owner, or sys admin.
+    // Check access to tnid as owner, or sys admin.
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'private', 'checkAccess');
-    $rc = ciniki_foodmarket_checkAccess($ciniki, $args['business_id'], 'ciniki.foodmarket.datePacking');
+    $rc = ciniki_foodmarket_checkAccess($ciniki, $args['tnid'], 'ciniki.foodmarket.datePacking');
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
 
     //
-    // Load business settings
+    // Load tenant settings
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');
-    $rc = ciniki_businesses_intlSettings($ciniki, $args['business_id']);
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'intlSettings');
+    $rc = ciniki_tenants_intlSettings($ciniki, $args['tnid']);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -52,7 +52,7 @@ function ciniki_foodmarket_datePackingLists($ciniki) {
     $date_format = ciniki_users_dateFormat($ciniki, 'php');
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'templates', 'packingLists');
-    $rc = ciniki_foodmarket_templates_packingLists($ciniki, $args['business_id'], $args);
+    $rc = ciniki_foodmarket_templates_packingLists($ciniki, $args['tnid'], $args);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }

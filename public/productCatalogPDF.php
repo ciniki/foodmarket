@@ -8,7 +8,7 @@
 // ---------
 // api_key:
 // auth_token:
-// business_id:        The ID of the business to get Order Date Item for.
+// tnid:        The ID of the tenant to get Order Date Item for.
 //
 // Returns
 // -------
@@ -19,7 +19,7 @@ function ciniki_foodmarket_productCatalogPDF(&$ciniki) {
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'),
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'),
         'categories'=>array('required'=>'no', 'blank'=>'no', 'type'=>'idlist', 'name'=>'Categories'),
         'subscriptions'=>array('required'=>'no', 'blank'=>'no', 'type'=>'idlist', 'name'=>'Subscriptions'),
         'subject'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Subject'),
@@ -32,19 +32,19 @@ function ciniki_foodmarket_productCatalogPDF(&$ciniki) {
     $args = $rc['args'];
 
     //
-    // Check access to business_id as owner, or sys admin.
+    // Check access to tnid as owner, or sys admin.
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'private', 'checkAccess');
-    $rc = ciniki_foodmarket_checkAccess($ciniki, $args['business_id'], 'ciniki.foodmarket.productCatalogPDF');
+    $rc = ciniki_foodmarket_checkAccess($ciniki, $args['tnid'], 'ciniki.foodmarket.productCatalogPDF');
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
 
     //
-    // Load business settings
+    // Load tenant settings
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');
-    $rc = ciniki_businesses_intlSettings($ciniki, $args['business_id']);
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'intlSettings');
+    $rc = ciniki_tenants_intlSettings($ciniki, $args['tnid']);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -54,7 +54,7 @@ function ciniki_foodmarket_productCatalogPDF(&$ciniki) {
     $date_format = ciniki_users_dateFormat($ciniki, 'php');
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'templates', 'catalog');
-    $rc = ciniki_foodmarket_templates_catalog($ciniki, $args['business_id'], $args);
+    $rc = ciniki_foodmarket_templates_catalog($ciniki, $args['tnid'], $args);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -81,7 +81,7 @@ function ciniki_foodmarket_productCatalogPDF(&$ciniki) {
                 $name = $rc['user']['name'];
                 $email = $rc['user']['email'];
                 ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'hooks', 'addMessage');
-                $rc = ciniki_mail_hooks_addMessage($ciniki, $args['business_id'], array(
+                $rc = ciniki_mail_hooks_addMessage($ciniki, $args['tnid'], array(
                     'customer_email'=>$email,
                     'customer_name'=>$name,
                     'subject'=>$args['subject'],
@@ -92,7 +92,7 @@ function ciniki_foodmarket_productCatalogPDF(&$ciniki) {
                 if( $rc['stat'] != 'ok' ) {
                     return $rc;
                 }
-                $ciniki['emailqueue'][] = array('mail_id'=>$rc['id'], 'business_id'=>$args['business_id']);
+                $ciniki['emailqueue'][] = array('mail_id'=>$rc['id'], 'tnid'=>$args['tnid']);
                 return array('stat'=>'ok');
             } else {
                 return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.60', 'msg'=>'Subject and message must be specified.'));
@@ -101,7 +101,7 @@ function ciniki_foodmarket_productCatalogPDF(&$ciniki) {
         elseif( $args['output'] == 'mailinglists' ) {
             if( isset($args['subject']) && $args['subject'] != '' && isset($args['textmsg']) && $args['textmsg'] != '' ) {
                 ciniki_core_loadMethod($ciniki, 'ciniki', 'mail', 'hooks', 'emailSubscriptionLists');
-                $rc = ciniki_mail_hooks_emailSubscriptionLists($ciniki, $args['business_id'], array(
+                $rc = ciniki_mail_hooks_emailSubscriptionLists($ciniki, $args['tnid'], array(
                     'subscriptions'=>$args['subscriptions'],
                     'subject'=>$args['subject'],
                     'html_content'=>$args['textmsg'],

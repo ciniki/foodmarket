@@ -10,7 +10,7 @@
 // Returns
 // =======
 //
-function ciniki_foodmarket_poma_itemSubstitutions($ciniki, $business_id, $args) {
+function ciniki_foodmarket_poma_itemSubstitutions($ciniki, $tnid, $args) {
 
     if( !isset($args['date_id']) || $args['date_id'] == '' ) {
         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.48', 'msg'=>'No date specified for substitutions'));
@@ -57,14 +57,14 @@ function ciniki_foodmarket_poma_itemSubstitutions($ciniki, $business_id, $args) 
         . "ciniki_foodmarket_products.flags AS product_flags "
         . "FROM ciniki_foodmarket_basket_items, ciniki_foodmarket_product_outputs, ciniki_foodmarket_products "
         . "WHERE ciniki_foodmarket_basket_items.date_id = '" . ciniki_core_dbQuote($ciniki, $args['date_id']) . "' " 
-        . "AND ciniki_foodmarket_basket_items.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' " 
+        . "AND ciniki_foodmarket_basket_items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' " 
         . "AND ciniki_foodmarket_basket_items.item_output_id = ciniki_foodmarket_product_outputs.id "
-        . "AND ciniki_foodmarket_product_outputs.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' " 
+        . "AND ciniki_foodmarket_product_outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' " 
         . "AND ciniki_foodmarket_product_outputs.product_id = ciniki_foodmarket_products.id "
         . "AND ciniki_foodmarket_product_outputs.status > 5 "
         . "AND ciniki_foodmarket_product_outputs.otype IN (71, 72) "
         . "AND ciniki_foodmarket_products.status > 5 "
-        . "AND ciniki_foodmarket_products.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' " 
+        . "AND ciniki_foodmarket_products.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' " 
         . "ORDER BY ciniki_foodmarket_product_outputs.pio_name "
         . "";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
@@ -79,7 +79,7 @@ function ciniki_foodmarket_poma_itemSubstitutions($ciniki, $business_id, $args) 
 
     $substitutions = array();
     foreach($substitute_items as $iid => $output) {
-        $rc = ciniki_foodmarket_convertOutputItem($ciniki, $business_id, $output);
+        $rc = ciniki_foodmarket_convertOutputItem($ciniki, $tnid, $output);
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }

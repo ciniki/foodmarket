@@ -14,7 +14,7 @@ function ciniki_foodmarket_settings() {
         this.show(cb);
     }
     this.menu.keywordsUpdate = function() {
-        M.api.getJSONCb('ciniki.foodmarket.keywordsUpdate', {'business_id':M.curBusinessID}, function(rsp) {
+        M.api.getJSONCb('ciniki.foodmarket.keywordsUpdate', {'tnid':M.curTenantID}, function(rsp) {
             if( rsp.stat != 'ok' ) {
                 M.api.err(rsp);
                 return false;

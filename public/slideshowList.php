@@ -2,13 +2,13 @@
 //
 // Description
 // -----------
-// This method will return the list of Slideshows for a business.
+// This method will return the list of Slideshows for a tenant.
 //
 // Arguments
 // ---------
 // api_key:
 // auth_token:
-// business_id:        The ID of the business to get Slideshow for.
+// tnid:        The ID of the tenant to get Slideshow for.
 //
 // Returns
 // -------
@@ -19,7 +19,7 @@ function ciniki_foodmarket_slideshowList($ciniki) {
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'),
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
@@ -27,10 +27,10 @@ function ciniki_foodmarket_slideshowList($ciniki) {
     $args = $rc['args'];
 
     //
-    // Check access to business_id as owner, or sys admin.
+    // Check access to tnid as owner, or sys admin.
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'private', 'checkAccess');
-    $rc = ciniki_foodmarket_checkAccess($ciniki, $args['business_id'], 'ciniki.foodmarket.slideshowList');
+    $rc = ciniki_foodmarket_checkAccess($ciniki, $args['tnid'], 'ciniki.foodmarket.slideshowList');
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -46,7 +46,7 @@ function ciniki_foodmarket_slideshowList($ciniki) {
         . "ciniki_foodmarket_slideshows.speed, "
         . "ciniki_foodmarket_slideshows.flags "
         . "FROM ciniki_foodmarket_slideshows "
-        . "WHERE ciniki_foodmarket_slideshows.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "WHERE ciniki_foodmarket_slideshows.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(

@@ -8,7 +8,7 @@
 // ---------
 // api_key:
 // auth_token:
-// business_id:         The ID of the business the category is attached to.
+// tnid:         The ID of the tenant the category is attached to.
 // category_id:          The ID of the category to get the details for.
 //
 // Returns
@@ -20,7 +20,7 @@ function ciniki_foodmarket_categoryGet($ciniki) {
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'),
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'),
         'category_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Category'),
         'children'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Children'),
         'parents'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Parents'),
@@ -32,19 +32,19 @@ function ciniki_foodmarket_categoryGet($ciniki) {
 
     //
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'private', 'checkAccess');
-    $rc = ciniki_foodmarket_checkAccess($ciniki, $args['business_id'], 'ciniki.foodmarket.categoryGet');
+    $rc = ciniki_foodmarket_checkAccess($ciniki, $args['tnid'], 'ciniki.foodmarket.categoryGet');
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
 
     //
-    // Load business settings
+    // Load tenant settings
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');
-    $rc = ciniki_businesses_intlSettings($ciniki, $args['business_id']);
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'intlSettings');
+    $rc = ciniki_tenants_intlSettings($ciniki, $args['tnid']);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -87,7 +87,7 @@ function ciniki_foodmarket_categoryGet($ciniki) {
             . "ciniki_foodmarket_categories.synopsis, "
             . "ciniki_foodmarket_categories.description "
             . "FROM ciniki_foodmarket_categories "
-            . "WHERE ciniki_foodmarket_categories.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "WHERE ciniki_foodmarket_categories.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND ciniki_foodmarket_categories.id = '" . ciniki_core_dbQuote($ciniki, $args['category_id']) . "' "
             . "";
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQuery');
@@ -106,7 +106,7 @@ function ciniki_foodmarket_categoryGet($ciniki) {
         if( isset($args['children']) && $args['children'] == 'yes' ) {
             $strsql = "SELECT id, name "
                 . "FROM ciniki_foodmarket_categories "
-                . "WHERE ciniki_foodmarket_categories.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+                . "WHERE ciniki_foodmarket_categories.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
                 . "AND ciniki_foodmarket_categories.parent_id = '" . ciniki_core_dbQuote($ciniki, $args['category_id']) . "' "
                 . "";
             $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(array('container'=>'children', 'fname'=>'id', 'fields'=>array('id', 'name'))));
@@ -129,7 +129,7 @@ function ciniki_foodmarket_categoryGet($ciniki) {
     if( isset($args['parents']) && $args['parents'] == 'yes' ) {
         $strsql = "SELECT id, name "
             . "FROM ciniki_foodmarket_categories "
-            . "WHERE ciniki_foodmarket_categories.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "WHERE ciniki_foodmarket_categories.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND ciniki_foodmarket_categories.parent_id = 0 "
             . "";
         $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(array('container'=>'parents', 'fname'=>'id', 'fields'=>array('id', 'name'))));

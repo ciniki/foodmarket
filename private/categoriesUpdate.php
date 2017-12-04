@@ -7,7 +7,7 @@
 // Arguments
 // ---------
 //
-function ciniki_foodmarket_categoriesUpdate(&$ciniki, $business_id) {
+function ciniki_foodmarket_categoriesUpdate(&$ciniki, $tnid) {
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
@@ -17,7 +17,7 @@ function ciniki_foodmarket_categoriesUpdate(&$ciniki, $business_id) {
     //
     $strsql = "SELECT id, parent_id, ctype, flags, 'no' AS visible "
         . "FROM ciniki_foodmarket_categories "
-        . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "";
     $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.foodmarket', array(
         array('container'=>'categories', 'fname'=>'id', 'fields'=>array('id', 'parent_id', 'ctype', 'flags', 'visible')),
@@ -37,13 +37,13 @@ function ciniki_foodmarket_categoriesUpdate(&$ciniki, $business_id) {
     $strsql = "SELECT ciniki_foodmarket_category_items.category_id, "
         . "COUNT(ciniki_foodmarket_category_items.product_id) AS num_products "
         . "FROM ciniki_foodmarket_category_items, ciniki_foodmarket_products, ciniki_foodmarket_product_outputs "
-        . "WHERE ciniki_foodmarket_category_items.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "WHERE ciniki_foodmarket_category_items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND ciniki_foodmarket_category_items.product_id = ciniki_foodmarket_products.id "
         . "AND ciniki_foodmarket_products.status = 40 "
-        . "AND ciniki_foodmarket_products.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND ciniki_foodmarket_products.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND ciniki_foodmarket_products.id = ciniki_foodmarket_product_outputs.product_id "
         . "AND ciniki_foodmarket_product_outputs.status = 40 "
-        . "AND ciniki_foodmarket_product_outputs.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND ciniki_foodmarket_product_outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "GROUP BY ciniki_foodmarket_category_items.category_id "
         . "";
     $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.foodmarket', array(
@@ -81,11 +81,11 @@ function ciniki_foodmarket_categoriesUpdate(&$ciniki, $business_id) {
             $strsql = "SELECT COUNT(ciniki_foodmarket_products.id) AS num_products "
                 . "FROM ciniki_foodmarket_products, ciniki_foodmarket_product_outputs "
                 . "WHERE ciniki_foodmarket_products.status = 40 "
-                . "AND ciniki_foodmarket_products.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . "AND ciniki_foodmarket_products.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                 . "AND ciniki_foodmarket_products.id = ciniki_foodmarket_product_outputs.product_id "
                 . "AND ciniki_foodmarket_product_outputs.retail_sdiscount_percent > 0 "
                 . "AND ciniki_foodmarket_product_outputs.status = 40 "
-                . "AND ciniki_foodmarket_product_outputs.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . "AND ciniki_foodmarket_product_outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                 . "";
             $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.foodmarket', 'num');
             if( $rc['stat'] != 'ok' ) {
@@ -103,11 +103,11 @@ function ciniki_foodmarket_categoriesUpdate(&$ciniki, $business_id) {
             $strsql = "SELECT COUNT(DISTINCT ciniki_foodmarket_products.id) AS num_products "
                 . "FROM ciniki_foodmarket_products, ciniki_foodmarket_product_outputs "
                 . "WHERE ciniki_foodmarket_products.status = 40 "
-                . "AND ciniki_foodmarket_products.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . "AND ciniki_foodmarket_products.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                 . "AND (ciniki_foodmarket_products.flags&0x01) = 0x01 "
                 . "AND ciniki_foodmarket_products.id = ciniki_foodmarket_product_outputs.product_id "
                 . "AND ciniki_foodmarket_product_outputs.status = 40 "
-                . "AND ciniki_foodmarket_product_outputs.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . "AND ciniki_foodmarket_product_outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                 . "";
             $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.foodmarket', 'num');
             if( $rc['stat'] != 'ok' ) {
@@ -137,7 +137,7 @@ function ciniki_foodmarket_categoriesUpdate(&$ciniki, $business_id) {
         // Update the category
         //
         if( count($update_args) > 0 ) {
-            $rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.foodmarket.category', $cat['id'], $update_args, 0x04);
+            $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'ciniki.foodmarket.category', $cat['id'], $update_args, 0x04);
             if( $rc['stat'] != 'ok' ) {
                 return $rc;
             }

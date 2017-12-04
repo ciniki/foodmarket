@@ -8,7 +8,7 @@
 // ---------
 // api_key:
 // auth_token:
-// business_id:        The ID of the business to get Order Date for.
+// tnid:        The ID of the tenant to get Order Date for.
 //
 // Returns
 // -------
@@ -19,7 +19,7 @@ function ciniki_foodmarket_queueInputGet($ciniki) {
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'),
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'),
         'input_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Product Input'),
         'order_item_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Order Item'),
         'invoice_item_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Invoice Item'),
@@ -30,19 +30,19 @@ function ciniki_foodmarket_queueInputGet($ciniki) {
     $args = $rc['args'];
 
     //
-    // Check access to business_id as owner, or sys admin.
+    // Check access to tnid as owner, or sys admin.
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'private', 'checkAccess');
-    $rc = ciniki_foodmarket_checkAccess($ciniki, $args['business_id'], 'ciniki.foodmarket.queueInputGet');
+    $rc = ciniki_foodmarket_checkAccess($ciniki, $args['tnid'], 'ciniki.foodmarket.queueInputGet');
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
 
     //
-    // Load business settings
+    // Load tenant settings
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');
-    $rc = ciniki_businesses_intlSettings($ciniki, $args['business_id']);
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'intlSettings');
+    $rc = ciniki_tenants_intlSettings($ciniki, $args['tnid']);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -63,7 +63,7 @@ function ciniki_foodmarket_queueInputGet($ciniki) {
     // Load maps
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'poma', 'private', 'maps');
-    $rc = ciniki_poma_maps($ciniki, $args['business_id']);
+    $rc = ciniki_poma_maps($ciniki, $args['tnid']);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -79,7 +79,7 @@ function ciniki_foodmarket_queueInputGet($ciniki) {
         $strsql = "SELECT status, quantity "
             . "FROM ciniki_poma_queued_items AS items "
             . "WHERE items.id = '" . ciniki_core_dbQuote($ciniki, $args['order_item_id']) . "' "
-            . "AND items.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND items.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "";
         $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.poma', 'item');
         if( $rc['stat'] != 'ok' ) { 
@@ -91,7 +91,7 @@ function ciniki_foodmarket_queueInputGet($ciniki) {
         $item = $rc['item'];
         if( $item['status'] == 10 ) {   
             ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
-            $rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.poma.queueditem', $args['order_item_id'], array('status'=>40), 0x07);
+            $rc = ciniki_core_objectUpdate($ciniki, $args['tnid'], 'ciniki.poma.queueditem', $args['order_item_id'], array('status'=>40), 0x07);
             if( $rc['stat'] != 'ok' ) {
                 return $rc;
             }
@@ -103,7 +103,7 @@ function ciniki_foodmarket_queueInputGet($ciniki) {
     //
     if( isset($args['invoice_item_id']) && $args['invoice_item_id'] > 0 ) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'poma', 'private', 'queueInvoiceItem');
-        $rc = ciniki_poma_queueInvoiceItem($ciniki, $args['business_id'], $args['invoice_item_id']);
+        $rc = ciniki_poma_queueInvoiceItem($ciniki, $args['tnid'], $args['invoice_item_id']);
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }
@@ -141,24 +141,24 @@ function ciniki_foodmarket_queueInputGet($ciniki) {
         . "FROM ciniki_foodmarket_product_inputs AS inputs "
         . "LEFT JOIN ciniki_foodmarket_product_outputs AS outputs ON ("
             . "inputs.id = outputs.input_id "
-            . "AND outputs.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") "
         . "LEFT JOIN ciniki_foodmarket_products AS products ON ("
             . "inputs.product_id = products.id "
-            . "AND products.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND products.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") "
         . "LEFT JOIN ciniki_poma_queued_items AS items ON ("
             . "outputs.id = items.object_id "
             . "AND items.object = 'ciniki.foodmarket.output' "
             . "AND items.status < 90 "
-            . "AND items.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND items.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") "
         . "LEFT JOIN ciniki_customers AS customers ON ("
             . "items.customer_id = customers.id "
-            . "AND customers.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND customers.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") "
         . "WHERE inputs.id = '" . ciniki_core_dbQuote($ciniki, $args['input_id']) . "' "
-        . "AND inputs.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "AND inputs.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "ORDER BY items.status, items.queued_date ASC "
         . "";
     $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.foodmarket', array(
@@ -215,14 +215,14 @@ function ciniki_foodmarket_queueInputGet($ciniki) {
         . "FROM ciniki_foodmarket_product_inputs "
         . "INNER JOIN ciniki_foodmarket_product_outputs ON ("
             . "ciniki_foodmarket_product_inputs.id  = ciniki_foodmarket_product_outputs.input_id "
-            . "AND ciniki_foodmarket_product_outputs.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_foodmarket_product_outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") "
         . "INNER JOIN ciniki_foodmarket_products ON ("
             . "ciniki_foodmarket_product_inputs.product_id = ciniki_foodmarket_products.id "
-            . "AND ciniki_foodmarket_products.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_foodmarket_products.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") "
         . "WHERE ciniki_foodmarket_product_inputs.id = '" . ciniki_core_dbQuote($ciniki, $args['input_id']) . "' "
-        . "AND ciniki_foodmarket_product_inputs.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "AND ciniki_foodmarket_product_inputs.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "ORDER BY ciniki_foodmarket_product_inputs.sku, ciniki_foodmarket_product_outputs.pio_name "
         . "";
     $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.foodmarket', array(
@@ -245,7 +245,7 @@ function ciniki_foodmarket_queueInputGet($ciniki) {
     //
     if( count($products) > 0 ) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'private', 'prepareSuppliedOrderInputs');
-        $rc = ciniki_foodmarket_prepareSuppliedOrderInputs($ciniki, $args['business_id'], $products);
+        $rc = ciniki_foodmarket_prepareSuppliedOrderInputs($ciniki, $args['tnid'], $products);
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }

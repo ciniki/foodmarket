@@ -7,12 +7,12 @@
 // Arguments
 // ---------
 // ciniki:
-// business_id:     The ID of the business to get events for.
+// tnid:     The ID of the tenant to get events for.
 //
 // Returns
 // -------
 //
-function ciniki_foodmarket_hooks_webIndexObject($ciniki, $business_id, $args) {
+function ciniki_foodmarket_hooks_webIndexObject($ciniki, $tnid, $args) {
 
     if( !isset($args['object']) || $args['object'] == '' ) {
         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.65', 'msg'=>'No object specified'));
@@ -35,7 +35,7 @@ function ciniki_foodmarket_hooks_webIndexObject($ciniki, $business_id, $args) {
         $strsql = "SELECT id, name, permalink, status, legend_codes, "
             . "primary_image_id, synopsis, description, ingredients "
             . "FROM ciniki_foodmarket_products "
-            . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "AND status = 40 "
             . "AND id = '" . ciniki_core_dbQuote($ciniki, $args['object_id']) . "' "
             . "";
@@ -53,7 +53,7 @@ function ciniki_foodmarket_hooks_webIndexObject($ciniki, $business_id, $args) {
         //
         $strsql = "SELECT i.name "
             . "FROM ciniki_foodmarket_product_inputs AS i, ciniki_foodmarket_product_outputs AS o "
-            . "WHERE i.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "WHERE i.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "AND i.product_id = '" . ciniki_core_dbQuote($ciniki, $args['object_id']) . "' "
             . "AND i.id = o.input_id "
             . "AND o.status = 40 "
@@ -95,10 +95,10 @@ function ciniki_foodmarket_hooks_webIndexObject($ciniki, $business_id, $args) {
         //
         $strsql = "SELECT DISTINCT ciniki_foodmarket_categories.name "
             . "FROM ciniki_foodmarket_category_items, ciniki_foodmarket_categories "
-            . "WHERE ciniki_foodmarket_category_items.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "WHERE ciniki_foodmarket_category_items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "AND ciniki_foodmarket_category_items.product_id = '" . ciniki_core_dbQuote($ciniki, $args['object_id']) . "' "
             . "AND ciniki_foodmarket_category_items.category_id = ciniki_foodmarket_categories.id "
-            . "AND ciniki_foodmarket_categories.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND ciniki_foodmarket_categories.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "";
         $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.products', 'category');
         if( $rc['stat'] != 'ok' ) {

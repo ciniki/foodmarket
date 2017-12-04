@@ -7,13 +7,13 @@
 // Arguments
 // ---------
 // ciniki:
-// business_id:         The ID of the business the product is attached to.
+// tnid:         The ID of the tenant the product is attached to.
 // product_id:          The ID of the product to get the details for.
 //
 // Returns
 // -------
 //
-function ciniki_foodmarket_convertOutputItem($ciniki, $business_id, $output) {
+function ciniki_foodmarket_convertOutputItem($ciniki, $tnid, $output) {
 
     $item = array(
         'object'=>'ciniki.foodmarket.output',

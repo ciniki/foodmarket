@@ -10,7 +10,7 @@
 // Returns
 // =======
 //
-function ciniki_foodmarket_poma_queueItemLookup($ciniki, $business_id, $args) {
+function ciniki_foodmarket_poma_queueItemLookup($ciniki, $tnid, $args) {
 
     if( !isset($args['object']) || $args['object'] == '' || !isset($args['object_id']) || $args['object_id'] == '' ) {
         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.73', 'msg'=>'No product specified.'));
@@ -39,14 +39,14 @@ function ciniki_foodmarket_poma_queueItemLookup($ciniki, $business_id, $args) {
             . "FROM ciniki_foodmarket_product_outputs AS outputs "
             . "LEFT JOIN ciniki_foodmarket_product_inputs AS inputs ON ("
                 . "outputs.input_id = inputs.id "
-                . "AND inputs.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . "AND inputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                 . ") "
             . "LEFT JOIN ciniki_foodmarket_products AS products ON ("
                 . "outputs.product_id = products.id "
-                . "AND products.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . "AND products.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                 . ") "
             . "WHERE outputs.id = '" . ciniki_core_dbQuote($ciniki, $args['object_id']) . "' "
-            . "AND outputs.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "AND (outputs.flags&0x0400) = 0x0400 "
             . "";
         $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.foodmarket', 'output');
@@ -61,7 +61,7 @@ function ciniki_foodmarket_poma_queueItemLookup($ciniki, $business_id, $args) {
         //
         // Prepare output for adding to order
         //
-        $rc = ciniki_foodmarket_convertOutputItem($ciniki, $business_id, $item);
+        $rc = ciniki_foodmarket_convertOutputItem($ciniki, $tnid, $item);
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }

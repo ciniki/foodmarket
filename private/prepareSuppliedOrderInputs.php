@@ -7,7 +7,7 @@
 // Arguments
 // ---------
 //
-function ciniki_foodmarket_prepareSuppliedOrderInputs($ciniki, $business_id, $inputs) {
+function ciniki_foodmarket_prepareSuppliedOrderInputs($ciniki, $tnid, $inputs) {
 
     $rsp = array('stat'=>'ok', 'inputs'=>array());
 

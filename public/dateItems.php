@@ -8,7 +8,7 @@
 // ---------
 // api_key:
 // auth_token:
-// business_id:        The ID of the business to get Order Date Item for.
+// tnid:        The ID of the tenant to get Order Date Item for.
 //
 // Returns
 // -------
@@ -19,7 +19,7 @@ function ciniki_foodmarket_dateItems($ciniki) {
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'),
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'),
         'date_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Order Date'),
         'add_output_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Add Product'),
         'delete_output_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Delete Product'),
@@ -30,19 +30,19 @@ function ciniki_foodmarket_dateItems($ciniki) {
     $args = $rc['args'];
 
     //
-    // Check access to business_id as owner, or sys admin.
+    // Check access to tnid as owner, or sys admin.
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'private', 'checkAccess');
-    $rc = ciniki_foodmarket_checkAccess($ciniki, $args['business_id'], 'ciniki.foodmarket.dateItemList');
+    $rc = ciniki_foodmarket_checkAccess($ciniki, $args['tnid'], 'ciniki.foodmarket.dateItemList');
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
 
     //
-    // Load business settings
+    // Load tenant settings
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');
-    $rc = ciniki_businesses_intlSettings($ciniki, $args['business_id']);
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'intlSettings');
+    $rc = ciniki_tenants_intlSettings($ciniki, $args['tnid']);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -96,7 +96,7 @@ function ciniki_foodmarket_dateItems($ciniki) {
         . "ciniki_poma_order_dates.status, "
         . "ciniki_poma_order_dates.flags "
         . "FROM ciniki_poma_order_dates "
-        . "WHERE ciniki_poma_order_dates.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "WHERE ciniki_poma_order_dates.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "AND ciniki_poma_order_dates.order_date >= '" . ciniki_core_dbQuote($ciniki, $dt->format('Y-m-d')) . "' "
         . "GROUP BY ciniki_poma_order_dates.id "
         . "ORDER BY ciniki_poma_order_dates.order_date DESC "
@@ -132,7 +132,7 @@ function ciniki_foodmarket_dateItems($ciniki) {
     //
     if( isset($args['add_output_id']) && $args['add_output_id'] > 0 ) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
-        $rc = ciniki_core_objectAdd($ciniki, $args['business_id'], 'ciniki.foodmarket.dateitem', array(
+        $rc = ciniki_core_objectAdd($ciniki, $args['tnid'], 'ciniki.foodmarket.dateitem', array(
             'date_id'=>$args['date_id'], 
             'output_id'=>$args['add_output_id'],
             ), 0x07);
@@ -140,11 +140,11 @@ function ciniki_foodmarket_dateItems($ciniki) {
             return $rc;
         }
         //
-        // Update the last_change date in the business modules
+        // Update the last_change date in the tenant modules
         // Ignore the result, as we don't want to stop user updates if this fails.
         //
-        ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'updateModuleChangeDate');
-        ciniki_businesses_updateModuleChangeDate($ciniki, $args['business_id'], 'ciniki', 'foodmarket');
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'updateModuleChangeDate');
+        ciniki_tenants_updateModuleChangeDate($ciniki, $args['tnid'], 'ciniki', 'foodmarket');
     }
 
     //
@@ -152,16 +152,16 @@ function ciniki_foodmarket_dateItems($ciniki) {
     //
     if( isset($args['delete_output_id']) && $args['delete_output_id'] > 0 ) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectDelete');
-        $rc = ciniki_core_objectDelete($ciniki, $args['business_id'], 'ciniki.foodmarket.dateitem', $args['delete_output_id'], null, 0x07);
+        $rc = ciniki_core_objectDelete($ciniki, $args['tnid'], 'ciniki.foodmarket.dateitem', $args['delete_output_id'], null, 0x07);
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }
         //
-        // Update the last_change date in the business modules
+        // Update the last_change date in the tenant modules
         // Ignore the result, as we don't want to stop user updates if this fails.
         //
-        ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'updateModuleChangeDate');
-        ciniki_businesses_updateModuleChangeDate($ciniki, $args['business_id'], 'ciniki', 'foodmarket');
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'updateModuleChangeDate');
+        ciniki_tenants_updateModuleChangeDate($ciniki, $args['tnid'], 'ciniki', 'foodmarket');
     }
 
 
@@ -177,18 +177,18 @@ function ciniki_foodmarket_dateItems($ciniki) {
         . "LEFT JOIN ciniki_foodmarket_product_outputs ON ("
             . "ciniki_foodmarket_date_items.output_id  = ciniki_foodmarket_product_outputs.id "
             . "AND ciniki_foodmarket_product_outputs.status > 5 "
-            . "AND ciniki_foodmarket_product_outputs.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_foodmarket_product_outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") "
         . "LEFT JOIN ciniki_foodmarket_products ON ("
             . "ciniki_foodmarket_product_outputs.product_id = ciniki_foodmarket_products.id "
-            . "AND ciniki_foodmarket_products.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_foodmarket_products.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") "
         . "LEFT JOIN ciniki_foodmarket_suppliers ON ("
             . "ciniki_foodmarket_products.supplier_id = ciniki_foodmarket_suppliers.id "
-            . "AND ciniki_foodmarket_suppliers.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_foodmarket_suppliers.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") "
         . "WHERE ciniki_foodmarket_date_items.date_id = '" . ciniki_core_dbQuote($ciniki, $args['date_id']) . "' "
-        . "AND ciniki_foodmarket_date_items.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "AND ciniki_foodmarket_date_items.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "ORDER BY supplier_code, pio_name "
         . "";
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.poma', array(
@@ -218,19 +218,19 @@ function ciniki_foodmarket_dateItems($ciniki) {
         . "FROM ciniki_foodmarket_product_outputs "
         . "LEFT JOIN ciniki_foodmarket_date_items ON ("
             . "ciniki_foodmarket_product_outputs.id = ciniki_foodmarket_date_items.output_id "
-            . "AND ciniki_foodmarket_date_items.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_foodmarket_date_items.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") "
         . "LEFT JOIN ciniki_poma_order_dates ON ("
             . "ciniki_foodmarket_date_items.date_id = ciniki_poma_order_dates.id "
-            . "AND ciniki_poma_order_dates.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_poma_order_dates.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") "
         . "LEFT JOIN ciniki_foodmarket_products ON ("
             . "ciniki_foodmarket_product_outputs.product_id = ciniki_foodmarket_products.id "
-            . "AND ciniki_foodmarket_products.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_foodmarket_products.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") "
         . "LEFT JOIN ciniki_foodmarket_suppliers ON ("
             . "ciniki_foodmarket_products.supplier_id = ciniki_foodmarket_suppliers.id "
-            . "AND ciniki_foodmarket_suppliers.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_foodmarket_suppliers.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") "
         . "WHERE (ciniki_foodmarket_product_outputs.flags&0x0200) = 0x0200 "
         . "AND ciniki_foodmarket_product_outputs.status > 5 "
@@ -238,7 +238,7 @@ function ciniki_foodmarket_dateItems($ciniki) {
     if( count($date_output_ids) > 0 ) {
         $strsql .= "AND ciniki_foodmarket_product_outputs.id NOT IN (" . ciniki_core_dbQuoteIDs($ciniki, $date_output_ids) . ") ";
     }
-    $strsql .= "AND ciniki_foodmarket_product_outputs.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+    $strsql .= "AND ciniki_foodmarket_product_outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "GROUP BY ciniki_foodmarket_product_outputs.id "
         . "ORDER BY supplier_code, pio_name "
         . "";

@@ -11,27 +11,27 @@
 // -------
 // <rsp stat='ok' id='34' />
 //
-function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args) {
+function ciniki_foodmarket_templates_packingLists(&$ciniki, $tnid, $args) {
 
     //
-    // Load the business details
+    // Load the tenant details
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'businessDetails');
-    $rc = ciniki_businesses_businessDetails($ciniki, $business_id);
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'tenantDetails');
+    $rc = ciniki_tenants_tenantDetails($ciniki, $tnid);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
     if( isset($rc['details']) && is_array($rc['details']) ) {    
-        $business_details = $rc['details'];
+        $tenant_details = $rc['details'];
     } else {
-        $business_details = array();
+        $tenant_details = array();
     }
 
     //
-    // Load business settings
+    // Load tenant settings
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');
-    $rc = ciniki_businesses_intlSettings($ciniki, $args['business_id']);
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'intlSettings');
+    $rc = ciniki_tenants_intlSettings($ciniki, $args['tnid']);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -66,25 +66,25 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
         . "FROM ciniki_poma_orders "
         . "LEFT JOIN ciniki_customers ON ("
             . "ciniki_poma_orders.customer_id = ciniki_customers.id "
-            . "AND ciniki_customers.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND ciniki_customers.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") "
         . "LEFT JOIN ciniki_poma_order_dates ON ("
             . "ciniki_poma_orders.date_id = ciniki_poma_order_dates.id "
-            . "AND ciniki_poma_order_dates.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND ciniki_poma_order_dates.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") "
         . "LEFT JOIN ciniki_poma_order_items ON ("
             . "ciniki_poma_orders.id = ciniki_poma_order_items.order_id "
             . "AND (ciniki_poma_order_items.flags&0x08) = 0 "
-            . "AND ciniki_poma_order_items.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND ciniki_poma_order_items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") "
         . "LEFT JOIN ciniki_foodmarket_product_outputs ON ("
             . "ciniki_poma_order_items.object = 'ciniki.foodmarket.output' "
             . "AND ciniki_poma_order_items.object_id = ciniki_foodmarket_product_outputs.id "
-            . "AND ciniki_foodmarket_product_outputs.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND ciniki_foodmarket_product_outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") "
         . "LEFT JOIN ciniki_foodmarket_products ON ("
             . "ciniki_foodmarket_product_outputs.product_id = ciniki_foodmarket_products.id "
-            . "AND ciniki_foodmarket_products.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND ciniki_foodmarket_products.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") ";
     if( isset($args['date_id']) && $args['date_id'] > 0 ) {
         $strsql .= "WHERE ciniki_poma_orders.date_id = '" . ciniki_core_dbQuote($ciniki, $args['date_id']) . "' ";
@@ -93,7 +93,7 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
     } else {
         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.53', 'msg'=>'No orders specified'));
     }
-    $strsql .= "AND ciniki_poma_orders.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+    $strsql .= "AND ciniki_poma_orders.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "ORDER BY ciniki_customers.sort_name, ciniki_poma_orders.id, sequence, description "
         . "";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
@@ -204,7 +204,7 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
         public $name = '';
         public $date_text = '';
         public $modified = '';
-        public $business_details = array();
+        public $tenant_details = array();
 
         public function Header() {
             //
@@ -270,7 +270,7 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $business_id, $args)
     // Setup the PDF basics
     //
     $pdf->SetCreator('Ciniki');
-    $pdf->SetAuthor($business_details['name']);
+    $pdf->SetAuthor($tenant_details['name']);
     $pdf->SetTitle('Packing list');
     $pdf->SetSubject('');
     $pdf->SetKeywords('');

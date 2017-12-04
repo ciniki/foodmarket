@@ -8,7 +8,7 @@
 // ---------
 // api_key:
 // auth_token:
-// business_id:            The ID of the business the slideshow is attached to.
+// tnid:            The ID of the tenant the slideshow is attached to.
 // slideshow_id:            The ID of the slideshow to be removed.
 //
 // Returns
@@ -20,7 +20,7 @@ function ciniki_foodmarket_slideshowDelete(&$ciniki) {
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'),
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'),
         'slideshow_id'=>array('required'=>'yes', 'blank'=>'yes', 'name'=>'Slideshow'),
         ));
     if( $rc['stat'] != 'ok' ) {
@@ -29,10 +29,10 @@ function ciniki_foodmarket_slideshowDelete(&$ciniki) {
     $args = $rc['args'];
 
     //
-    // Check access to business_id as owner
+    // Check access to tnid as owner
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'private', 'checkAccess');
-    $rc = ciniki_foodmarket_checkAccess($ciniki, $args['business_id'], 'ciniki.foodmarket.slideshowDelete');
+    $rc = ciniki_foodmarket_checkAccess($ciniki, $args['tnid'], 'ciniki.foodmarket.slideshowDelete');
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -42,7 +42,7 @@ function ciniki_foodmarket_slideshowDelete(&$ciniki) {
     //
     $strsql = "SELECT id, uuid "
         . "FROM ciniki_foodmarket_slideshows "
-        . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "AND id = '" . ciniki_core_dbQuote($ciniki, $args['slideshow_id']) . "' "
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.foodmarket', 'slideshow');
@@ -62,7 +62,7 @@ function ciniki_foodmarket_slideshowDelete(&$ciniki) {
     // Check if any modules are currently using this object
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectCheckUsed');
-    $rc = ciniki_core_objectCheckUsed($ciniki, $args['business_id'], 'ciniki.foodmarket.slideshow', $args['slideshow_id']);
+    $rc = ciniki_core_objectCheckUsed($ciniki, $args['tnid'], 'ciniki.foodmarket.slideshow', $args['slideshow_id']);
     if( $rc['stat'] != 'ok' ) {
         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.87', 'msg'=>'Unable to check if the slideshow is still being used.', 'err'=>$rc['err']));
     }
@@ -87,7 +87,7 @@ function ciniki_foodmarket_slideshowDelete(&$ciniki) {
     //
     // Remove the slideshow
     //
-    $rc = ciniki_core_objectDelete($ciniki, $args['business_id'], 'ciniki.foodmarket.slideshow',
+    $rc = ciniki_core_objectDelete($ciniki, $args['tnid'], 'ciniki.foodmarket.slideshow',
         $args['slideshow_id'], $slideshow['uuid'], 0x04);
     if( $rc['stat'] != 'ok' ) {
         ciniki_core_dbTransactionRollback($ciniki, 'ciniki.foodmarket');
@@ -103,11 +103,11 @@ function ciniki_foodmarket_slideshowDelete(&$ciniki) {
     }
 
     //
-    // Update the last_change date in the business modules
+    // Update the last_change date in the tenant modules
     // Ignore the result, as we don't want to stop user updates if this fails.
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'updateModuleChangeDate');
-    ciniki_businesses_updateModuleChangeDate($ciniki, $args['business_id'], 'ciniki', 'foodmarket');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'updateModuleChangeDate');
+    ciniki_tenants_updateModuleChangeDate($ciniki, $args['tnid'], 'ciniki', 'foodmarket');
 
     return array('stat'=>'ok');
 }

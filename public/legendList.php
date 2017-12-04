@@ -2,13 +2,13 @@
 //
 // Description
 // -----------
-// This method will return the list of Categorys for a business.
+// This method will return the list of Categorys for a tenant.
 //
 // Arguments
 // ---------
 // api_key:
 // auth_token:
-// business_id:        The ID of the business to get Category for.
+// tnid:        The ID of the tenant to get Category for.
 //
 // Returns
 // -------
@@ -19,7 +19,7 @@ function ciniki_foodmarket_legendList($ciniki) {
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'),
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'),
         'subscriptions'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Subscriptions'),
         ));
     if( $rc['stat'] != 'ok' ) {
@@ -28,10 +28,10 @@ function ciniki_foodmarket_legendList($ciniki) {
     $args = $rc['args'];
 
     //
-    // Check access to business_id as owner, or sys admin.
+    // Check access to tnid as owner, or sys admin.
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'private', 'checkAccess');
-    $rc = ciniki_foodmarket_checkAccess($ciniki, $args['business_id'], 'ciniki.foodmarket.legendList');
+    $rc = ciniki_foodmarket_checkAccess($ciniki, $args['tnid'], 'ciniki.foodmarket.legendList');
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -44,7 +44,7 @@ function ciniki_foodmarket_legendList($ciniki) {
         . "ciniki_foodmarket_legends.permalink, "
         . "ciniki_foodmarket_legends.code "
         . "FROM ciniki_foodmarket_legends "
-        . "WHERE ciniki_foodmarket_legends.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "WHERE ciniki_foodmarket_legends.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "AND ctype = 0 "
         . "ORDER BY ciniki_foodmarket_legends.name "
         . "";

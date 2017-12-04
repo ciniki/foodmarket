@@ -2,13 +2,13 @@
 //
 // Description
 // -----------
-// This method will return the list of Products for a business.
+// This method will return the list of Products for a tenant.
 //
 // Arguments
 // ---------
 // api_key:
 // auth_token:
-// business_id:        The ID of the business to get Product for.
+// tnid:        The ID of the tenant to get Product for.
 //
 // Returns
 // -------
@@ -19,7 +19,7 @@ function ciniki_foodmarket_newList($ciniki) {
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'),
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'),
         'product_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Product'),
         'action'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Action'),
         ));
@@ -29,10 +29,10 @@ function ciniki_foodmarket_newList($ciniki) {
     $args = $rc['args'];
 
     //
-    // Check access to business_id as owner, or sys admin.
+    // Check access to tnid as owner, or sys admin.
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'private', 'checkAccess');
-    $rc = ciniki_foodmarket_checkAccess($ciniki, $args['business_id'], 'ciniki.foodmarket.newList');
+    $rc = ciniki_foodmarket_checkAccess($ciniki, $args['tnid'], 'ciniki.foodmarket.newList');
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -44,7 +44,7 @@ function ciniki_foodmarket_newList($ciniki) {
         $strsql = "SELECT id, flags "
             . "FROM ciniki_foodmarket_products "
             . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['product_id']) . "' "
-            . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "";
         $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.foodmarket', 'product');
         if( $rc['stat'] != 'ok' ) {
@@ -78,7 +78,7 @@ function ciniki_foodmarket_newList($ciniki) {
                 return $rc;
             }
 
-            $rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.foodmarket.product', $args['product_id'], array('flags'=>$new_flags), 0x04);
+            $rc = ciniki_core_objectUpdate($ciniki, $args['tnid'], 'ciniki.foodmarket.product', $args['product_id'], array('flags'=>$new_flags), 0x04);
             if( $rc['stat'] != 'ok' ) {
                 ciniki_core_dbTransactionRollback($ciniki, 'ciniki.foodmarket');
                 return $rc;
@@ -88,7 +88,7 @@ function ciniki_foodmarket_newList($ciniki) {
             // Update the categories
             //
             ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'private', 'categoriesUpdate');
-            $rc = ciniki_foodmarket_categoriesUpdate($ciniki, $args['business_id']);
+            $rc = ciniki_foodmarket_categoriesUpdate($ciniki, $args['tnid']);
             if( $rc['stat'] != 'ok' ) {
                 ciniki_core_dbTransactionRollback($ciniki, 'ciniki.foodmarket');
                 return $rc;
@@ -115,9 +115,9 @@ function ciniki_foodmarket_newList($ciniki) {
         . "FROM ciniki_foodmarket_products AS products "
         . "LEFT JOIN ciniki_foodmarket_suppliers AS suppliers ON ("
             . "products.supplier_id = suppliers.id "
-            . "AND suppliers.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND suppliers.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") "
-        . "WHERE products.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "WHERE products.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "AND (products.flags&0x01) = 0x01 "
         . "";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');

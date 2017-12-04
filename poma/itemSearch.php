@@ -10,7 +10,7 @@
 // Returns
 // =======
 //
-function ciniki_foodmarket_poma_itemSearch($ciniki, $business_id, $args) {
+function ciniki_foodmarket_poma_itemSearch($ciniki, $tnid, $args) {
 
     if( !isset($args['keywords']) || $args['keywords'] == '' ) {
         return array('stat'=>'ok', 'items'=>array());
@@ -56,13 +56,13 @@ function ciniki_foodmarket_poma_itemSearch($ciniki, $business_id, $args) {
         . "FROM ciniki_foodmarket_product_outputs "
         . "LEFT JOIN ciniki_foodmarket_products ON ("
             . "ciniki_foodmarket_product_outputs.product_id = ciniki_foodmarket_products.id "
-            . "AND ciniki_foodmarket_products.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' " 
+            . "AND ciniki_foodmarket_products.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' " 
             . ") "
         . "LEFT JOIN ciniki_foodmarket_product_inputs ON ("
             . "ciniki_foodmarket_product_outputs.input_id = ciniki_foodmarket_product_inputs.id "
-            . "AND ciniki_foodmarket_product_inputs.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' " 
+            . "AND ciniki_foodmarket_product_inputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' " 
             . ") "
-        . "WHERE ciniki_foodmarket_product_outputs.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' " 
+        . "WHERE ciniki_foodmarket_product_outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' " 
         . "AND (ciniki_foodmarket_product_outputs.keywords LIKE '" . ciniki_core_dbQuote($ciniki, $args['keywords']) . "%' "
             . "OR ciniki_foodmarket_product_outputs.keywords LIKE '% " . ciniki_core_dbQuote($ciniki, $args['keywords']) . "%' "
             . ") "
@@ -85,7 +85,7 @@ function ciniki_foodmarket_poma_itemSearch($ciniki, $business_id, $args) {
     $items = $rc['rows'];
 
     foreach($items as $iid => $item) {
-        $rc = ciniki_foodmarket_convertOutputItem($ciniki, $business_id, $item);
+        $rc = ciniki_foodmarket_convertOutputItem($ciniki, $tnid, $item);
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }

@@ -2,13 +2,13 @@
 //
 // Description
 // -----------
-// This method will return the list of Categorys for a business.
+// This method will return the list of Categorys for a tenant.
 //
 // Arguments
 // ---------
 // api_key:
 // auth_token:
-// business_id:        The ID of the business to get Category for.
+// tnid:        The ID of the tenant to get Category for.
 //
 // Returns
 // -------
@@ -19,7 +19,7 @@ function ciniki_foodmarket_categoryList($ciniki) {
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'),
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'),
         'subscriptions'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Subscriptions'),
         ));
     if( $rc['stat'] != 'ok' ) {
@@ -28,10 +28,10 @@ function ciniki_foodmarket_categoryList($ciniki) {
     $args = $rc['args'];
 
     //
-    // Check access to business_id as owner, or sys admin.
+    // Check access to tnid as owner, or sys admin.
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'private', 'checkAccess');
-    $rc = ciniki_foodmarket_checkAccess($ciniki, $args['business_id'], 'ciniki.foodmarket.categoryList');
+    $rc = ciniki_foodmarket_checkAccess($ciniki, $args['tnid'], 'ciniki.foodmarket.categoryList');
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -43,7 +43,7 @@ function ciniki_foodmarket_categoryList($ciniki) {
         . "ciniki_foodmarket_categories.name, "
         . "ciniki_foodmarket_categories.permalink "
         . "FROM ciniki_foodmarket_categories "
-        . "WHERE ciniki_foodmarket_categories.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "WHERE ciniki_foodmarket_categories.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "AND ciniki_foodmarket_categories.parent_id = 0 "
         . "AND ctype = 0 "
         . "ORDER BY ciniki_foodmarket_categories.name "
@@ -68,7 +68,7 @@ function ciniki_foodmarket_categoryList($ciniki) {
     //
     if( isset($args['subscriptions']) && $args['subscriptions'] == 'yes' ) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'subscriptions', 'hooks', 'subscriptionList');
-        $rc = ciniki_subscriptions_hooks_subscriptionList($ciniki, $args['business_id'], array());
+        $rc = ciniki_subscriptions_hooks_subscriptionList($ciniki, $args['tnid'], array());
         if( $rc['stat'] != 'ok' ) {
             return $rc;
         }

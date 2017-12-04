@@ -8,12 +8,12 @@
 // ---------
 // ciniki:
 // settings:        The web settings structure.
-// business_id:     The ID of the business to get events for.
+// tnid:     The ID of the tenant to get events for.
 //
 // Returns
 // -------
 //
-function ciniki_foodmarket_web_categoryList($ciniki, $settings, $business_id, $args) {
+function ciniki_foodmarket_web_categoryList($ciniki, $settings, $tnid, $args) {
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
 
@@ -30,9 +30,9 @@ function ciniki_foodmarket_web_categoryList($ciniki, $settings, $business_id, $a
         . "FROM ciniki_foodmarket_categories AS parents "
         . "LEFT JOIN ciniki_foodmarket_categories AS children ON ("
             . "parents.id = children.parent_id "
-            . "AND children.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND children.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") "
-        . "WHERE parents.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "WHERE parents.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND (parents.flags&0x01) = 0x01 "
         . "";
     if( isset($args['parent_id']) && $args['parent_id'] > 0 ) {

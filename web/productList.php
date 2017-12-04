@@ -8,12 +8,12 @@
 // ---------
 // ciniki:
 // settings:        The web settings structure.
-// business_id:     The ID of the business to get events for.
+// tnid:     The ID of the tenant to get events for.
 //
 // Returns
 // -------
 //
-function ciniki_foodmarket_web_productList($ciniki, $settings, $business_id, $args) {
+function ciniki_foodmarket_web_productList($ciniki, $settings, $tnid, $args) {
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
 
@@ -36,13 +36,13 @@ function ciniki_foodmarket_web_productList($ciniki, $settings, $business_id, $ar
             . "ciniki_foodmarket_product_outputs.retail_sprice_text "
             . "FROM ciniki_foodmarket_category_items, ciniki_foodmarket_products, ciniki_foodmarket_product_outputs "
             . "WHERE ciniki_foodmarket_category_items.category_id = '" . ciniki_core_dbQuote($ciniki, $args['category_id']) . "' "
-            . "AND ciniki_foodmarket_category_items.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND ciniki_foodmarket_category_items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "AND ciniki_foodmarket_category_items.product_id = ciniki_foodmarket_products.id "
-            . "AND ciniki_foodmarket_products.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND ciniki_foodmarket_products.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "AND ciniki_foodmarket_products.status = 40 " // Product visible on website
             . "AND ciniki_foodmarket_products.id = ciniki_foodmarket_product_outputs.product_id "
             . "AND ciniki_foodmarket_product_outputs.status = 40 "  // Output visible on website
-            . "AND ciniki_foodmarket_product_outputs.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND ciniki_foodmarket_product_outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "";
     } 
     //
@@ -64,15 +64,15 @@ function ciniki_foodmarket_web_productList($ciniki, $settings, $business_id, $ar
             . "ciniki_foodmarket_product_outputs.retail_sprice_text "
             . "FROM ciniki_foodmarket_categories, ciniki_foodmarket_category_items, ciniki_foodmarket_products, ciniki_foodmarket_product_outputs "
             . "WHERE ciniki_foodmarket_categories.parent_id  = '" . ciniki_core_dbQuote($ciniki, $args['parent_id']) . "' "
-            . "AND ciniki_foodmarket_categories.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND ciniki_foodmarket_categories.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "AND ciniki_foodmarket_categories.id = ciniki_foodmarket_category_items.category_id "
-            . "AND ciniki_foodmarket_category_items.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND ciniki_foodmarket_category_items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "AND ciniki_foodmarket_category_items.product_id = ciniki_foodmarket_products.id "
-            . "AND ciniki_foodmarket_products.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND ciniki_foodmarket_products.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "AND ciniki_foodmarket_products.status = 40 " // Product visible on website
             . "AND ciniki_foodmarket_products.id = ciniki_foodmarket_product_outputs.product_id "   
             . "AND ciniki_foodmarket_product_outputs.status = 40 " // output visible on website
-            . "AND ciniki_foodmarket_product_outputs.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND ciniki_foodmarket_product_outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "";
     } 
     //
@@ -93,11 +93,11 @@ function ciniki_foodmarket_web_productList($ciniki, $settings, $business_id, $ar
             . "ciniki_foodmarket_product_outputs.retail_price_text, "
             . "ciniki_foodmarket_product_outputs.retail_sprice_text "
             . "FROM ciniki_foodmarket_products, ciniki_foodmarket_product_outputs "
-            . "WHERE ciniki_foodmarket_products.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "WHERE ciniki_foodmarket_products.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "AND ciniki_foodmarket_products.status = 40 " // Product visible on website
             . "AND ciniki_foodmarket_products.id = ciniki_foodmarket_product_outputs.product_id "
             . "AND ciniki_foodmarket_product_outputs.status = 40 " // output visible on website
-            . "AND ciniki_foodmarket_product_outputs.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND ciniki_foodmarket_product_outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "";
     }
 

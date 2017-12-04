@@ -2,13 +2,13 @@
 //
 // Description
 // -----------
-// This method will return the list of Products for a business.
+// This method will return the list of Products for a tenant.
 //
 // Arguments
 // ---------
 // api_key:
 // auth_token:
-// business_id:        The ID of the business to get Product for.
+// tnid:        The ID of the tenant to get Product for.
 //
 // Returns
 // -------
@@ -19,7 +19,7 @@ function ciniki_foodmarket_productList($ciniki) {
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'),
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'),
         'category_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Category'),
         'categories'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Categories'),
         ));
@@ -29,10 +29,10 @@ function ciniki_foodmarket_productList($ciniki) {
     $args = $rc['args'];
 
     //
-    // Check access to business_id as owner, or sys admin.
+    // Check access to tnid as owner, or sys admin.
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'private', 'checkAccess');
-    $rc = ciniki_foodmarket_checkAccess($ciniki, $args['business_id'], 'ciniki.foodmarket.productList');
+    $rc = ciniki_foodmarket_checkAccess($ciniki, $args['tnid'], 'ciniki.foodmarket.productList');
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -43,7 +43,7 @@ function ciniki_foodmarket_productList($ciniki) {
     $strsql = "SELECT ctype, name "
         . "FROM ciniki_foodmarket_categories "
         . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['category_id']) . "' "
-        . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.foodmarket', 'category');
     if( $rc['stat'] != 'ok' ) {
@@ -72,17 +72,17 @@ function ciniki_foodmarket_productList($ciniki) {
             . "FROM ciniki_foodmarket_products "
             . "LEFT JOIN ciniki_foodmarket_product_inputs ON ("
                 . "ciniki_foodmarket_products.id = ciniki_foodmarket_product_inputs.product_id "
-                . "AND ciniki_foodmarket_product_inputs.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+                . "AND ciniki_foodmarket_product_inputs.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
                 . ") "
             . "LEFT JOIN ciniki_foodmarket_product_outputs ON ("
                 . "ciniki_foodmarket_products.id = ciniki_foodmarket_product_outputs.product_id "
-                . "AND ciniki_foodmarket_product_outputs.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+                . "AND ciniki_foodmarket_product_outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
                 . ") "
             . "LEFT JOIN ciniki_foodmarket_suppliers ON ("
                 . "ciniki_foodmarket_products.supplier_id = ciniki_foodmarket_suppliers.id "
-                . "AND ciniki_foodmarket_suppliers.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+                . "AND ciniki_foodmarket_suppliers.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
                 . ") "
-            . "WHERE ciniki_foodmarket_products.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "WHERE ciniki_foodmarket_products.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND ciniki_foodmarket_product_outputs.retail_sdiscount_percent > 0 "
             . "ORDER BY ciniki_foodmarket_products.name "
             . "";
@@ -101,17 +101,17 @@ function ciniki_foodmarket_productList($ciniki) {
             . "FROM ciniki_foodmarket_products "
             . "LEFT JOIN ciniki_foodmarket_product_inputs ON ("
                 . "ciniki_foodmarket_products.id = ciniki_foodmarket_product_inputs.product_id "
-                . "AND ciniki_foodmarket_product_inputs.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+                . "AND ciniki_foodmarket_product_inputs.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
                 . ") "
             . "LEFT JOIN ciniki_foodmarket_product_outputs ON ("
                 . "ciniki_foodmarket_products.id = ciniki_foodmarket_product_outputs.product_id "
-                . "AND ciniki_foodmarket_product_outputs.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+                . "AND ciniki_foodmarket_product_outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
                 . ") "
             . "LEFT JOIN ciniki_foodmarket_suppliers ON ("
                 . "ciniki_foodmarket_products.supplier_id = ciniki_foodmarket_suppliers.id "
-                . "AND ciniki_foodmarket_suppliers.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+                . "AND ciniki_foodmarket_suppliers.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
                 . ") "
-            . "WHERE ciniki_foodmarket_products.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "WHERE ciniki_foodmarket_products.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND (ciniki_foodmarket_products.flags&0x01) = 0x01 "
             . "ORDER BY ciniki_foodmarket_products.name "
             . "";
@@ -129,17 +129,17 @@ function ciniki_foodmarket_productList($ciniki) {
             . "FROM ciniki_foodmarket_category_items "
             . "LEFT JOIN ciniki_foodmarket_products ON ("
                 . "ciniki_foodmarket_category_items.product_id = ciniki_foodmarket_products.id "
-                . "AND ciniki_foodmarket_products.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+                . "AND ciniki_foodmarket_products.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
                 . ") "
             . "LEFT JOIN ciniki_foodmarket_product_inputs ON ("
                 . "ciniki_foodmarket_products.id = ciniki_foodmarket_product_inputs.product_id "
-                . "AND ciniki_foodmarket_product_inputs.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+                . "AND ciniki_foodmarket_product_inputs.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
                 . ") "
             . "LEFT JOIN ciniki_foodmarket_suppliers ON ("
                 . "ciniki_foodmarket_products.supplier_id = ciniki_foodmarket_suppliers.id "
-                . "AND ciniki_foodmarket_suppliers.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+                . "AND ciniki_foodmarket_suppliers.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
                 . ") "
-            . "WHERE ciniki_foodmarket_category_items.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "WHERE ciniki_foodmarket_category_items.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND ciniki_foodmarket_category_items.category_id = '" . ciniki_core_dbQuote($ciniki, $args['category_id']) . "' "
             . "ORDER BY ciniki_foodmarket_products.name ";
     } elseif( isset($args['category_id']) && $args['category_id'] != '' && $args['category_id'] == 0 ) {
@@ -155,17 +155,17 @@ function ciniki_foodmarket_productList($ciniki) {
             . "FROM ciniki_foodmarket_products "
             . "LEFT JOIN ciniki_foodmarket_category_items ON ("
                 . "ciniki_foodmarket_products.id = ciniki_foodmarket_category_items.product_id "
-                . "AND ciniki_foodmarket_category_items.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+                . "AND ciniki_foodmarket_category_items.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
                 . ") "
             . "LEFT JOIN ciniki_foodmarket_product_inputs ON ("
                 . "ciniki_foodmarket_products.id = ciniki_foodmarket_product_inputs.product_id "
-                . "AND ciniki_foodmarket_product_inputs.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+                . "AND ciniki_foodmarket_product_inputs.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
                 . ") "
             . "LEFT JOIN ciniki_foodmarket_suppliers ON ("
                 . "ciniki_foodmarket_products.supplier_id = ciniki_foodmarket_suppliers.id "
-                . "AND ciniki_foodmarket_suppliers.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+                . "AND ciniki_foodmarket_suppliers.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
                 . ") "
-            . "WHERE ciniki_foodmarket_products.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "WHERE ciniki_foodmarket_products.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND ciniki_foodmarket_category_items.id IS NULL "
             . "ORDER BY ciniki_foodmarket_products.name ";
     } elseif( isset($args['category_id']) && $args['category_id'] == -1 ) {
@@ -181,13 +181,13 @@ function ciniki_foodmarket_productList($ciniki) {
             . "FROM ciniki_foodmarket_products "
             . "LEFT JOIN ciniki_foodmarket_product_inputs ON ("
                 . "ciniki_foodmarket_products.id = ciniki_foodmarket_product_inputs.product_id "
-                . "AND ciniki_foodmarket_product_inputs.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+                . "AND ciniki_foodmarket_product_inputs.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
                 . ") "
             . "LEFT JOIN ciniki_foodmarket_suppliers ON ("
                 . "ciniki_foodmarket_products.supplier_id = ciniki_foodmarket_suppliers.id "
-                . "AND ciniki_foodmarket_suppliers.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+                . "AND ciniki_foodmarket_suppliers.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
                 . ") "
-            . "WHERE ciniki_foodmarket_products.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "WHERE ciniki_foodmarket_products.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND ciniki_foodmarket_products.status = 90 "
             . "ORDER BY ciniki_foodmarket_products.name "
             . "";
@@ -204,13 +204,13 @@ function ciniki_foodmarket_productList($ciniki) {
             . "FROM ciniki_foodmarket_products "
             . "LEFT JOIN ciniki_foodmarket_product_inputs ON ("
                 . "ciniki_foodmarket_products.id = ciniki_foodmarket_product_inputs.product_id "
-                . "AND ciniki_foodmarket_product_inputs.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+                . "AND ciniki_foodmarket_product_inputs.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
                 . ") "
             . "LEFT JOIN ciniki_foodmarket_suppliers ON ("
                 . "ciniki_foodmarket_products.supplier_id = ciniki_foodmarket_suppliers.id "
-                . "AND ciniki_foodmarket_suppliers.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+                . "AND ciniki_foodmarket_suppliers.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
                 . ") "
-            . "WHERE ciniki_foodmarket_products.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "WHERE ciniki_foodmarket_products.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "ORDER BY ciniki_foodmarket_products.date_added DESC "
             . "LIMIT 25 "
             . "";
@@ -242,7 +242,7 @@ function ciniki_foodmarket_productList($ciniki) {
         //
         $strsql = "SELECT category_id, COUNT(product_id) AS num "
             . "FROM ciniki_foodmarket_category_items "
-            . "WHERE ciniki_foodmarket_category_items.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "WHERE ciniki_foodmarket_category_items.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "GROUP BY category_id "
             . "";
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQueryList2');
@@ -261,10 +261,10 @@ function ciniki_foodmarket_productList($ciniki) {
         //
         $strsql = "SELECT COUNT(DISTINCT ciniki_foodmarket_products.id) "
             . "FROM ciniki_foodmarket_products, ciniki_foodmarket_product_outputs "
-            . "WHERE ciniki_foodmarket_products.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "WHERE ciniki_foodmarket_products.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND ciniki_foodmarket_products.id = ciniki_foodmarket_product_outputs.product_id "
             . "AND ciniki_foodmarket_product_outputs.retail_sdiscount_percent > 0 "
-            . "AND ciniki_foodmarket_product_outputs.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_foodmarket_product_outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "";
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbSingleCount');
         $rc = ciniki_core_dbSingleCount($ciniki, $strsql, 'ciniki.foodmarket', 'number');
@@ -281,10 +281,10 @@ function ciniki_foodmarket_productList($ciniki) {
         //
         $strsql = "SELECT COUNT(DISTINCT ciniki_foodmarket_products.id) "
             . "FROM ciniki_foodmarket_products, ciniki_foodmarket_product_outputs "
-            . "WHERE ciniki_foodmarket_products.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "WHERE ciniki_foodmarket_products.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND (ciniki_foodmarket_products.flags&0x01) = 0x01 "
             . "AND ciniki_foodmarket_products.id = ciniki_foodmarket_product_outputs.product_id "
-            . "AND ciniki_foodmarket_product_outputs.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND ciniki_foodmarket_product_outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "";
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbSingleCount');
         $rc = ciniki_core_dbSingleCount($ciniki, $strsql, 'ciniki.foodmarket', 'number');
@@ -302,9 +302,9 @@ function ciniki_foodmarket_productList($ciniki) {
             . "FROM ciniki_foodmarket_categories AS c1 "
             . "LEFT JOIN ciniki_foodmarket_categories AS c2 ON ("
                 . "c1.id = c2.parent_id "
-                . "AND c2.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+                . "AND c2.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
                 . ") "
-            . "WHERE c1.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "WHERE c1.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND c1.parent_id = 0 "
             . "ORDER BY c1.sequence, c1.name, c2.name "
             . "";
@@ -361,7 +361,7 @@ function ciniki_foodmarket_productList($ciniki) {
         //
         $strsql = "SELECT COUNT(ciniki_foodmarket_products.id) "
             . "FROM ciniki_foodmarket_products "
-            . "WHERE ciniki_foodmarket_products.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "WHERE ciniki_foodmarket_products.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND ciniki_foodmarket_products.status = 90 "
             . "";
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbSingleCount');
@@ -384,9 +384,9 @@ function ciniki_foodmarket_productList($ciniki) {
             . "FROM ciniki_foodmarket_products "
             . "LEFT JOIN ciniki_foodmarket_category_items ON ("
                 . "ciniki_foodmarket_products.id = ciniki_foodmarket_category_items.product_id "
-                . "AND ciniki_foodmarket_category_items.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+                . "AND ciniki_foodmarket_category_items.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
                 . ") "
-            . "WHERE ciniki_foodmarket_products.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "WHERE ciniki_foodmarket_products.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND ciniki_foodmarket_products.status < 90 "
             . "AND ciniki_foodmarket_category_items.id IS NULL "
             . "GROUP BY ciniki_foodmarket_category_items.id "

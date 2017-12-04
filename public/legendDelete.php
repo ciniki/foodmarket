@@ -8,7 +8,7 @@
 // ---------
 // api_key:
 // auth_token:
-// business_id:            The ID of the business the legend is attached to.
+// tnid:            The ID of the tenant the legend is attached to.
 // legend_id:            The ID of the legend to be removed.
 //
 // Returns
@@ -21,7 +21,7 @@ function ciniki_foodmarket_legendDelete(&$ciniki) {
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'),
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'),
         'legend_id'=>array('required'=>'yes', 'blank'=>'yes', 'name'=>'Category'),
         ));
     if( $rc['stat'] != 'ok' ) {
@@ -30,10 +30,10 @@ function ciniki_foodmarket_legendDelete(&$ciniki) {
     $args = $rc['args'];
 
     //
-    // Check access to business_id as owner
+    // Check access to tnid as owner
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'private', 'checkAccess');
-    $rc = ciniki_foodmarket_checkAccess($ciniki, $args['business_id'], 'ciniki.foodmarket.legendDelete');
+    $rc = ciniki_foodmarket_checkAccess($ciniki, $args['tnid'], 'ciniki.foodmarket.legendDelete');
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -43,7 +43,7 @@ function ciniki_foodmarket_legendDelete(&$ciniki) {
     //
     $strsql = "SELECT id, uuid "
         . "FROM ciniki_foodmarket_legends "
-        . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "AND id = '" . ciniki_core_dbQuote($ciniki, $args['legend_id']) . "' "
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.foodmarket', 'legend');
@@ -61,7 +61,7 @@ function ciniki_foodmarket_legendDelete(&$ciniki) {
     $strsql = "SELECT COUNT(id) AS items "
         . "FROM ciniki_foodmarket_legend_items "
         . "WHERE ciniki_foodmarket_legend_items.legend_id = '" . ciniki_core_dbQuote($ciniki, $args['legend_id']) . "' "
-        . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbSingleCount');
     $rc = ciniki_core_dbSingleCount($ciniki, $strsql, 'ciniki.foodmarket', 'num');
@@ -89,7 +89,7 @@ function ciniki_foodmarket_legendDelete(&$ciniki) {
     //
     // Remove the legend
     //
-    $rc = ciniki_core_objectDelete($ciniki, $args['business_id'], 'ciniki.foodmarket.legend', $args['legend_id'], $legend['uuid'], 0x04);
+    $rc = ciniki_core_objectDelete($ciniki, $args['tnid'], 'ciniki.foodmarket.legend', $args['legend_id'], $legend['uuid'], 0x04);
     if( $rc['stat'] != 'ok' ) {
         ciniki_core_dbTransactionRollback($ciniki, 'ciniki.foodmarket');
         return $rc;
@@ -104,11 +104,11 @@ function ciniki_foodmarket_legendDelete(&$ciniki) {
     }
 
     //
-    // Update the last_change date in the business modules
+    // Update the last_change date in the tenant modules
     // Ignore the result, as we don't want to stop user updates if this fails.
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'updateModuleChangeDate');
-    ciniki_businesses_updateModuleChangeDate($ciniki, $args['business_id'], 'ciniki', 'foodmarket');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'updateModuleChangeDate');
+    ciniki_tenants_updateModuleChangeDate($ciniki, $args['tnid'], 'ciniki', 'foodmarket');
 
     return array('stat'=>'ok');
 }

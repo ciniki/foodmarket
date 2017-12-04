@@ -7,7 +7,7 @@
 // Arguments
 // ---------
 //
-function ciniki_foodmarket_basketsUpdateOrders(&$ciniki, $business_id, $args) {
+function ciniki_foodmarket_basketsUpdateOrders(&$ciniki, $tnid, $args) {
     //
     // The date must be specified
     //
@@ -60,18 +60,18 @@ function ciniki_foodmarket_basketsUpdateOrders(&$ciniki, $business_id, $args) {
         . "FROM ciniki_foodmarket_basket_items "
         . "INNER JOIN ciniki_foodmarket_product_outputs AS items ON ("
             . "ciniki_foodmarket_basket_items.item_output_id = items.id "
-            . "AND items.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") "
         . "LEFT JOIN ciniki_foodmarket_product_inputs ON ("
             . "items.input_id = ciniki_foodmarket_product_inputs.id "
-            . "AND ciniki_foodmarket_product_inputs.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND ciniki_foodmarket_product_inputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") "
         . "LEFT JOIN ciniki_foodmarket_products ON ("
             . "items.product_id = ciniki_foodmarket_products.id "
-            . "AND ciniki_foodmarket_products.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND ciniki_foodmarket_products.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") "
         . "WHERE ciniki_foodmarket_basket_items.date_id = '" . ciniki_core_dbQuote($ciniki, $args['date_id']) . "' "
-        . "AND ciniki_foodmarket_basket_items.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND ciniki_foodmarket_basket_items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND ciniki_foodmarket_basket_items.basket_output_id > 0 "
         . $basket_select_strsql
         . $item_select_strsql
@@ -117,18 +117,18 @@ function ciniki_foodmarket_basketsUpdateOrders(&$ciniki, $business_id, $args) {
             . "ciniki_poma_orders.id = baskets.order_id "
             . "AND baskets.object = 'ciniki.foodmarket.output' "
             . "AND baskets.object_id IN (" . ciniki_core_dbQuoteIDs($ciniki, $basket_ids) . ") "
-            . "AND baskets.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND baskets.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") "
         . "LEFT JOIN ciniki_poma_order_items AS items ON ("
             . "baskets.id = items.parent_id "
             . "AND items.object = 'ciniki.foodmarket.output' "
             . "AND items.object_id IN (" . ciniki_core_dbQuoteIDs($ciniki, $item_ids) . ") "
             . "AND baskets.order_id = items.order_id "
-            . "AND items.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") "
         . "WHERE ciniki_poma_orders.date_id = '" . ciniki_core_dbQuote($ciniki, $args['date_id']) . "' "
         . "AND ciniki_poma_orders.status < 50 "
-        . "AND ciniki_poma_orders.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND ciniki_poma_orders.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "ORDER BY basket_id, order_id "
         . "";
     $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.foodmarket', array(
@@ -172,7 +172,7 @@ function ciniki_foodmarket_basketsUpdateOrders(&$ciniki, $business_id, $args) {
                 //
                 if( ($order_item['flags']&0x14) == 0 && $order_item['quantity'] != $basket_item['quantity'] ) {
                     if( $basket_item['quantity'] == 0 ) {
-                        $rc = ciniki_core_objectDelete($ciniki, $business_id, 'ciniki.poma.orderitem', $order_item['id'], $order_item['uuid'], 0x04);
+                        $rc = ciniki_core_objectDelete($ciniki, $tnid, 'ciniki.poma.orderitem', $order_item['id'], $order_item['uuid'], 0x04);
                         if( $rc['stat'] != 'ok' ) {
                             return $rc;
                         }
@@ -185,7 +185,7 @@ function ciniki_foodmarket_basketsUpdateOrders(&$ciniki, $business_id, $args) {
                         }
                         error_log('update:' . $order_item['flags']);
                         error_log('update:' . $order_item['id']);
-                        $rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.poma.orderitem', $order_item['id'], $update_args, 0x04);
+                        $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'ciniki.poma.orderitem', $order_item['id'], $update_args, 0x04);
                         if( $rc['stat'] != 'ok' ) {
                             return $rc;
                         }
@@ -196,7 +196,7 @@ function ciniki_foodmarket_basketsUpdateOrders(&$ciniki, $business_id, $args) {
             // If not contained, then it should be added as a subitem to the order
             //
             elseif( $basket_item['quantity'] > 0 ) {
-                $rc = ciniki_foodmarket_convertOutputItem($ciniki, $business_id, $basket_item);
+                $rc = ciniki_foodmarket_convertOutputItem($ciniki, $tnid, $basket_item);
                 if( $rc['stat'] != 'ok' ) {
                     return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.44', 'msg'=>'Unable to update order', 'err'=>$rc['err']));
                 }
@@ -209,7 +209,7 @@ function ciniki_foodmarket_basketsUpdateOrders(&$ciniki, $business_id, $args) {
                     $order_item['unit_quantity'] = $basket_item['quantity'];
                 }
 
-                $rc = ciniki_core_objectAdd($ciniki, $business_id, 'ciniki.poma.orderitem', $order_item, 0x04);
+                $rc = ciniki_core_objectAdd($ciniki, $tnid, 'ciniki.poma.orderitem', $order_item, 0x04);
                 if( $rc['stat'] != 'ok' ) {
                     return $rc;
                 }

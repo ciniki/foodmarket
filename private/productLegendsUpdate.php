@@ -7,14 +7,14 @@
 // Arguments
 // ---------
 //
-function ciniki_foodmarket_productLegendsUpdate(&$ciniki, $business_id, $product_id, $legends) {
+function ciniki_foodmarket_productLegendsUpdate(&$ciniki, $tnid, $product_id, $legends) {
 
     //
     // Get the existing list of legends for the product
     //
     $strsql = "SELECT id, uuid, legend_id "
         . "FROM ciniki_foodmarket_legend_items "
-        . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND product_id = '" . ciniki_core_dbQuote($ciniki, $product_id) . "' "
         . "";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
@@ -36,7 +36,7 @@ function ciniki_foodmarket_productLegendsUpdate(&$ciniki, $business_id, $product
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
     foreach($legends as $legend_id) {
         if( !isset($existing_legends[$legend_id]) ) {
-            $rc = ciniki_core_objectAdd($ciniki, $business_id, 'ciniki.foodmarket.legenditem', array(
+            $rc = ciniki_core_objectAdd($ciniki, $tnid, 'ciniki.foodmarket.legenditem', array(
                 'legend_id'=>$legend_id,
                 'product_id'=>$product_id,
                 ), 0x04);
@@ -52,7 +52,7 @@ function ciniki_foodmarket_productLegendsUpdate(&$ciniki, $business_id, $product
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectDelete');
     foreach($existing_legends as $legend_id => $legend) {
         if( !in_array($legend_id, $legends) ) {
-            $rc = ciniki_core_objectDelete($ciniki, $business_id, 'ciniki.foodmarket.legenditem', $legend['id'], $legend['uuid'], 0x04);
+            $rc = ciniki_core_objectDelete($ciniki, $tnid, 'ciniki.foodmarket.legenditem', $legend['id'], $legend['uuid'], 0x04);
             if( $rc['stat'] != 'ok' ) {
                 return $rc;
             }

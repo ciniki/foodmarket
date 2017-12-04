@@ -7,13 +7,13 @@
 // Arguments
 // ---------
 // ciniki:
-// business_id:         The ID of the business the product is attached to.
+// tnid:         The ID of the tenant the product is attached to.
 // product_id:          The ID of the product to get the details for.
 //
 // Returns
 // -------
 //
-function ciniki_foodmarket_unitsText($ciniki, $business_id, $units, $sep='/') {
+function ciniki_foodmarket_unitsText($ciniki, $tnid, $units, $sep='/') {
     
     switch($units) {
         case 0x02: return $sep . 'lb';

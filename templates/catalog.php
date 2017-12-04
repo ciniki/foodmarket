@@ -11,28 +11,28 @@
 // -------
 // <rsp stat='ok' id='34' />
 //
-function ciniki_foodmarket_templates_catalog(&$ciniki, $business_id, $args) {
+function ciniki_foodmarket_templates_catalog(&$ciniki, $tnid, $args) {
 
     //
-    // Load the business details
+    // Load the tenant details
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'businessDetails');
-    $rc = ciniki_businesses_businessDetails($ciniki, $business_id);
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'tenantDetails');
+    $rc = ciniki_tenants_tenantDetails($ciniki, $tnid);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
     if( isset($rc['details']) && is_array($rc['details']) ) {    
-        $business_details = $rc['details'];
+        $tenant_details = $rc['details'];
     } else {
-        $business_details = array();
+        $tenant_details = array();
     }
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuoteIDs');
     //
-    // Load business settings
+    // Load tenant settings
     //
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'businesses', 'private', 'intlSettings');
-    $rc = ciniki_businesses_intlSettings($ciniki, $args['business_id']);
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'intlSettings');
+    $rc = ciniki_tenants_intlSettings($ciniki, $args['tnid']);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -58,24 +58,24 @@ function ciniki_foodmarket_templates_catalog(&$ciniki, $business_id, $args) {
         . "FROM ciniki_foodmarket_categories AS categories "
         . "LEFT JOIN ciniki_foodmarket_categories AS subcategories ON ("
             . "categories.id = subcategories.parent_id "
-            . "AND subcategories.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND subcategories.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") "
         . "LEFT JOIN ciniki_foodmarket_category_items AS items ON ("
             . "(categories.id = items.category_id OR subcategories.id = items.category_id) "
-            . "AND items.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") "
         . "LEFT JOIN ciniki_foodmarket_products AS products ON ("
             . "items.product_id = products.id "
             . "AND products.status = 40 "
-            . "AND products.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND products.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") "
         . "LEFT JOIN ciniki_foodmarket_product_outputs AS outputs ON ("
             . "products.id = outputs.product_id "
             . "AND outputs.status = 40 "
             . "AND outputs.otype < 71 "
-            . "AND outputs.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "AND outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") "
-        . "WHERE categories.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "WHERE categories.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND categories.parent_id = 0 "
         . "AND categories.ctype = 0 "
         . "";
@@ -110,7 +110,7 @@ function ciniki_foodmarket_templates_catalog(&$ciniki, $business_id, $args) {
         public $top_margin = 15;
         public $header_height = 15;
         public $header_text = '';
-        public $business_details = array();
+        public $tenant_details = array();
 
         public function Header() {
             //
@@ -143,10 +143,10 @@ function ciniki_foodmarket_templates_catalog(&$ciniki, $business_id, $args) {
     // Setup the PDF basics
     //
     $pdf->SetCreator('Ciniki');
-    $pdf->SetAuthor($business_details['name']);
-    $pdf->SetTitle($business_details['name'] . ' Catalog');
-    $pdf->header_text = $business_details['name'] . ' Catalog';
-    $filename = preg_replace("/[^A-Za-z0-9 -_]/", '', $business_details['name'] . ' Catalog.pdf');
+    $pdf->SetAuthor($tenant_details['name']);
+    $pdf->SetTitle($tenant_details['name'] . ' Catalog');
+    $pdf->header_text = $tenant_details['name'] . ' Catalog';
+    $filename = preg_replace("/[^A-Za-z0-9 -_]/", '', $tenant_details['name'] . ' Catalog.pdf');
     $pdf->SetSubject('');
     $pdf->SetKeywords('');
 

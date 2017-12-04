@@ -8,7 +8,7 @@
 // ---------
 // ciniki:
 // settings:        The web settings structure.
-// business_id:     The ID of the business to get events for.
+// tnid:     The ID of the tenant to get events for.
 //
 // args:            The possible arguments for products
 //
@@ -16,7 +16,7 @@
 // Returns
 // -------
 //
-function ciniki_foodmarket_web_processRequestSlideshow(&$ciniki, $settings, $business_id, $args) {
+function ciniki_foodmarket_web_processRequestSlideshow(&$ciniki, $settings, $tnid, $args) {
 
     $page = array(
         'title'=>'Slideshow',
@@ -38,7 +38,7 @@ function ciniki_foodmarket_web_processRequestSlideshow(&$ciniki, $settings, $bus
     //
     $strsql = "SELECT id, name, permalink, type, effect, speed, flags, slides "
         . "FROM ciniki_foodmarket_slideshows "
-        . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND permalink = '" . ciniki_core_dbQuote($ciniki, $slideshow_permalink) . "' "
         . "AND (flags&0x01) = 0x01 "    // Visible
         . "";
@@ -74,25 +74,25 @@ function ciniki_foodmarket_web_processRequestSlideshow(&$ciniki, $settings, $bus
             . "FROM ciniki_foodmarket_categories AS c "
             . "LEFT JOIN ciniki_foodmarket_category_items AS ci ON ("
                 . "c.id = ci.category_id "
-                . "AND ci.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . "AND ci.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                 . ") "
             . "LEFT JOIN ciniki_foodmarket_products AS p ON ("
                 . "ci.product_id = p.id "
                 . "AND p.status = 40 "
                 . "AND p.primary_image_id > 0 "
-                . "AND p.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . "AND p.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                 . ") "
             . "LEFT JOIN ciniki_foodmarket_product_inputs AS i ON ("
                 . "p.id = i.product_id "
-                . "AND i.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . "AND i.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                 . ") "
             . "LEFT JOIN ciniki_foodmarket_product_outputs AS o ON ("
                 . "i.id = o.input_id "
                 . "AND p.id = o.product_id "
                 . "AND o.status = 40 "
-                . "AND o.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . "AND o.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                 . ") "
-            . "WHERE c.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "WHERE c.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "AND c.id IN (" . ciniki_core_dbQuoteIDs($ciniki, explode(',', $slides['categories'])) . ") "
             . "ORDER BY rand() "
             . "";
@@ -127,15 +127,15 @@ function ciniki_foodmarket_web_processRequestSlideshow(&$ciniki, $settings, $bus
             . "FROM ciniki_foodmarket_products AS p "
             . "LEFT JOIN ciniki_foodmarket_product_inputs AS i ON ("
                 . "p.id = i.product_id "
-                . "AND i.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . "AND i.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                 . ") "
             . "LEFT JOIN ciniki_foodmarket_product_outputs AS o ON ("
                 . "i.id = o.input_id "
                 . "AND p.id = o.product_id "
                 . "AND o.status = 40 "
-                . "AND o.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . "AND o.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                 . ") "
-            . "WHERE p.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+            . "WHERE p.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "AND p.status = 40 "
             . "AND p.primary_image_id > 0 "
             . "ORDER BY rand() "

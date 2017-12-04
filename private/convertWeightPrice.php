@@ -7,13 +7,13 @@
 // Arguments
 // ---------
 // ciniki:
-// business_id:         The ID of the business the product is attached to.
+// tnid:         The ID of the tenant the product is attached to.
 // product_id:          The ID of the product to get the details for.
 //
 // Returns
 // -------
 //
-function ciniki_foodmarket_convertWeightPrice($ciniki, $business_id, $price, $from_units, $to_units) {
+function ciniki_foodmarket_convertWeightPrice($ciniki, $tnid, $price, $from_units, $to_units) {
     
     $precision = 10;
 

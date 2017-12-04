@@ -17,7 +17,7 @@ function ciniki_foodmarket_keywordsUpdate(&$ciniki) {
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'),
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
@@ -26,10 +26,10 @@ function ciniki_foodmarket_keywordsUpdate(&$ciniki) {
 
     //
     // Make sure this module is activated, and
-    // check permission to run this function for this business
+    // check permission to run this function for this tenant
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'private', 'checkAccess');
-    $rc = ciniki_foodmarket_checkAccess($ciniki, $args['business_id'], 'ciniki.foodmarket.keywordsUpdate');
+    $rc = ciniki_foodmarket_checkAccess($ciniki, $args['tnid'], 'ciniki.foodmarket.keywordsUpdate');
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -39,7 +39,7 @@ function ciniki_foodmarket_keywordsUpdate(&$ciniki) {
     //
     $strsql = "SELECT id, pio_name, keywords "
         . "FROM ciniki_foodmarket_product_outputs "
-        . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.foodmarket', 'product');
     if( $rc['stat'] != 'ok' ) { 
@@ -55,7 +55,7 @@ function ciniki_foodmarket_keywordsUpdate(&$ciniki) {
     foreach($outputs as $output) {
         $keywords = ciniki_core_makeKeywords($ciniki, $output['pio_name']);
         if( $keywords != $output['keywords'] ) {
-            $rc = ciniki_core_objectUpdate($ciniki, $args['business_id'], 'ciniki.foodmarket.output', $output['id'], array('keywords'=>$keywords), 0x07);
+            $rc = ciniki_core_objectUpdate($ciniki, $args['tnid'], 'ciniki.foodmarket.output', $output['id'], array('keywords'=>$keywords), 0x07);
             if( $rc['stat'] != 'ok' ) {
                 return $rc;
             }

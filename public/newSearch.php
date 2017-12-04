@@ -2,13 +2,13 @@
 //
 // Description
 // -----------
-// This method will return the list of Products for a business.
+// This method will return the list of Products for a tenant.
 //
 // Arguments
 // ---------
 // api_key:
 // auth_token:
-// business_id:        The ID of the business to get Product for.
+// tnid:        The ID of the tenant to get Product for.
 //
 // Returns
 // -------
@@ -19,7 +19,7 @@ function ciniki_foodmarket_newSearch($ciniki) {
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
     $rc = ciniki_core_prepareArgs($ciniki, 'no', array(
-        'business_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Business'),
+        'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'),
         'search_str'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Search String'),
         'limit'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Limit'),
         ));
@@ -29,10 +29,10 @@ function ciniki_foodmarket_newSearch($ciniki) {
     $args = $rc['args'];
 
     //
-    // Check access to business_id as owner, or sys admin.
+    // Check access to tnid as owner, or sys admin.
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'private', 'checkAccess');
-    $rc = ciniki_foodmarket_checkAccess($ciniki, $args['business_id'], 'ciniki.foodmarket.newSearch');
+    $rc = ciniki_foodmarket_checkAccess($ciniki, $args['tnid'], 'ciniki.foodmarket.newSearch');
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -47,13 +47,13 @@ function ciniki_foodmarket_newSearch($ciniki) {
         . "FROM ciniki_foodmarket_product_outputs AS outputs "
         . "INNER JOIN ciniki_foodmarket_products AS products ON ("
             . "outputs.product_id = products.id "
-            . "AND products.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND products.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") "
         . "INNER JOIN ciniki_foodmarket_suppliers AS suppliers ON ("
             . "products.supplier_id = suppliers.id "
-            . "AND suppliers.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+            . "AND suppliers.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . ") "
-        . "WHERE outputs.business_id = '" . ciniki_core_dbQuote($ciniki, $args['business_id']) . "' "
+        . "WHERE outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "AND outputs.otype <= 70 "
         . "AND (products.flags&0x01) = 0 "
         . "AND ("

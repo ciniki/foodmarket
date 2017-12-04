@@ -1,7 +1,7 @@
 #
 # Description
 # -----------
-# This table stores the categories and sub-categories for the business. Each sub-categories
+# This table stores the categories and sub-categories for the tenant. Each sub-categories
 # will have it's parent_id > 0. Currently the code only supports 1 level deep, but could 
 # be expanded for more in the future.
 #
@@ -9,7 +9,7 @@
 # ------
 # id:                   The ID assigned to the category.
 # uuid:                 The Universal Unique ID.
-# business_id:          The business the category is attached to.
+# tnid:                 The tenant the category is attached to.
 #
 # name:                 The name for the category.
 # permalink:            The permalink for the category, to be used on the website.
@@ -52,7 +52,7 @@
 create table ciniki_foodmarket_categories (
     id int not null auto_increment,
     uuid char(36) not null,
-    business_id int not null,
+    tnid int not null,
     name varchar(250) not null,
     permalink varchar(250) not null,
     parent_id int not null,
@@ -66,5 +66,5 @@ create table ciniki_foodmarket_categories (
     last_updated datetime not null,
     primary key (id),
     unique index (uuid),
-    index sync (business_id, uuid, last_updated)
+    index sync (tnid, uuid, last_updated)
 ) ENGINE='InnoDB', COMMENT='v1.01';

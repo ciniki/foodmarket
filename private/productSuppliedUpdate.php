@@ -7,14 +7,14 @@
 // Arguments
 // ---------
 // ciniki:
-// business_id:         The ID of the business the product is attached to.
+// tnid:         The ID of the tenant the product is attached to.
 // product_id:          The ID of the product to get the details for.
 // args:                Typically the $ciniki['request']['args'] variable should be passed here.
 //
 // Returns
 // -------
 //
-function ciniki_foodmarket_productSuppliedUpdate(&$ciniki, $business_id, $product_id, $args) {
+function ciniki_foodmarket_productSuppliedUpdate(&$ciniki, $tnid, $product_id, $args) {
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'makePermalink');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'prepareArgs');
@@ -28,7 +28,7 @@ function ciniki_foodmarket_productSuppliedUpdate(&$ciniki, $business_id, $produc
     //
     // Load the product
     //
-    $rc = ciniki_foodmarket_productLoad($ciniki, $business_id, $product_id);
+    $rc = ciniki_foodmarket_productLoad($ciniki, $tnid, $product_id);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -161,7 +161,7 @@ function ciniki_foodmarket_productSuppliedUpdate(&$ciniki, $business_id, $produc
             //
             // Add the input
             //
-            $rc = ciniki_core_objectAdd($ciniki, $business_id, 'ciniki.foodmarket.input', $new_input, 0x04);
+            $rc = ciniki_core_objectAdd($ciniki, $tnid, 'ciniki.foodmarket.input', $new_input, 0x04);
             if( $rc['stat'] != 'ok' ) {
                 return $rc;
             }
@@ -229,7 +229,7 @@ function ciniki_foodmarket_productSuppliedUpdate(&$ciniki, $business_id, $produc
                 }
             }
             if( count($update_args) > 0 ) {
-                $rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.foodmarket.input', $input_id, $update_args, 0x04);
+                $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'ciniki.foodmarket.input', $input_id, $update_args, 0x04);
                 if( $rc['stat'] != 'ok' ) {
                     return $rc;
                 }
@@ -310,7 +310,7 @@ function ciniki_foodmarket_productSuppliedUpdate(&$ciniki, $business_id, $produc
                 //
                 // Add the output
                 //
-                $rc = ciniki_core_objectAdd($ciniki, $business_id, 'ciniki.foodmarket.output', $new_output, 0x04);
+                $rc = ciniki_core_objectAdd($ciniki, $tnid, 'ciniki.foodmarket.output', $new_output, 0x04);
                 if( $rc['stat'] != 'ok' ) {
                     return $rc;
                 }
@@ -361,7 +361,7 @@ function ciniki_foodmarket_productSuppliedUpdate(&$ciniki, $business_id, $produc
                     }
                 }
                 if( count($update_args) > 0 ) {
-                    $rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.foodmarket.output', $output_id, $update_args, 0x04);
+                    $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'ciniki.foodmarket.output', $output_id, $update_args, 0x04);
                     if( $rc['stat'] != 'ok' ) {
                         return $rc;
                     }
@@ -408,7 +408,7 @@ function ciniki_foodmarket_productSuppliedUpdate(&$ciniki, $business_id, $produc
             $strsql = "SELECT id, otype, uuid, product_id, status "
                 . "FROM ciniki_foodmarket_product_outputs "
                 . "WHERE product_id = '" . ciniki_core_dbQuote($ciniki, $product_id) . "' "
-                . "AND business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+                . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                 . "AND input_id = '" . ciniki_core_dbQuote($ciniki, $input_id) . "' "
                 . "AND status > 5 "
                 . "AND otype NOT IN (" . ciniki_core_dbQuoteIDs($ciniki, $valid_otypes) . ") "
@@ -420,7 +420,7 @@ function ciniki_foodmarket_productSuppliedUpdate(&$ciniki, $business_id, $produc
             if( isset($rc['rows']) && count($rc['rows']) > 0 ) {
                 $rows = $rc['rows'];
                 foreach($rows as $row) {  
-                    $rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.foodmarket.output', $row['id'], array('status'=>5), 0x04);
+                    $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'ciniki.foodmarket.output', $row['id'], array('status'=>5), 0x04);
                     if( $rc['stat'] != 'ok' ) {
                         return $rc;
                     }
@@ -444,7 +444,7 @@ function ciniki_foodmarket_productSuppliedUpdate(&$ciniki, $business_id, $produc
                     }
                     if( $new_object_id > 0 ) {
                         ciniki_core_loadMethod($ciniki, 'ciniki', 'poma', 'hooks', 'updateObjectID');
-                        $rc = ciniki_poma_hooks_updateObjectID($ciniki, $business_id, array('object'=>'ciniki.foodmarket.output', 'old_object_id'=>$row['id'], 'new_object_id'=>$new_object_id));
+                        $rc = ciniki_poma_hooks_updateObjectID($ciniki, $tnid, array('object'=>'ciniki.foodmarket.output', 'old_object_id'=>$row['id'], 'new_object_id'=>$new_object_id));
                         if( $rc['stat'] != 'ok' ) {
                             return $rc;
                         }
@@ -457,7 +457,7 @@ function ciniki_foodmarket_productSuppliedUpdate(&$ciniki, $business_id, $produc
     //
     // Update the pricing and output names
     //
-    $rc = ciniki_foodmarket_productUpdateFields($ciniki, $business_id, $product_id);
+    $rc = ciniki_foodmarket_productUpdateFields($ciniki, $tnid, $product_id);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }

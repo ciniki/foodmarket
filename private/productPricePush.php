@@ -7,7 +7,7 @@
 // Arguments
 // ---------
 //
-function ciniki_foodmarket_productPricePush(&$ciniki, $business_id, $product_id) {
+function ciniki_foodmarket_productPricePush(&$ciniki, $tnid, $product_id) {
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
@@ -20,7 +20,7 @@ function ciniki_foodmarket_productPricePush(&$ciniki, $business_id, $product_id)
     $strsql = "SELECT id, retail_price, retail_sdiscount_percent "
         . "FROM ciniki_foodmarket_product_outputs AS outputs "
         . "WHERE outputs.product_id = '" . ciniki_core_dbQuote($ciniki, $product_id) . "' "
-        . "AND outputs.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "";
     $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'cinii.foodmarket', array(
         array('container'=>'outputs', 'fname'=>'id', 'fields'=>array('id', 'retail_price', 'retail_sdiscount_percent')),
@@ -51,11 +51,11 @@ function ciniki_foodmarket_productPricePush(&$ciniki, $business_id, $product_id)
         . "FROM ciniki_poma_order_items AS items, ciniki_poma_orders AS orders "
         . "WHERE items.object = 'ciniki.foodmarket.output' "
         . "AND items.object_id IN (" . ciniki_core_dbQuoteIDs($ciniki, $output_ids) . ") "
-        . "AND items.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND items.order_id = orders.id "
         . "AND orders.status < 50 "
         . "AND orders.payment_status < 50 "
-        . "AND orders.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND orders.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "";
     $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.foodmarket', 'items');
     if( $rc['stat'] != 'ok' ) {
@@ -79,12 +79,12 @@ function ciniki_foodmarket_productPricePush(&$ciniki, $business_id, $product_id)
             $update_args['unit_discount_percentage'] = bcmul($outputs[$output_id]['retail_sdiscount_percent'], 100, 6);
         }
         if( count($update_args) > 0 ) {
-            $rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.poma.orderitem', $item['id'], $update_args, 0x04);
+            $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'ciniki.poma.orderitem', $item['id'], $update_args, 0x04);
             if( $rc['stat'] != 'ok' ) {
                 return $rc;
             }
 
-            $rc = ciniki_poma_orderUpdateStatusBalance($ciniki, $business_id, $item['order_id']);
+            $rc = ciniki_poma_orderUpdateStatusBalance($ciniki, $tnid, $item['order_id']);
             if( $rc['stat'] != 'ok' ) {
                 return $rc;
             }

@@ -7,7 +7,7 @@
 // Arguments
 // ---------
 //
-function ciniki_foodmarket_legendsUpdate(&$ciniki, $business_id) {
+function ciniki_foodmarket_legendsUpdate(&$ciniki, $tnid) {
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
@@ -17,7 +17,7 @@ function ciniki_foodmarket_legendsUpdate(&$ciniki, $business_id) {
     //
     $strsql = "SELECT id, flags, 'no' AS visible "
         . "FROM ciniki_foodmarket_legends "
-        . "WHERE business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "";
     $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.foodmarket', array(
         array('container'=>'legends', 'fname'=>'id', 'fields'=>array('id', 'flags', 'visible')),
@@ -37,13 +37,13 @@ function ciniki_foodmarket_legendsUpdate(&$ciniki, $business_id) {
     $strsql = "SELECT ciniki_foodmarket_legend_items.legend_id, "
         . "COUNT(ciniki_foodmarket_legend_items.product_id) AS num_products "
         . "FROM ciniki_foodmarket_legend_items, ciniki_foodmarket_products, ciniki_foodmarket_product_outputs "
-        . "WHERE ciniki_foodmarket_legend_items.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "WHERE ciniki_foodmarket_legend_items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND ciniki_foodmarket_legend_items.product_id = ciniki_foodmarket_products.id "
         . "AND ciniki_foodmarket_products.status = 40 "
-        . "AND ciniki_foodmarket_products.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND ciniki_foodmarket_products.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND ciniki_foodmarket_products.id = ciniki_foodmarket_product_outputs.product_id "
         . "AND ciniki_foodmarket_product_outputs.status = 40 "
-        . "AND ciniki_foodmarket_product_outputs.business_id = '" . ciniki_core_dbQuote($ciniki, $business_id) . "' "
+        . "AND ciniki_foodmarket_product_outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "GROUP BY ciniki_foodmarket_legend_items.legend_id "
         . "";
     $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.foodmarket', array(
@@ -82,7 +82,7 @@ function ciniki_foodmarket_legendsUpdate(&$ciniki, $business_id) {
         // Update the legend
         //
         if( count($update_args) > 0 ) {
-            $rc = ciniki_core_objectUpdate($ciniki, $business_id, 'ciniki.foodmarket.legend', $legend['id'], $update_args, 0x04);
+            $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'ciniki.foodmarket.legend', $legend['id'], $update_args, 0x04);
             if( $rc['stat'] != 'ok' ) {
                 return $rc;
             }

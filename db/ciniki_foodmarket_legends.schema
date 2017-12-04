@@ -1,13 +1,13 @@
 #
 # Description
 # -----------
-# This table stores the legends for the business.
+# This table stores the legends for the tenant.
 #
 # Fields
 # ------
 # id:                   The ID assigned to the legend.
 # uuid:                 The Universal Unique ID.
-# business_id:          The business the legend is attached to.
+# tnid:                 The tenant the legend is attached to.
 #
 # name:                 The name for the legend.
 # permalink:            The permalink for the legend, to be used on the website.
@@ -31,7 +31,7 @@
 create table ciniki_foodmarket_legends (
     id int not null auto_increment,
     uuid char(36) not null,
-    business_id int not null,
+    tnid int not null,
     name varchar(250) not null,
     permalink varchar(250) not null,
     code varchar(50) not null,
@@ -43,5 +43,5 @@ create table ciniki_foodmarket_legends (
     last_updated datetime not null,
     primary key (id),
     unique index (uuid),
-    index sync (business_id, uuid, last_updated)
+    index sync (tnid, uuid, last_updated)
 ) ENGINE='InnoDB', COMMENT='v1.01';
