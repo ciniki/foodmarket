@@ -183,8 +183,6 @@ function ciniki_foodmarket_basketsUpdateOrders(&$ciniki, $tnid, $args) {
                         } else {
                             $update_args['unit_quantity'] = $basket_item['quantity'];
                         }
-                        error_log('update:' . $order_item['flags']);
-                        error_log('update:' . $order_item['id']);
                         $rc = ciniki_core_objectUpdate($ciniki, $tnid, 'ciniki.poma.orderitem', $order_item['id'], $update_args, 0x04);
                         if( $rc['stat'] != 'ok' ) {
                             return $rc;
