@@ -224,7 +224,7 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $tnid
                 . "FROM ciniki_poma_order_dates "
                 . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                 . "AND status < 50 "
-                . "AND order_date >= UTC_TIMESTAMP() "
+                . "AND order_date >= DATE(UTC_TIMESTAMP()) "
                 . "ORDER BY order_date ASC "
                 . "LIMIT 1 "
                 . "";
