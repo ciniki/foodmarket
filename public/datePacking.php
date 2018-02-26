@@ -169,6 +169,18 @@ function ciniki_foodmarket_datePacking($ciniki) {
             return $rc;
         }
         if( isset($rc['order']) && $rc['order']['status'] < 50 ) {
+            //
+            // Update inventory for order packed
+            //
+            ciniki_core_loadMethod($ciniki, 'ciniki', 'poma', 'private', 'orderRemoveFromInventory');
+            $rc = ciniki_poma_orderRemoveFromInventory($ciniki, $args['tnid'], $args['order_id']);
+            if( $rc['stat'] != 'ok' ) {
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.94', 'msg'=>'Unable to remove items from inventory', 'err'=>$rc['err']));
+            }
+
+            //
+            // Update the status of the order
+            //
             $rc = ciniki_core_objectUpdate($ciniki, $args['tnid'], 'ciniki.poma.order', $args['order_id'], array('status'=>50), 0x07);
             if( $rc['stat'] != 'ok' ) {
                 return $rc;

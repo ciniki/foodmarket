@@ -18,7 +18,7 @@ function ciniki_foodmarket_web_favourites($ciniki, $settings, $tnid, $args) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
 
     //
-    // Select the products for a category
+    // Select the products for a customers favourites
     //
     $strsql = "SELECT ciniki_foodmarket_products.id AS product_id, "
         . "IFNULL(ciniki_foodmarket_product_inputs.id, 0) AS input_id, "

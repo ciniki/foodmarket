@@ -133,7 +133,10 @@ function ciniki_foodmarket_productUpdateFields(&$ciniki, $tnid, $product_id) {
         . "ciniki_foodmarket_product_outputs.retail_price_text, "
         . "ciniki_foodmarket_product_outputs.retail_sdiscount_percent, "
         . "ciniki_foodmarket_product_outputs.retail_sprice, "
-        . "ciniki_foodmarket_product_outputs.retail_sprice_text "
+        . "ciniki_foodmarket_product_outputs.retail_sprice_text, "
+        . "ciniki_foodmarket_product_outputs.retail_mdiscount_percent, "
+        . "ciniki_foodmarket_product_outputs.retail_mprice, "
+        . "ciniki_foodmarket_product_outputs.retail_mprice_text "
         . "FROM ciniki_foodmarket_product_outputs "
         . "WHERE ciniki_foodmarket_product_outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "AND ciniki_foodmarket_product_outputs.product_id = '" . ciniki_core_dbQuote($ciniki, $product_id) . "' "
@@ -142,7 +145,9 @@ function ciniki_foodmarket_productUpdateFields(&$ciniki, $tnid, $product_id) {
     $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.foodmarket', array(
         array('container'=>'outputs', 'fname'=>'id', 
             'fields'=>array('id', 'input_id', 'name', 'pio_name', 'io_name', 'sequence', 'io_sequence', 'keywords', 'otype', 'units', 'flags', 
-                'wholesale_percent', 'wholesale_price', 'retail_percent', 'retail_price', 'retail_price_text', 'retail_sdiscount_percent', 'retail_sprice', 'retail_sprice_text')),
+                'wholesale_percent', 'wholesale_price', 'retail_percent', 'retail_price', 'retail_price_text', 
+                'retail_sdiscount_percent', 'retail_sprice', 'retail_sprice_text',
+                'retail_mdiscount_percent', 'retail_mprice', 'retail_mprice_text')),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
@@ -298,26 +303,35 @@ function ciniki_foodmarket_productUpdateFields(&$ciniki, $tnid, $product_id) {
         }
 
         //
-        // Check for a discount
+        // Check for a discount and setup members pricing
         //
         $output['retail_price'] = $price;
+        $output['retail_mprice'] = $price;
+        if( $output['retail_mdiscount_percent'] > 0 ) {
+            $output['retail_mprice'] = bcsub($output['retail_price'], round(bcmul($output['retail_price'], $output['retail_mdiscount_percent'], 6), 2), 6);
+        }
         if( $output['retail_sdiscount_percent'] > 0 ) {
             $output['retail_price_text'] = '$' . number_format($price, 2, '.', ',');
             $discount = bcmul($price, $output['retail_sdiscount_percent'], 6);
             $output['retail_sprice'] = bcsub($price, $discount, 6);
             $output['retail_sprice_text'] = '$' . number_format($output['retail_sprice'], 2) . $unitstext;
+            if( $output['retail_mdiscount_percent'] > 0 ) {
+                $discount = bcmul($output['retail_mprice'], $output['retail_sdiscount_percent'], 6);
+                $output['retail_mprice'] = bcsub($output['retail_mprice'], $discount, 6);
+            }
         } else {
             $output['retail_price'] = $price;
             $output['retail_price_text'] = '$' . number_format($price, 2, '.', ',') . $unitstext;
             $output['retail_sprice'] = 0;
             $output['retail_sprice_text'] = '';
         }
+        $output['retail_mprice_text'] = '$' . number_format($output['retail_mprice'], 2) . $unitstext;
 
         //
         // Check for changed fields and build array of fields to update, and update the $outputs array
         //
         $update_args = array();
-        foreach(['io_sequence', 'pio_name', 'io_name', 'keywords', 'wholesale_price', 'retail_price', 'retail_price_text', 'retail_sprice', 'retail_sprice_text'] as $field) {
+        foreach(['io_sequence', 'pio_name', 'io_name', 'keywords', 'wholesale_price', 'retail_price', 'retail_price_text', 'retail_sprice', 'retail_sprice_text', 'retail_mprice', 'retail_mprice_text'] as $field) {
             if( isset($output[$field]) && $output[$field] != $outputs[$output_id][$field] ) {
                 $update_args[$field] = $output[$field];
                 $outputs[$output_id][$field] = $output[$field];

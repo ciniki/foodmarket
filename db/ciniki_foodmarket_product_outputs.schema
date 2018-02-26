@@ -109,6 +109,9 @@
 # retail_sdiscount_percent:     The discount amount for a special. This allows for each sale items. This also puts the item in the specials list.
 # retail_sprice:                The price when the item is on special, the sdiscount_percent > 0.
 # retail_sprice_text:           The special price formatted with units.
+# retail_mdiscount_percent:     The discount amount for a member. This allows for members to get additional discounts on items.
+# retail_mprice:                The price for the member.
+# retail_mprice_text:           The price for the member, formatted with units.
 # retail_deposit:               The deposit amount when the item is added to the queue.
 # retail_taxtype_id:            The ID of the tax type in ciniki.taxes to charge on this item.
 #
@@ -143,6 +146,11 @@ create table ciniki_foodmarket_product_outputs (
     retail_sdiscount_percent decimal(9,6) not null,
     retail_sprice decimal(19,6) not null,
     retail_sprice_text varchar(100) not null,
+    retail_mdiscount_percent decimal(9,6) not null,
+    retail_mprice decimal(19,6) not null,
+    retail_mprice_text varchar(100) not null,
+    retail_msprice decimal(19,6) not null,
+    retail_msprice_text varchar(100) not null,
     retail_deposit decimal(19,6) not null,
     retail_taxtype_id int not null,
     date_added datetime not null,
@@ -152,4 +160,4 @@ create table ciniki_foodmarket_product_outputs (
     index keywords (keywords),
     index (product_id, input_id),
     index sync (tnid, uuid, last_updated)
-) ENGINE='InnoDB', COMMENT='v1.01';
+) ENGINE='InnoDB', COMMENT='v1.02';

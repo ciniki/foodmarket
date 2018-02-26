@@ -1,0 +1,8 @@
+#
+# Add the column to store member discounts
+#
+ALTER TABLE ciniki_foodmarket_product_outputs ADD COLUMN retail_mdiscount_percent decimal(9,6) not null AFTER retail_sprice_text;
+ALTER TABLE ciniki_foodmarket_product_outputs ADD COLUMN retail_mprice decimal(19,6) not null AFTER retail_mdiscount_percent;
+ALTER TABLE ciniki_foodmarket_product_outputs ADD COLUMN retail_mprice_text varchar(100) not null AFTER retail_mprice;
+UPDATE ciniki_foodmarket_product_outputs SET retail_mprice = retail_price, retail_mprice_text = retail_price_test;
+ALTER TABLE ciniki_foodmarket_product_outputs COMMENT='v1.02';

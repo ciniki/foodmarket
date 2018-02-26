@@ -190,6 +190,8 @@ function ciniki_foodmarket_web_prepareOutputs($ciniki, $settings, $tnid, $args) 
         // Check if limited
         //
         if( ($output['flags']&0x0800) == 0x0800 ) {
+            error_log('test');
+            error_log($output['inventory']);
             $output['repeat'] = 'no';
             if( isset($output['inventory']) && $output['inventory'] > 0 ) {
                 $output['available'] = 'yes';

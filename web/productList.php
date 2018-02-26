@@ -33,13 +33,16 @@ function ciniki_foodmarket_web_productList($ciniki, $settings, $tnid, $args) {
             . "ciniki_foodmarket_product_outputs.io_name, "
             . "ciniki_foodmarket_product_outputs.retail_price, "
             . "ciniki_foodmarket_product_outputs.retail_price_text, "
-            . "ciniki_foodmarket_product_outputs.retail_sprice_text "
-            . "FROM ciniki_foodmarket_category_items, ciniki_foodmarket_products, ciniki_foodmarket_product_outputs "
+            . "ciniki_foodmarket_product_outputs.retail_sprice_text, "
+            . "ciniki_foodmarket_product_inputs.inventory "
+            . "FROM ciniki_foodmarket_category_items, ciniki_foodmarket_products, ciniki_foodmarket_product_inputs, ciniki_foodmarket_product_outputs "
             . "WHERE ciniki_foodmarket_category_items.category_id = '" . ciniki_core_dbQuote($ciniki, $args['category_id']) . "' "
             . "AND ciniki_foodmarket_category_items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "AND ciniki_foodmarket_category_items.product_id = ciniki_foodmarket_products.id "
             . "AND ciniki_foodmarket_products.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "AND ciniki_foodmarket_products.status = 40 " // Product visible on website
+            . "AND ciniki_foodmarket_products.id = ciniki_foodmarket_product_inputs.product_id "
+            . "AND ciniki_foodmarket_product_inputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "AND ciniki_foodmarket_products.id = ciniki_foodmarket_product_outputs.product_id "
             . "AND ciniki_foodmarket_product_outputs.status = 40 "  // Output visible on website
             . "AND ciniki_foodmarket_product_outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
@@ -61,8 +64,9 @@ function ciniki_foodmarket_web_productList($ciniki, $settings, $tnid, $args) {
             . "ciniki_foodmarket_product_outputs.io_name, "
             . "ciniki_foodmarket_product_outputs.retail_price, "
             . "ciniki_foodmarket_product_outputs.retail_price_text, "
-            . "ciniki_foodmarket_product_outputs.retail_sprice_text "
-            . "FROM ciniki_foodmarket_categories, ciniki_foodmarket_category_items, ciniki_foodmarket_products, ciniki_foodmarket_product_outputs "
+            . "ciniki_foodmarket_product_outputs.retail_sprice_text, "
+            . "ciniki_foodmarket_product_inputs.inventory "
+            . "FROM ciniki_foodmarket_categories, ciniki_foodmarket_category_items, ciniki_foodmarket_products, ciniki_foodmarket_product_inputs, ciniki_foodmarket_product_outputs "
             . "WHERE ciniki_foodmarket_categories.parent_id  = '" . ciniki_core_dbQuote($ciniki, $args['parent_id']) . "' "
             . "AND ciniki_foodmarket_categories.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "AND ciniki_foodmarket_categories.id = ciniki_foodmarket_category_items.category_id "
@@ -70,6 +74,8 @@ function ciniki_foodmarket_web_productList($ciniki, $settings, $tnid, $args) {
             . "AND ciniki_foodmarket_category_items.product_id = ciniki_foodmarket_products.id "
             . "AND ciniki_foodmarket_products.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "AND ciniki_foodmarket_products.status = 40 " // Product visible on website
+            . "AND ciniki_foodmarket_products.id = ciniki_foodmarket_product_inputs.product_id "
+            . "AND ciniki_foodmarket_product_inputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "AND ciniki_foodmarket_products.id = ciniki_foodmarket_product_outputs.product_id "   
             . "AND ciniki_foodmarket_product_outputs.status = 40 " // output visible on website
             . "AND ciniki_foodmarket_product_outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
@@ -91,10 +97,13 @@ function ciniki_foodmarket_web_productList($ciniki, $settings, $tnid, $args) {
             . "ciniki_foodmarket_product_outputs.io_name, "
             . "ciniki_foodmarket_product_outputs.retail_price, "
             . "ciniki_foodmarket_product_outputs.retail_price_text, "
-            . "ciniki_foodmarket_product_outputs.retail_sprice_text "
-            . "FROM ciniki_foodmarket_products, ciniki_foodmarket_product_outputs "
+            . "ciniki_foodmarket_product_outputs.retail_sprice_text, "
+            . "ciniki_foodmarket_product_inputs.inventory "
+            . "FROM ciniki_foodmarket_products, ciniki_foodmarket_product_inputs, ciniki_foodmarket_product_outputs "
             . "WHERE ciniki_foodmarket_products.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "AND ciniki_foodmarket_products.status = 40 " // Product visible on website
+            . "AND ciniki_foodmarket_products.id = ciniki_foodmarket_product_inputs.product_id "
+            . "AND ciniki_foodmarket_product_inputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "AND ciniki_foodmarket_products.id = ciniki_foodmarket_product_outputs.product_id "
             . "AND ciniki_foodmarket_product_outputs.status = 40 " // output visible on website
             . "AND ciniki_foodmarket_product_outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
@@ -119,9 +128,11 @@ function ciniki_foodmarket_web_productList($ciniki, $settings, $tnid, $args) {
     $strsql .= "ORDER BY pio_name, io_sequence ";
 
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(
-        array('container'=>'products', 'fname'=>'id', 'fields'=>array('id', 'name', 'permalink', 'image_id', 'legend_codes', 'legend_names', 'synopsis')),
-        array('container'=>'options', 'fname'=>'price_id', 'fields'=>array('id'=>'price_id', 'flags', 'name'=>'io_name', 
-            'price_display'=>'retail_price_text', 'price'=>'retail_price', 'sale_price_display'=>'retail_sprice_text')),
+        array('container'=>'products', 'fname'=>'id', 
+            'fields'=>array('id', 'name', 'permalink', 'image_id', 'legend_codes', 'legend_names', 'synopsis')),
+        array('container'=>'options', 'fname'=>'price_id', 
+            'fields'=>array('id'=>'price_id', 'flags', 'name'=>'io_name', 
+                'price_display'=>'retail_price_text', 'price'=>'retail_price', 'sale_price_display'=>'retail_sprice_text', 'inventory')),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;

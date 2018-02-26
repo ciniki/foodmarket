@@ -552,7 +552,8 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $tnid
             . "outputs.units, "
             . "outputs.flags, "
             . "outputs.retail_price_text, "
-            . "outputs.retail_sprice_text "
+            . "outputs.retail_sprice_text, "
+            . "inputs.inventory "
             . "FROM ciniki_foodmarket_categories AS categories "
             . "LEFT JOIN ciniki_foodmarket_categories AS subcategories ON ("
                 . "categories.id = subcategories.parent_id "
@@ -566,6 +567,10 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $tnid
                 . "items.product_id = products.id "
                 . "AND products.status = 40 "
                 . "AND products.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+                . ") "
+            . "LEFT JOIN ciniki_foodmarket_product_inputs AS inputs ON ("
+                . "products.id = inputs.product_id "
+                . "AND inputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                 . ") "
             . "LEFT JOIN ciniki_foodmarket_product_outputs AS outputs ON ("
                 . "products.id = outputs.product_id "
@@ -587,7 +592,7 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $tnid
             array('container'=>'categories', 'fname'=>'id', 'fields'=>array('name'=>'category_name', 'ctype')),
             array('container'=>'subcategories', 'fname'=>'sid', 'fields'=>array('name'=>'subcategory_name')),
             array('container'=>'outputs', 'fname'=>'oid', 'fields'=>array('id'=>'oid', 'name'=>'pio_name', 'otype', 'flags', 'ctype',
-                'price_text'=>'retail_price_text', 'sale_price_text'=>'retail_sprice_text')),
+                'price_text'=>'retail_price_text', 'sale_price_text'=>'retail_sprice_text', 'inventory')),
             ));
         if( $rc['stat'] != 'ok' ) {
             return $rc;

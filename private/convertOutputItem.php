@@ -28,6 +28,8 @@ function ciniki_foodmarket_convertOutputItem($ciniki, $tnid, $output) {
         'taxtype_id'=>(isset($output['retail_taxtype_id']) ? $output['retail_taxtype_id'] : 0),
         'packing_order'=>(isset($output['packing_order']) ? $output['packing_order'] : 10),
         'retail_price_text'=>(isset($output['retail_price_text']) ? $output['retail_price_text'] : ''),
+        'num_ordered'=>(isset($output['num_ordered']) ? $output['num_ordered'] : ''),
+        'num_available'=>(isset($output['num_available']) ? $output['num_available'] : ''),
         );
 
     if( isset($output['retail_sdiscount_percent']) && $output['retail_sdiscount_percent'] > 0 ) {
@@ -50,6 +52,20 @@ function ciniki_foodmarket_convertOutputItem($ciniki, $tnid, $output) {
         $item['flags'] |= 0x80;
         $item['cdeposit_description'] = $output['cdeposit_name'];
         $item['cdeposit_amount'] = $output['cdeposit_amount'];
+    }
+
+    //
+    // Check if item inventory is tracked
+    //
+    if( isset($output['input_flags']) && ($output['input_flags']&0x02) == 0x02 ) {
+        $item['flags'] |= 0x01;
+    }
+
+    //
+    // Check if item is limited quantity
+    //
+    if( isset($output['flags']) && ($output['flags']&0x0800) == 0x0800 ) {
+        $item['flags'] |= 0x0800;
     }
 
     //

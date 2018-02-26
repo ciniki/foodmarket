@@ -20,7 +20,7 @@ function ciniki_foodmarket_flags($ciniki, $modules) {
         // 0x10
         array('flag'=>array('bit'=>'5', 'name'=>'Products')),
         array('flag'=>array('bit'=>'6', 'name'=>'Product Categories')),
-//        array('flag'=>array('bit'=>'7', 'name'=>'')),
+        array('flag'=>array('bit'=>'7', 'name'=>'Member Prices')),
 //        array('flag'=>array('bit'=>'8', 'name'=>'')),
         // 0x0100
         array('flag'=>array('bit'=>'9', 'name'=>'Suppliers')),
@@ -29,7 +29,7 @@ function ciniki_foodmarket_flags($ciniki, $modules) {
 //        array('flag'=>array('bit'=>'12', 'name'=>'')),
         // 0x1000
         array('flag'=>array('bit'=>'13', 'name'=>'Produce Baskets')),
-//        array('flag'=>array('bit'=>'14', 'name'=>'')),
+        array('flag'=>array('bit'=>'14', 'name'=>'CSA Baskets')),
 //        array('flag'=>array('bit'=>'15', 'name'=>'')),
 //        array('flag'=>array('bit'=>'16', 'name'=>'')),
         );
