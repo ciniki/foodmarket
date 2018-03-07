@@ -123,6 +123,16 @@ function ciniki_foodmarket_web_prepareOutputs($ciniki, $settings, $tnid, $args) 
         }
 
         //
+        // Check if is should be member pricing
+        //
+        if( isset($ciniki['session']['customer']['foodmarket.member']) 
+            && $ciniki['session']['customer']['foodmarket.member'] = 'yes' 
+            && isset($output['retail_mdiscount_percent']) && $output['retail_mdiscount_percent'] > 0 
+            ) {
+            $output['sale_price'] = $output['member_price'];
+            $output['sale_price_text'] = $output['member_price_text'];
+        }
+        //
         // Check if repeating order is available for this output
         //
         if( ($output['flags']&0x0100) == 0x0100 ) {
@@ -190,8 +200,6 @@ function ciniki_foodmarket_web_prepareOutputs($ciniki, $settings, $tnid, $args) 
         // Check if limited
         //
         if( ($output['flags']&0x0800) == 0x0800 ) {
-            error_log('test');
-            error_log($output['inventory']);
             $output['repeat'] = 'no';
             if( isset($output['inventory']) && $output['inventory'] > 0 ) {
                 $output['available'] = 'yes';

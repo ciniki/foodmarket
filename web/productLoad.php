@@ -103,6 +103,9 @@ function ciniki_foodmarket_web_productLoad($ciniki, $settings, $tnid, $args) {
         . "ciniki_foodmarket_product_outputs.retail_price_text AS price_text, "
         . "ciniki_foodmarket_product_outputs.retail_sprice AS sale_price, "
         . "ciniki_foodmarket_product_outputs.retail_sprice_text AS sale_price_text, "
+        . "ciniki_foodmarket_product_outputs.retail_mdiscount_percent, "
+        . "ciniki_foodmarket_product_outputs.retail_mprice AS member_price, "
+        . "ciniki_foodmarket_product_outputs.retail_mprice_text AS member_price_text, "
         . "ciniki_foodmarket_product_outputs.retail_taxtype_id AS taxtype_id, "
         . "IFNULL(ciniki_foodmarket_product_inputs.sequence, 1) AS isequence, "
         . "IFNULL(ciniki_foodmarket_product_inputs.inventory, 0) AS inventory "
@@ -120,7 +123,7 @@ function ciniki_foodmarket_web_productLoad($ciniki, $settings, $tnid, $args) {
         array('container'=>'outputs', 'fname'=>'id', 
             'fields'=>array('id', 'product_id', 'input_id', 'name', 'permalink', 'status', 'status_text'=>'status', 'otype', 'otype_text'=>'otype', 
                 'units', 'units_text'=>'units', 'flags', 'flags_text'=>'flags', 'sequence'=>'io_sequence', 'start_date', 'end_date', 
-                'price', 'price_text', 'sale_price', 'sale_price_text', 'taxtype_id', 'inventory',
+                'price', 'price_text', 'sale_price', 'sale_price_text', 'retail_mdiscount_percent', 'member_price', 'member_price_text', 'taxtype_id', 'inventory',
                 ),
             'maps'=>array(
                 'status_text'=>$maps['output']['status'],
@@ -223,6 +226,10 @@ function ciniki_foodmarket_web_productLoad($ciniki, $settings, $tnid, $args) {
                 . "ciniki_foodmarket_product_outputs.retail_price_text AS price_text, "
                 . "ciniki_foodmarket_product_outputs.retail_sprice AS sale_price, "
                 . "ciniki_foodmarket_product_outputs.retail_sprice_text AS sale_price_text, "
+                . "ciniki_foodmarket_product_outputs.retail_mdiscount_percent, "
+                . "ciniki_foodmarket_product_outputs.retail_mprice AS member_price, "
+                . "ciniki_foodmarket_product_outputs.retail_mprice AS member_price, "
+                . "ciniki_foodmarket_product_outputs.retail_mprice_text AS member_price_text, "
                 . "ciniki_foodmarket_basket_items.basket_output_id, "
                 . "ciniki_foodmarket_basket_items.quantity "
                 . "FROM ciniki_foodmarket_basket_items "
@@ -245,7 +252,8 @@ function ciniki_foodmarket_web_productLoad($ciniki, $settings, $tnid, $args) {
                 . "";
             $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.foodmarket', array(
                 array('container'=>'basket_items', 'fname'=>'id', 
-                    'fields'=>array('id', 'product_id', 'itype', 'units', 'case_units', 'min_quantity', 'name', 'otype', 'price', 'price_text', 'sale_price', 'sale_price_text', 'quantity')),
+                    'fields'=>array('id', 'product_id', 'itype', 'units', 'case_units', 'min_quantity', 'name', 'otype', 
+                        'price', 'price_text', 'sale_price', 'sale_price_text', 'retail_mdiscount_percent', 'member_price', 'member_price_text', 'quantity')),
                 ));
             if( $rc['stat'] != 'ok' ) {
                 return $rc;

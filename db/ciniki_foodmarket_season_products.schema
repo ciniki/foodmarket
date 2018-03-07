@@ -1,0 +1,40 @@
+#
+# Description
+# -----------
+# This table stores the season items for sale.
+#
+# Fields
+# ------
+# id:                   The ID assigned to the product.
+# uuid:                 The Universal Unique ID.
+# tnid:                 The tenant the product is attached to.
+#
+# season_id:            The ID of the season the customer is a member of.
+#
+# output_id:            The ID of the output item for the season.
+#
+# repeat_days:          The number of days between products. 7 or 14 days.
+#
+# repeat_weeks:         The number of weeks for the product. This is used in combination
+#                       with repeat_days to fill out the order days.
+#
+# price:                The amount charged for the season for the product.
+#
+# date_added:           The UTC date and time the record was added.
+# last_updated:         The UTC date and time the record was last updated.
+#
+create table ciniki_foodmarket_season_products (
+    id int not null auto_increment,
+    uuid char(36) not null,
+    tnid int not null,
+    season_id int not null,
+    output_id int not null,
+    repeat_days int not null, 
+    repeat_weeks int not null,
+    price decimal(19,6) not null,
+    date_added datetime not null,
+    last_updated datetime not null,
+    primary key (id),
+    unique index (uuid),
+    index sync (tnid, uuid, last_updated)
+) ENGINE='InnoDB', COMMENT='v1.01';

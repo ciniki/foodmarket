@@ -1,0 +1,31 @@
+#
+# Description
+# -----------
+# This table stores the seasons members. This will indicate who gets the 
+# members discount in store as well.
+#
+# Fields
+# ------
+# id:                   The ID assigned to the product.
+# uuid:                 The Universal Unique ID.
+# tnid:                 The tenant the product is attached to.
+#
+# season_id:            The ID of the season the customer is a member of.
+# customer_id:          The ID of the customer who is a member for the season.
+#
+# date_added:           The UTC date and time the record was added.
+# last_updated:         The UTC date and time the record was last updated.
+#
+create table ciniki_foodmarket_season_customers (
+    id int not null auto_increment,
+    uuid char(36) not null,
+    tnid int not null,
+    season_id int not null,
+    customer_id int not null,
+    date_added datetime not null,
+    last_updated datetime not null,
+    primary key (id),
+    unique index (uuid),
+    unique index (season_id, customer_id),
+    index sync (tnid, uuid, last_updated)
+) ENGINE='InnoDB', COMMENT='v1.01';

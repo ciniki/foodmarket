@@ -34,6 +34,9 @@ function ciniki_foodmarket_web_productList($ciniki, $settings, $tnid, $args) {
             . "ciniki_foodmarket_product_outputs.retail_price, "
             . "ciniki_foodmarket_product_outputs.retail_price_text, "
             . "ciniki_foodmarket_product_outputs.retail_sprice_text, "
+            . "ciniki_foodmarket_product_outputs.retail_mdiscount_percent, "
+            . "ciniki_foodmarket_product_outputs.retail_mprice, "
+            . "ciniki_foodmarket_product_outputs.retail_mprice_text, "
             . "ciniki_foodmarket_product_inputs.inventory "
             . "FROM ciniki_foodmarket_category_items, ciniki_foodmarket_products, ciniki_foodmarket_product_inputs, ciniki_foodmarket_product_outputs "
             . "WHERE ciniki_foodmarket_category_items.category_id = '" . ciniki_core_dbQuote($ciniki, $args['category_id']) . "' "
@@ -65,6 +68,9 @@ function ciniki_foodmarket_web_productList($ciniki, $settings, $tnid, $args) {
             . "ciniki_foodmarket_product_outputs.retail_price, "
             . "ciniki_foodmarket_product_outputs.retail_price_text, "
             . "ciniki_foodmarket_product_outputs.retail_sprice_text, "
+            . "ciniki_foodmarket_product_outputs.retail_mdiscount_percent, "
+            . "ciniki_foodmarket_product_outputs.retail_mprice, "
+            . "ciniki_foodmarket_product_outputs.retail_mprice_text, "
             . "ciniki_foodmarket_product_inputs.inventory "
             . "FROM ciniki_foodmarket_categories, ciniki_foodmarket_category_items, ciniki_foodmarket_products, ciniki_foodmarket_product_inputs, ciniki_foodmarket_product_outputs "
             . "WHERE ciniki_foodmarket_categories.parent_id  = '" . ciniki_core_dbQuote($ciniki, $args['parent_id']) . "' "
@@ -98,6 +104,9 @@ function ciniki_foodmarket_web_productList($ciniki, $settings, $tnid, $args) {
             . "ciniki_foodmarket_product_outputs.retail_price, "
             . "ciniki_foodmarket_product_outputs.retail_price_text, "
             . "ciniki_foodmarket_product_outputs.retail_sprice_text, "
+            . "ciniki_foodmarket_product_outputs.retail_mdiscount_percent, "
+            . "ciniki_foodmarket_product_outputs.retail_mprice, "
+            . "ciniki_foodmarket_product_outputs.retail_mprice_text, "
             . "ciniki_foodmarket_product_inputs.inventory "
             . "FROM ciniki_foodmarket_products, ciniki_foodmarket_product_inputs, ciniki_foodmarket_product_outputs "
             . "WHERE ciniki_foodmarket_products.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
@@ -132,7 +141,8 @@ function ciniki_foodmarket_web_productList($ciniki, $settings, $tnid, $args) {
             'fields'=>array('id', 'name', 'permalink', 'image_id', 'legend_codes', 'legend_names', 'synopsis')),
         array('container'=>'options', 'fname'=>'price_id', 
             'fields'=>array('id'=>'price_id', 'flags', 'name'=>'io_name', 
-                'price_display'=>'retail_price_text', 'price'=>'retail_price', 'sale_price_display'=>'retail_sprice_text', 'inventory')),
+                'price_display'=>'retail_price_text', 'price'=>'retail_price', 'sale_price_display'=>'retail_sprice_text', 
+                'retail_mdiscount_percent', 'member_price'=>'retail_mprice', 'member_price_display'=>'retail_mprice_text', 'inventory')),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
@@ -145,6 +155,14 @@ function ciniki_foodmarket_web_productList($ciniki, $settings, $tnid, $args) {
     foreach($products as $pid => $product) {
         if( $product['legend_codes'] != '' ) {
             $products[$pid]['name'] .= ' ' . $product['legend_codes'];
+        }
+        if( isset($ciniki['session']['customer']['foodmarket.member']) 
+            && $ciniki['session']['customer']['foodmarket.member'] = 'yes' 
+            && $product['retail_mdiscount_percent'] > 0 
+            && $product['member_price_display'] != '' 
+            ) {
+            $products[$pid]['sale_price'] = $product['member_price'];
+            $products[$pid]['sale_price_display'] = $product['member_price_display'];
         }
     }
 

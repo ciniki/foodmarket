@@ -1,0 +1,56 @@
+#
+# Description
+# -----------
+# This table stores the seasonal information for a food market. Seasons are used when 
+# it is not a year round market or memberships are required.
+#
+# The order dates for a season do NOT have to match the seasons start and end. Typically
+# a season will go from Jan 1 - Dec 31, and order dates will be Jun 16 - Oct 16, etc.
+#
+# Fields
+# ------
+# id:                   The ID assigned to the product.
+# uuid:                 The Universal Unique ID.
+# tnid:                 The tenant the product is attached to.
+#
+# name:                 The name for the season, typically the year.
+#
+# start_date:           The first day of the season. Typically this will be jan 1. This can be shorter if 
+#                       the market is not open year round.
+# end_date:             The last day of the season. Typically this will be dec 31.
+#
+# csa_start_date:       The first day of the CSA baskets. If running Wed-Sun each week, this should be the first Wed.
+# csa_end_date:         The last day of the CSA baskets. If running from Wed-Sun each week, this should be the last Sun.
+#
+# csa_days:             The days of the week available for CSA pickups. These are the days that will be shown
+#                       online for customers to signup to.
+#
+#                       0x01 - Sunday
+#                       0x02 - Monday
+#                       0x04 - Tuesday
+#                       0x08 - Wednesday
+#                       0x10 - Thursday
+#                       0x20 - Friday
+#                       0x40 - Saturday
+#                       0x80 - Sunday
+#
+# date_added:           The UTC date and time the record was added.
+# last_updated:         The UTC date and time the record was last updated.
+#
+create table ciniki_foodmarket_seasons (
+    id int not null auto_increment,
+    uuid char(36) not null,
+    tnid int not null,
+    name varchar(250) not null,
+    start_date date not null,
+    end_date date not null,
+    csa_start_date date not null,
+    csa_end_date date not null,
+    csa_days tinyint unsigned not null,
+    date_added datetime not null,
+    last_updated datetime not null,
+    primary key (id),
+    unique index (uuid),
+    unique index (tnid, name),
+    index sync (tnid, uuid, last_updated)
+) ENGINE='InnoDB', COMMENT='v1.01';

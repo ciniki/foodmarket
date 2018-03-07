@@ -315,9 +315,16 @@ function ciniki_foodmarket_productUpdateFields(&$ciniki, $tnid, $product_id) {
             $discount = bcmul($price, $output['retail_sdiscount_percent'], 6);
             $output['retail_sprice'] = bcsub($price, $discount, 6);
             $output['retail_sprice_text'] = '$' . number_format($output['retail_sprice'], 2) . $unitstext;
+            //
+            // If a mdiscount_percent specified, add that discount to sale discount percent, 
+            // recalculate the member price
+            //
             if( $output['retail_mdiscount_percent'] > 0 ) {
-                $discount = bcmul($output['retail_mprice'], $output['retail_sdiscount_percent'], 6);
-                $output['retail_mprice'] = bcsub($output['retail_mprice'], $discount, 6);
+                error_log($output['retail_mdiscount_percent']);
+                error_log($output['retail_sdiscount_percent']);
+                $discount = bcmul($output['retail_price'], bcadd($output['retail_sdiscount_percent'], $output['retail_mdiscount_percent'], 2), 6);
+                error_log($discount);
+                $output['retail_mprice'] = bcsub($output['retail_price'], $discount, 6);
             }
         } else {
             $output['retail_price'] = $price;

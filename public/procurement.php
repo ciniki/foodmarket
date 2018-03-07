@@ -119,6 +119,7 @@ function ciniki_foodmarket_procurement($ciniki) {
         . "FROM ciniki_poma_order_dates "
         . "WHERE ciniki_poma_order_dates.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "AND ciniki_poma_order_dates.order_date >= '" . ciniki_core_dbQuote($ciniki, $dt->format('Y-m-d')) . "' "
+        . "AND ciniki_poma_order_dates.status > 5 "
         . "GROUP BY ciniki_poma_order_dates.id "
         . "ORDER BY ciniki_poma_order_dates.order_date DESC "
         . "LIMIT 25"

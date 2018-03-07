@@ -15,6 +15,12 @@ function ciniki_foodmarket_maps(&$ciniki) {
     // Build the maps object
     //
     $maps = array();
+    $maps['seasonproduct'] = array(
+        'repeat_days'=>array(
+            '7'=>'Weekly',
+            '14'=>'Bi-Weekly',
+        ),
+    );
     $maps['product'] = array(
         'status'=>array(
             '10'=>'Active',

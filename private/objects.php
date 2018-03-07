@@ -235,6 +235,49 @@ function ciniki_foodmarket_objects($ciniki) {
             ),
         'history_table' => 'ciniki_foodmarket_history',
         );
+    $objects['season'] = array(
+        'name' => 'Season',
+        'sync' => 'yes',
+        'o_name' => 'season',
+        'o_container' => 'seasons',
+        'table' => 'ciniki_foodmarket_seasons',
+        'fields' => array(
+            'name' => array('name'=>'Name'),
+            'start_date' => array('name'=>'Start Date'),
+            'end_date' => array('name'=>'End Date'),
+            'csa_start_date' => array('name'=>'CSA Start Date'),
+            'csa_end_date' => array('name'=>'CSA End Date'),
+            'csa_days' => array('name'=>'CSA Days'),
+            ),
+        'history_table' => 'ciniki_foodmarket_history',
+        );
+    $objects['seasonproduct'] = array(
+        'name' => 'Season Product',
+        'sync' => 'yes',
+        'o_name' => 'product',
+        'o_container' => 'products',
+        'table' => 'ciniki_foodmarket_season_products',
+        'fields' => array(
+            'season_id' => array('name'=>'Season', 'ref'=>'ciniki.foodmarket.season'),
+            'output_id' => array('name'=>'Product', 'ref'=>'ciniki.foodmarket.output'),
+            'repeat_days' => array('name'=>'Repeat Days'),
+            'repeat_weeks' => array('name'=>'Repeat Weeks'),
+            'price' => array('name'=>'Price'),
+            ),
+        'history_table' => 'ciniki_foodmarket_history',
+        );
+    $objects['seasoncustomer'] = array(
+        'name' => 'Season Customer',
+        'sync' => 'yes',
+        'o_name' => 'customer',
+        'o_container' => 'customers',
+        'table' => 'ciniki_foodmarket_season_customers',
+        'fields' => array(
+            'season_id' => array('name'=>'Season', 'ref'=>'ciniki.foodmarket.season'),
+            'customer_id' => array('name'=>'Customer', 'ref'=>'ciniki.customers.customer'),
+            ),
+        'history_table' => 'ciniki_foodmarket_history',
+        );
     $objects['tag'] = array(
         'name'=>'Tag',
         'sync'=>'yes',

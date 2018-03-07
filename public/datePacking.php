@@ -125,6 +125,7 @@ function ciniki_foodmarket_datePacking($ciniki) {
         . "WHERE ciniki_poma_order_dates.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
 //        . "AND ciniki_poma_order_dates.order_date >= '" . ciniki_core_dbQuote($ciniki, $dt->format('Y-m-d')) . "' "
 //        . "GROUP BY ciniki_poma_order_dates.id "
+        . "AND ciniki_poma_order_dates.status > 5 "
         . "ORDER BY ciniki_poma_order_dates.order_date DESC "
         . "LIMIT 25"
         . "";

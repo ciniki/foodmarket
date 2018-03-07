@@ -34,6 +34,11 @@ function ciniki_foodmarket_convertOutputItem($ciniki, $tnid, $output) {
 
     if( isset($output['retail_sdiscount_percent']) && $output['retail_sdiscount_percent'] > 0 ) {
         $item['unit_discount_percentage'] = bcmul($output['retail_sdiscount_percent'], 100, 2);
+    } else {
+        $item['unit_discount_percentage'] = 0;
+    }
+    if( isset($output['retail_mdiscount_percent']) && $output['retail_mdiscount_percent'] > 0 ) {
+        $item['unit_discount_percentage'] = bcadd($item['unit_discount_percentage'], bcmul($output['retail_mdiscount_percent'], 100, 2), 2);
     }
 
     //
