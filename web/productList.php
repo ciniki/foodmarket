@@ -21,101 +21,119 @@ function ciniki_foodmarket_web_productList($ciniki, $settings, $tnid, $args) {
     // Select the products for a category
     //
     if( isset($args['category_id']) ) {
-        $strsql = "SELECT ciniki_foodmarket_products.id, "
-            . "ciniki_foodmarket_products.name, "
-            . "ciniki_foodmarket_products.permalink, "
-            . "ciniki_foodmarket_products.primary_image_id AS image_id, "
-            . "ciniki_foodmarket_products.legend_codes, "
-            . "ciniki_foodmarket_products.legend_names, "
-            . "ciniki_foodmarket_products.synopsis, "
-            . "ciniki_foodmarket_product_outputs.id AS price_id, "
-            . "ciniki_foodmarket_product_outputs.flags, "
-            . "ciniki_foodmarket_product_outputs.io_name, "
-            . "ciniki_foodmarket_product_outputs.retail_price, "
-            . "ciniki_foodmarket_product_outputs.retail_price_text, "
-            . "ciniki_foodmarket_product_outputs.retail_sprice_text, "
-            . "ciniki_foodmarket_product_outputs.retail_mdiscount_percent, "
-            . "ciniki_foodmarket_product_outputs.retail_mprice, "
-            . "ciniki_foodmarket_product_outputs.retail_mprice_text, "
-            . "ciniki_foodmarket_product_inputs.inventory "
-            . "FROM ciniki_foodmarket_category_items, ciniki_foodmarket_products, ciniki_foodmarket_product_inputs, ciniki_foodmarket_product_outputs "
-            . "WHERE ciniki_foodmarket_category_items.category_id = '" . ciniki_core_dbQuote($ciniki, $args['category_id']) . "' "
-            . "AND ciniki_foodmarket_category_items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
-            . "AND ciniki_foodmarket_category_items.product_id = ciniki_foodmarket_products.id "
-            . "AND ciniki_foodmarket_products.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
-            . "AND ciniki_foodmarket_products.status = 40 " // Product visible on website
-            . "AND ciniki_foodmarket_products.id = ciniki_foodmarket_product_inputs.product_id "
-            . "AND ciniki_foodmarket_product_inputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
-            . "AND ciniki_foodmarket_products.id = ciniki_foodmarket_product_outputs.product_id "
-            . "AND ciniki_foodmarket_product_outputs.status = 40 "  // Output visible on website
-            . "AND ciniki_foodmarket_product_outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+        $strsql = "SELECT products.id, "
+            . "products.name, "
+            . "products.permalink, "
+            . "products.primary_image_id AS image_id, "
+            . "products.legend_codes, "
+            . "products.legend_names, "
+            . "products.synopsis, "
+            . "outputs.id AS price_id, "
+            . "outputs.flags, "
+            . "outputs.io_name, "
+            . "outputs.retail_price, "
+            . "outputs.retail_price_text, "
+            . "outputs.retail_sprice_text, "
+            . "outputs.retail_mdiscount_percent, "
+            . "outputs.retail_mprice, "
+            . "outputs.retail_mprice_text, "
+            . "inputs.inventory "
+            . "FROM ciniki_foodmarket_category_items AS items "
+            . "INNER JOIN ciniki_foodmarket_products AS products ON ("
+                . "items.product_id = products.id "
+                . "AND products.status = 40 " // Product visible on website
+                . "AND products.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+                . ") "
+            . "INNER JOIN ciniki_foodmarket_product_outputs AS outputs ON ("
+                . "products.id = outputs.product_id "
+                . "AND outputs.status = 40 "  // Output visible on website
+                . "AND outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+                . ") "
+            . "LEFT JOIN ciniki_foodmarket_product_inputs AS inputs ON ("
+                . "products.id = inputs.product_id "
+                . "AND inputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+                . ") "
+            . "WHERE items.category_id = '" . ciniki_core_dbQuote($ciniki, $args['category_id']) . "' "
+            . "AND items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "";
     } 
     //
     // Select the products from the sub-categories
     //
     elseif( isset($args['parent_id']) ) {
-        $strsql = "SELECT ciniki_foodmarket_products.id, "
-            . "ciniki_foodmarket_products.name, "
-            . "ciniki_foodmarket_products.permalink, "
-            . "ciniki_foodmarket_products.primary_image_id AS image_id, "
-            . "ciniki_foodmarket_products.legend_codes, "
-            . "ciniki_foodmarket_products.legend_names, "
-            . "ciniki_foodmarket_products.synopsis, "
-            . "ciniki_foodmarket_product_outputs.id AS price_id, "
-            . "ciniki_foodmarket_product_outputs.flags, "
-            . "ciniki_foodmarket_product_outputs.io_name, "
-            . "ciniki_foodmarket_product_outputs.retail_price, "
-            . "ciniki_foodmarket_product_outputs.retail_price_text, "
-            . "ciniki_foodmarket_product_outputs.retail_sprice_text, "
-            . "ciniki_foodmarket_product_outputs.retail_mdiscount_percent, "
-            . "ciniki_foodmarket_product_outputs.retail_mprice, "
-            . "ciniki_foodmarket_product_outputs.retail_mprice_text, "
-            . "ciniki_foodmarket_product_inputs.inventory "
-            . "FROM ciniki_foodmarket_categories, ciniki_foodmarket_category_items, ciniki_foodmarket_products, ciniki_foodmarket_product_inputs, ciniki_foodmarket_product_outputs "
-            . "WHERE ciniki_foodmarket_categories.parent_id  = '" . ciniki_core_dbQuote($ciniki, $args['parent_id']) . "' "
-            . "AND ciniki_foodmarket_categories.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
-            . "AND ciniki_foodmarket_categories.id = ciniki_foodmarket_category_items.category_id "
-            . "AND ciniki_foodmarket_category_items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
-            . "AND ciniki_foodmarket_category_items.product_id = ciniki_foodmarket_products.id "
-            . "AND ciniki_foodmarket_products.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
-            . "AND ciniki_foodmarket_products.status = 40 " // Product visible on website
-            . "AND ciniki_foodmarket_products.id = ciniki_foodmarket_product_inputs.product_id "
-            . "AND ciniki_foodmarket_product_inputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
-            . "AND ciniki_foodmarket_products.id = ciniki_foodmarket_product_outputs.product_id "   
-            . "AND ciniki_foodmarket_product_outputs.status = 40 " // output visible on website
-            . "AND ciniki_foodmarket_product_outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+        $strsql = "SELECT products.id, "
+            . "products.name, "
+            . "products.permalink, "
+            . "products.primary_image_id AS image_id, "
+            . "products.legend_codes, "
+            . "products.legend_names, "
+            . "products.synopsis, "
+            . "outputs.id AS price_id, "
+            . "outputs.flags, "
+            . "outputs.io_name, "
+            . "outputs.retail_price, "
+            . "outputs.retail_price_text, "
+            . "outputs.retail_sprice_text, "
+            . "outputs.retail_mdiscount_percent, "
+            . "outputs.retail_mprice, "
+            . "outputs.retail_mprice_text, "
+            . "inputs.inventory "
+            . "FROM ciniki_foodmarket_categories AS categories "
+            . "INNER JOIN ciniki_foodmarket_category_items AS items ON ("
+                . "categories.id = items.category_id "
+                . "AND items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+                . "AND items.product_id = products.id "
+                . ") "
+            . "INNER JOIN ciniki_foodmarket_products AS products ON ("
+                . "products.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+                . "AND products.status = 40 " // Product visible on website
+                . ") "
+            . "INNER JOIN ciniki_foodmarket_product_outputs AS outputs ON ("
+                . "products.id = outputs.product_id "   
+                . "AND outputs.status = 40 " // output visible on website
+                . "AND outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+                . ") "
+            . "LEFT JOIN ciniki_foodmarket_product_inputs AS inputs ON ("
+                . "products.id = inputs.product_id "
+                . "AND inputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+                . ") "
+            . "WHERE categories.parent_id  = '" . ciniki_core_dbQuote($ciniki, $args['parent_id']) . "' "
+            . "AND categories.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . "";
     } 
     //
     // Select products from any category
     //
     else {
-        $strsql = "SELECT ciniki_foodmarket_products.id, "
-            . "ciniki_foodmarket_products.name, "
-            . "ciniki_foodmarket_products.permalink, "
-            . "ciniki_foodmarket_products.primary_image_id AS image_id, "
-            . "ciniki_foodmarket_products.legend_codes, "
-            . "ciniki_foodmarket_products.legend_names, "
-            . "ciniki_foodmarket_products.synopsis, "
-            . "ciniki_foodmarket_product_outputs.id AS price_id, "
-            . "ciniki_foodmarket_product_outputs.flags, "
-            . "ciniki_foodmarket_product_outputs.io_name, "
-            . "ciniki_foodmarket_product_outputs.retail_price, "
-            . "ciniki_foodmarket_product_outputs.retail_price_text, "
-            . "ciniki_foodmarket_product_outputs.retail_sprice_text, "
-            . "ciniki_foodmarket_product_outputs.retail_mdiscount_percent, "
-            . "ciniki_foodmarket_product_outputs.retail_mprice, "
-            . "ciniki_foodmarket_product_outputs.retail_mprice_text, "
-            . "ciniki_foodmarket_product_inputs.inventory "
-            . "FROM ciniki_foodmarket_products, ciniki_foodmarket_product_inputs, ciniki_foodmarket_product_outputs "
-            . "WHERE ciniki_foodmarket_products.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
-            . "AND ciniki_foodmarket_products.status = 40 " // Product visible on website
-            . "AND ciniki_foodmarket_products.id = ciniki_foodmarket_product_inputs.product_id "
-            . "AND ciniki_foodmarket_product_inputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
-            . "AND ciniki_foodmarket_products.id = ciniki_foodmarket_product_outputs.product_id "
-            . "AND ciniki_foodmarket_product_outputs.status = 40 " // output visible on website
-            . "AND ciniki_foodmarket_product_outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+        $strsql = "SELECT products.id, "
+            . "products.name, "
+            . "products.permalink, "
+            . "products.primary_image_id AS image_id, "
+            . "products.legend_codes, "
+            . "products.legend_names, "
+            . "products.synopsis, "
+            . "outputs.id AS price_id, "
+            . "outputs.flags, "
+            . "outputs.io_name, "
+            . "outputs.retail_price, "
+            . "outputs.retail_price_text, "
+            . "outputs.retail_sprice_text, "
+            . "outputs.retail_mdiscount_percent, "
+            . "outputs.retail_mprice, "
+            . "outputs.retail_mprice_text, "
+            . "inputs.inventory "
+            . "FROM ciniki_foodmarket_products AS products "
+            . "INNER JOIN ciniki_foodmarket_product_outputs AS outputs ON ("
+                . "products.id = outputs.product_id "
+                . "AND outputs.status = 40 " // output visible on website
+                . "AND outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+                . ") "
+            . "LEFT JOIN ciniki_foodmarket_product_inputs AS inputs ON ("
+                . "products.id = inputs.product_id "
+                . "AND inputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+                . ") "
+            . "WHERE products.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+            . "AND products.status = 40 " // Product visible on website
             . "";
     }
 
@@ -124,18 +142,18 @@ function ciniki_foodmarket_web_productList($ciniki, $settings, $tnid, $args) {
     //
     if( isset($args['type']) && $args['type'] == 'specials' ) {
         // Make sure it's an integer we're passing into the sql string.
-        $strsql .= "AND ciniki_foodmarket_product_outputs.retail_sdiscount_percent > 0 ";
+        $strsql .= "AND outputs.retail_sdiscount_percent > 0 ";
     }
 
     //
     // Get the new products
     //
     elseif( isset($args['type']) && $args['type'] == 'newproducts' ) {
-        $strsql .= "AND (ciniki_foodmarket_products.flags&0x01) = 0x01 ";
+        $strsql .= "AND (products.flags&0x01) = 0x01 ";
     }
 
     $strsql .= "ORDER BY pio_name, io_sequence ";
-
+error_log($strsql);
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(
         array('container'=>'products', 'fname'=>'id', 
             'fields'=>array('id', 'name', 'permalink', 'image_id', 'legend_codes', 'legend_names', 'synopsis')),
