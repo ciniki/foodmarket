@@ -1,0 +1,7 @@
+#
+# Add the column to store member discounts
+#
+ALTER TABLE ciniki_foodmarket_products ADD COLUMN available_months smallint unsigned not null AFTER ingredients;
+ALTER TABLE ciniki_foodmarket_products ADD COLUMN storage text not null AFTER available_months;
+ALTER TABLE ciniki_foodmarket_products ADD COLUMN culinary text not null AFTER storage;
+ALTER TABLE ciniki_foodmarket_products COMMENT='v1.02';

@@ -2169,10 +2169,38 @@ function ciniki_foodmarket_main() {
             'fields':{
                 'description':{'label':'', 'hidelabel':'yes', 'hint':'', 'size':'large', 'type':'textarea'},
             }},
+        '_available':{'label':'Available', 
+            'visible':function() { return M.ciniki_foodmarket_main.product.inputVisible('description'); },
+            'fields':{
+                'available_months':{'label':'', 'hidelabel':'yes', 'type':'flags', 'flags':{
+                    '1':{'name':'Jan'}, 
+                    '2':{'name':'Feb'}, 
+                    '3':{'name':'Mar'}, 
+                    '4':{'name':'Apr'}, 
+                    '5':{'name':'May'}, 
+                    '6':{'name':'Jun'}, 
+                    '7':{'name':'Jul'}, 
+                    '8':{'name':'Aug'}, 
+                    '9':{'name':'Sep'}, 
+                    '10':{'name':'Oct'}, 
+                    '11':{'name':'Nov'}, 
+                    '12':{'name':'Dec'},
+                    }},
+            }},
         '_ingredients':{'label':'Ingredients', 
             'visible':function() { return M.ciniki_foodmarket_main.product.inputVisible('description'); },
             'fields':{
                 'ingredients':{'label':'', 'hidelabel':'yes', 'hint':'', 'size':'medium', 'type':'textarea'},
+            }},
+        '_storage':{'label':'Storage Tips', 
+            'visible':function() { return M.ciniki_foodmarket_main.product.inputVisible('description'); },
+            'fields':{
+                'storage':{'label':'', 'hidelabel':'yes', 'hint':'', 'size':'medium', 'type':'textarea'},
+            }},
+        '_culinary':{'label':'Culinary Tips', 
+            'visible':function() { return M.ciniki_foodmarket_main.product.inputVisible('description'); },
+            'fields':{
+                'culinary':{'label':'', 'hidelabel':'yes', 'hint':'', 'size':'medium', 'type':'textarea'},
             }},
         };
     for(var i = 1;i<=9;i++) {
@@ -2643,7 +2671,7 @@ function ciniki_foodmarket_main() {
 //        this.refreshSections(['ptype', '_tabs', '_inputs']);
         this.refreshSections(['ptype', '_tabs', 'inputs']);
         this.showHideSections(['_supplier', 'basket']);
-        this.showHideSections(['_categories', '_synopsis', '_description', '_ingredients']);
+        this.showHideSections(['_categories', '_synopsis', '_description', '_ingredients', '_available', '_storage', '_culinary']);
 //        this.showHideInputs();
         this.updatePanel();
     }
@@ -2651,7 +2679,7 @@ function ciniki_foodmarket_main() {
         this.sections._tabs.selected = tab;
 //        this.refreshSections(['_tabs', '_inputs']);
         this.refreshSections(['_tabs', 'inputs']);
-        this.showHideSections(['_categories', '_synopsis', '_description', '_ingredients']);
+        this.showHideSections(['_categories', '_synopsis', '_description', '_ingredients', '_available', '_storage', '_culinary']);
         this.updatePanel();
 //        this.updateInput('input1');
 //        this.showHideInputs();
@@ -3107,6 +3135,9 @@ function ciniki_foodmarket_main() {
             c += this.serializeFormSection('no', '_synopsis');
             c += this.serializeFormSection('no', '_description');
             c += this.serializeFormSection('no', '_ingredients');
+            c += this.serializeFormSection('no', '_available');
+            c += this.serializeFormSection('no', '_storage');
+            c += this.serializeFormSection('no', '_culinary');
             for(var i in this.data.inputs) {
                 var ipt = parseInt(i) + 1;
                 c += 'input' + ipt + '_id=' + this.formValue('input' + ipt + '_id') + '&';
@@ -3148,6 +3179,9 @@ function ciniki_foodmarket_main() {
             c += this.serializeFormSection('yes', '_synopsis');
             c += this.serializeFormSection('yes', '_description');
             c += this.serializeFormSection('yes', '_ingredients');
+            c += this.serializeFormSection('yes', '_available');
+            c += this.serializeFormSection('yes', '_storage');
+            c += this.serializeFormSection('yes', '_culinary');
             c += this.serializeFormSection('yes', 'input1');
             for(var j in {10:'', 20:'', 30:'', 50:'', 52:'', 53:'', 54:'', 55:'', 56:'', 71:'', 72:''}) {
                 c += this.serializeFormSection('yes', 'input1' + '_' + j);

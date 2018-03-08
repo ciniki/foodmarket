@@ -144,6 +144,9 @@ function ciniki_foodmarket_productGet($ciniki) {
             'supplier_id'=>'0',
             'categories'=>(isset($args['category_id']) && $args['category_id'] > 0 ? $args['category_id'] : ''),
             'legends'=>'',
+            'available_months'=>0,
+            'storage'=>'',
+            'culinary'=>'',
         );
     }
 

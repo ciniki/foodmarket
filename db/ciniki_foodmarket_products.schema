@@ -55,6 +55,25 @@
 # description:          The full description of the product.
 # ingredients:          The ingredient list for the product (optional).
 #
+# available_months:     The months the product is available
+#
+#                           0x0001 - Jan
+#                           0x0002 - Feb
+#                           0x0004 - Mar
+#                           0x0008 - Apr
+#                           0x0010 - May
+#                           0x0020 - Jun
+#                           0x0040 - Jul
+#                           0x0080 - Aug
+#                           0x0100 - Sep
+#                           0x0200 - Oct
+#                           0x0400 - Nov
+#                           0x0800 - Dec
+#
+# storage:              Any information on how to store this product.
+#
+# culinary:             Any culinary tips or cooking information.
+#
 # supplier_id:          The supplier for the product, if no supplier then zero.
 #
 # date_added:           The UTC date and time the record was added.
@@ -77,6 +96,9 @@ create table ciniki_foodmarket_products (
     synopsis varchar(1000) not null,
     description text not null,
     ingredients text not null,
+    available_months smallint unsigned not null,
+    storage text not null,
+    culinary text not null,
     supplier_id int not null,
     date_added datetime not null,
     last_updated datetime not null,

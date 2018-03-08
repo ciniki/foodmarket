@@ -213,6 +213,15 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $tnid
         if( isset($product['ingredients']) && $product['ingredients'] != '' ) {
             $page['blocks'][] = array('type'=>'content', 'section'=>'content', 'title'=>'Ingredients', 'content'=>$product['ingredients']);
         }
+        if( isset($product['available_months']) && $product['available_months'] > 0 ) {
+            $page['blocks'][] = array('type'=>'monthlyavailability', 'section'=>'content', 'title'=>'Availability', 'months'=>$product['available_months']);
+        }
+        if( isset($product['storage']) && $product['storage'] != '' ) {
+            $page['blocks'][] = array('type'=>'content', 'section'=>'content', 'title'=>'Storage Tips', 'content'=>$product['storage']);
+        }
+        if( isset($product['culinary']) && $product['culinary'] != '' ) {
+            $page['blocks'][] = array('type'=>'content', 'section'=>'content', 'title'=>'Culinary Tips', 'content'=>$product['culinary']);
+        }
         if( isset($product['subitems']) && count($product['subitems']) > 0 ) {
             $page['blocks'][] = array('type'=>'table', 'section'=>'items', 'title'=>'Items - ' . $product['subitems_date_text'], 'class'=>'order-subitems', 'size'=>$size,
                 'columns'=>array(
