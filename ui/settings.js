@@ -114,7 +114,7 @@ function ciniki_foodmarket_settings() {
             'fields':{
                 'orders_start_date':{'label':'Start Date', 'type':'date'},
                 'orders_end_date':{'label':'End Date', 'type':'date'},
-                'orders_days':{'label':'CSA Days', 'type':'flags', 'flags':{
+                'orders_days':{'label':'Order Days', 'type':'flags', 'flags':{
     //                '1':{'name':'Sun'},
                     '2':{'name':'Mon'},
                     '3':{'name':'Tue'},
