@@ -2298,6 +2298,11 @@ function ciniki_foodmarket_main() {
             'onchange':'M.ciniki_foodmarket_main.product.updatePanel',
             'on_fields':['input' + i + '_71_retail_discount', 'input' + i + '_71_retail_price_calc'],
             };
+        this.product.sections['input' + i + '_71'].fields['input' + i + '_71_flags2'] = {'label':'Availability', 'type':'flagspiece', 'visible':'yes', 
+            'field':'input' + i + '_71_flags', 'mask':0x1F00, 'toggle':'yes', 'join':'yes', 
+            'flags':{'9':{'name':'Always'}, '12':{'name':'Limited'}},
+            'onchange':'M.ciniki_foodmarket_main.product.updatePanel',
+            };
         this.product.sections['input' + i + '_71'].fields['input' + i + '_71_retail_discount'] = {'label':'Discount', 'type':'toggle', 'visible':'no', 'default':'40', 
             'onchange':'M.ciniki_foodmarket_main.product.updatePrices', 
             'toggles':{'0':'0%', '0.05':'5%', '0.10':'10%', '0.15':'15%', '0.20':'20%', '0.25':'25%', '0.30':'30%', '0.40':'40%'},
@@ -2370,6 +2375,11 @@ function ciniki_foodmarket_main() {
             'toggles':{'5':'Inactive', '10':'Private'},
             'onchange':'M.ciniki_foodmarket_main.product.updatePanel',
             'on_fields':['input' + i + '_72_retail_discount', 'input' + i + '_72_retail_price_calc'],
+            };
+        this.product.sections['input' + i + '_72'].fields['input' + i + '_72_flags2'] = {'label':'Availability', 'type':'flagspiece', 'visible':'yes', 
+            'field':'input' + i + '_72_flags', 'mask':0x1F00, 'toggle':'yes', 'join':'yes', 
+            'flags':{'9':{'name':'Always'}, '12':{'name':'Limited'}},
+            'onchange':'M.ciniki_foodmarket_main.product.updatePanel',
             };
         this.product.sections['input' + i + '_72'].fields['input' + i + '_72_retail_discount'] = {'label':'Discount', 'type':'toggle', 'visible':'no', 'default':'40', 
             'onchange':'M.ciniki_foodmarket_main.product.updatePrices', 
