@@ -106,4 +106,4 @@ create table ciniki_foodmarket_products (
     unique index (uuid),
     unique index (tnid, permalink),
     index sync (tnid, uuid, last_updated)
-) ENGINE='InnoDB', COMMENT='v1.01';
+) ENGINE='InnoDB', COMMENT='v1.02';
