@@ -22,6 +22,8 @@ function ciniki_foodmarket_inventoryList($ciniki) {
         'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'),
         'category_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Category'),
         'categories'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Categories'),
+        'input_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Input'),
+        'addq'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Quantity to add'),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
@@ -46,6 +48,33 @@ function ciniki_foodmarket_inventoryList($ciniki) {
         return $rc;
     }
     $intl_timezone = $rc['settings']['intl-default-timezone'];
+
+    //
+    // Check if adjustment to inventory
+    //
+    if( isset($args['input_id']) && $args['input_id'] > 0 && isset($args['addq']) && $args['addq'] != 0 ) {
+        //
+        // Get the current inventory
+        //
+        $strsql = "SELECT id, inventory "
+            . "FROM ciniki_foodmarket_product_inputs "
+            . "WHERE id = '" . ciniki_core_dbQuote($ciniki, $args['input_id']) . "' "
+            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+            . "";
+        $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.foodmarket', 'item');
+        if( $rc['stat'] != 'ok' ) {
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.126', 'msg'=>'Unable to load item', 'err'=>$rc['err']));
+        }
+        if( isset($rc['item']) ) {
+            $item = $rc['item'];
+            ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
+            $rc = ciniki_core_objectUpdate($ciniki, $args['tnid'], 'ciniki.foodmarket.input', $args['input_id'], 
+                array('inventory'=>($item['inventory'] + $args['addq'])), 0x07);
+            if( $rc['stat'] != 'ok' ) {
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.127', 'msg'=>'Unable to update inventory', 'err'=>$rc['err']));
+            }
+        }
+    }
 
     //
     // Get the category type
@@ -75,6 +104,7 @@ function ciniki_foodmarket_inventoryList($ciniki) {
             . "products.status, "
             . "products.flags, "
             . "products.supplier_id, "
+            . "inputs.id AS input_id, "
             . "inputs.name AS input_name, "
             . "inputs.inventory, "
             . "outputs.retail_sdiscount_percent, "
@@ -107,6 +137,7 @@ function ciniki_foodmarket_inventoryList($ciniki) {
             . "products.status, "
             . "products.flags, "
             . "products.supplier_id, "
+            . "inputs.id AS input_id, "
             . "inputs.name AS input_name, "
             . "inputs.inventory, "
             . "outputs.retail_sdiscount_percent, "
@@ -139,6 +170,7 @@ function ciniki_foodmarket_inventoryList($ciniki) {
             . "products.status, "
             . "products.flags, "
             . "products.supplier_id, "
+            . "inputs.id AS input_id, "
             . "inputs.name AS input_name, "
             . "inputs.inventory, "
             . "IFNULL(suppliers.code, '') AS supplier_code, "
@@ -164,7 +196,7 @@ function ciniki_foodmarket_inventoryList($ciniki) {
                 . ") "
             . "WHERE items.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND items.category_id = '" . ciniki_core_dbQuote($ciniki, $args['category_id']) . "' "
-            . "ORDER BY products.date_added DESC, inputs.name "
+            . "ORDER BY products.name, inputs.name "
             . "";
     } elseif( isset($args['category_id']) && $args['category_id'] != '' && $args['category_id'] == 0 ) {
         $strsql = "SELECT products.id, "
@@ -173,6 +205,7 @@ function ciniki_foodmarket_inventoryList($ciniki) {
             . "products.status, "
             . "products.flags, "
             . "products.supplier_id, "
+            . "inputs.id AS input_id, "
             . "inputs.name AS input_name, "
             . "inputs.inventory, "
             . "IFNULL(suppliers.code, '') AS supplier_code, "
@@ -207,6 +240,7 @@ function ciniki_foodmarket_inventoryList($ciniki) {
             . "products.status, "
             . "products.flags, "
             . "products.supplier_id, "
+            . "inputs.id AS input_id, "
             . "inputs.name AS input_name, "
             . "inputs.inventory, "
             . "IFNULL(suppliers.code, '') AS supplier_code, "
@@ -237,6 +271,7 @@ function ciniki_foodmarket_inventoryList($ciniki) {
             . "products.status, "
             . "products.flags, "
             . "products.supplier_id, "
+            . "inputs.id AS input_id, "
             . "inputs.name AS input_name, "
             . "inputs.inventory, "
             . "IFNULL(suppliers.code, '') AS supplier_code, "
@@ -264,7 +299,7 @@ function ciniki_foodmarket_inventoryList($ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(
         array('container'=>'products', 'fname'=>'id', 
-            'fields'=>array('id', 'name', 'input_name', 'permalink', 'status', 'flags', 'inventory',
+            'fields'=>array('id', 'name', 'input_id', 'input_name', 'permalink', 'status', 'flags', 'inventory',
                 'supplier_id', 'supplier_code', 'supplier_name', 'output_ids'),
             'lists'=>array('output_ids'),
             ),
@@ -455,7 +490,7 @@ function ciniki_foodmarket_inventoryList($ciniki) {
                     }
                 }
             }
-        } 
+        }
 
 /*        //
         // Check for any products that are currently archived

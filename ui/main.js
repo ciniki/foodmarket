@@ -4783,6 +4783,125 @@ function ciniki_foodmarket_main() {
     this.slideshow.addButton('next', 'Next');
     this.slideshow.addLeftButton('prev', 'Prev');
 
+    //
+    // Inventory Manager
+    //
+    this.inventory = new M.panel('Inventory', 'ciniki_foodmarket_main', 'inventory', 'mc', 'medium', 'sectioned', 'ciniki.foodmarket.main.inventory');
+    this.inventory.sections = {
+        '_categories':{'label':'', 'aside':'no',
+            'fields':{
+                'category_id':{'label':'', 'hidelabel':'yes', 'type':'select', 'onchangeFn':'M.ciniki_foodmarket_main.inventory.switchCategory();', 
+                    'complex_options':{'name':'fullname', 'value':'id'}, 'options':{},
+                    },
+            }},
+        'inventory_products':{'label':'Products', 'type':'simplegrid', 'num_cols':5, 'sortable':'yes',
+            'headerValues':['Name', 'Inv', 'Ord', 'Avl'],
+            'headerClasses':['', '', '', 'alignright', 'alignright', 'alignright'],
+            'cellClasses':['', '', '', 'alignright', 'alignright', 'alignright'],
+            'sortTypes':['text', 'text', 'text', 'number', 'number', 'number'],
+            'noData':'No Products',
+            },
+    };
+    this.inventory.noData = function(s) { return this.sections[s].noData; }
+    this.inventory.fieldValue = function(s, i, d) {
+        return this.category_id;
+    }
+    this.inventory.cellValue = function(s, i, j, d) {
+        if( s == 'inventory_products' ) {
+            switch (j) {
+                case 0: return d.name;
+                case 1: return d.inventory;
+                case 2: return d.num_ordered;
+                case 3: return d.num_available;
+                case 4: return '<button onclick=\'event.stopPropagation(); M.ciniki_foodmarket_main.inventory.addQuantity("' + d.input_id + '");return false;\'>Add</button>'
+            }
+        }
+    };
+    this.inventory.rowFn = function(s, i, d) {
+        return 'M.ciniki_foodmarket_main.product.open(\'M.ciniki_foodmarket_main.inventory.open();\',\'' + d.id + '\',null,M.ciniki_foodmarket_main.inventory.nplist);';
+    }
+    this.inventory.addQuantity = function(iid,i,o,a) {
+        for(var i in this.data.inventory_products) {
+            if( this.data.inventory_products[i].input_id == iid ) {
+                M.ciniki_foodmarket_main.inventoryadd.open('M.ciniki_foodmarket_main.inventory.open();',this.data.inventory_products[i]);
+            }
+        }
+/*        var q = prompt("Add quantity: ", '');
+        if( q != null && q != '') {
+            M.api.getJSONCb('ciniki.foodmarket.inventoryList', 
+                {'tnid':M.curTenantID, 'categories':'yes', 'category_id':this.category_id, 'input_id':pid, 'addq':q}, 
+                M.ciniki_foodmarket_main.inventory.processRSP);
+        } */
+    }
+    this.inventory.switchCategory = function() {
+        this.category_id = this.formValue('category_id');
+        this.open();
+    }
+    this.inventory.open = function(cb) {
+        M.api.getJSONCb('ciniki.foodmarket.inventoryList', 
+            {'tnid':M.curTenantID, 'categories':'yes', 'category_id':this.category_id}, 
+            M.ciniki_foodmarket_main.inventory.processRSP);
+    }
+    this.inventory.processRSP = function(rsp) {
+        if( rsp.stat != 'ok' ) {
+            M.api.err(rsp);
+            return false;
+        }
+        var p = M.ciniki_foodmarket_main.inventory;
+        p.data = rsp;
+        rsp.categories.unshift({'id':0, 'fullname':'Choose a category'});
+        p.sections._categories.fields.category_id.options = rsp.categories;
+        p.refresh();
+        p.show();
+    }
+    this.inventory.addClose('Back');
+
+    //
+    // Inventory Add Quantity Panel
+    //
+    this.inventoryadd = new M.panel('Inventory Add', 'ciniki_foodmarket_main', 'inventoryadd', 'mc', 'medium', 'sectioned', 'ciniki.foodmarket.main.inventoryadd');
+    this.inventoryadd.sections = {
+        'product':{'label':'Products', 'type':'simplegrid', 'num_cols':4,
+            'headerValues':['Name', 'Inv', 'Ord', 'Avl'],
+            'headerClasses':['', 'alignright', 'alignright', 'alignright'],
+            'cellClasses':['', 'alignright', 'alignright', 'alignright'],
+            },
+        '_qty':{'label':'', 'fields':{
+            'addq':{'label':'Add Quantity', 'type':'number', 'size':'small', 'autofocus':'yes'},
+            }},
+        '_buttons':{'label':'', 'buttons':{
+            'save':{'label':'Add', 'fn':'M.ciniki_foodmarket_main.inventoryadd.save();'},
+            }},
+    };
+    this.inventoryadd.fieldValue = function(s, i, d) {
+        return '';
+    }
+    this.inventoryadd.cellValue = function(s, i, j, d) {
+        if( s == 'product' ) {
+            switch (j) {
+                case 0: return d.name;
+                case 1: return d.inventory;
+                case 2: return d.num_ordered;
+                case 3: return d.num_available;
+            }
+        }
+    };
+    this.inventoryadd.open = function(cb,product) {
+        this.input_id = product.input_id;
+        this.data = {'product':[product]};
+        this.refresh();
+        this.show(cb);
+    }
+    this.inventoryadd.save = function() {
+        q = this.formValue('addq');
+        if( q != null && q != '') {
+            M.api.getJSONCb('ciniki.foodmarket.inventoryList', 
+                {'tnid':M.curTenantID, 'categories':'yes', 'category_id':M.ciniki_foodmarket_main.inventory.category_id, 'input_id':this.input_id, 'addq':q}, 
+                M.ciniki_foodmarket_main.inventory.processRSP);
+        }
+    }
+    this.inventoryadd.addClose('Back');
+    this.inventoryadd.addButton('Add');
 
     //
     // Arguments:
@@ -4807,17 +4926,6 @@ function ciniki_foodmarket_main() {
         //
         var taxes = {'0':'No Taxes'};
         if( M.curTenant.modules['ciniki.taxes'] != null ) {
-//            for(var i = 0; i <= 9; i++) {
-//                this.product.sections['input' + i + '_10'].fields['input' + i + '_10_retail_taxtype_id'] = '';
-//                this.product.sections['input' + i + '_20'].fields['input' + i + '_20_retail_taxtype_id'] = {'label':'Taxes', 'type':'toggle', 'visible':'no', 'toggles':{}};
-//                this.product.sections['input' + i + '_30'].fields['input' + i + '_30_retail_taxtype_id'] = {'label':'Taxes', 'type':'toggle', 'visible':'no', 'toggles':{}};
-//                this.product.sections['input' + i + '_50'].fields['input' + i + '_50_retail_taxtype_id'] = {'label':'Taxes', 'type':'toggle', 'visible':'no', 'toggles':{}};
-//                this.product.sections['input' + i + '_52'].fields['input' + i + '_52_retail_taxtype_id'] = {'label':'Taxes', 'type':'toggle', 'visible':'no', 'toggles':{}};
-//                this.product.sections['input' + i + '_53'].fields['input' + i + '_53_retail_taxtype_id'] = {'label':'Taxes', 'type':'toggle', 'visible':'no', 'toggles':{}};
-//                this.product.sections['input' + i + '_54'].fields['input' + i + '_54_retail_taxtype_id'] = {'label':'Taxes', 'type':'toggle', 'visible':'no', 'toggles':{}};
-//                this.product.sections['input' + i + '_55'].fields['input' + i + '_55_retail_taxtype_id'] = {'label':'Taxes', 'type':'toggle', 'visible':'no', 'toggles':{}};
-//                this.product.sections['input' + i + '_56'].fields['input' + i + '_56_retail_taxtype_id'] = {'label':'Taxes', 'type':'toggle', 'visible':'no', 'toggles':{}};
-//            }
             if( M.curTenant.modules != null && M.curTenant.modules['ciniki.taxes'] != null && M.curTenant.modules['ciniki.taxes'].settings.types != null ) {
                 for(i in M.curTenant.modules['ciniki.taxes'].settings.types) {
                     taxes[M.curTenant.modules['ciniki.taxes'].settings.types[i].type.id] = M.curTenant.modules['ciniki.taxes'].settings.types[i].type.name;
@@ -4843,8 +4951,13 @@ function ciniki_foodmarket_main() {
             this.product.sections['input' + i + '_55'].fields['input' + i + '_55_retail_taxtype_id'].toggles = taxes;
             this.product.sections['input' + i + '_56'].fields['input' + i + '_56_retail_taxtype_id'].toggles = taxes;
         }
+         
+        if( args.inventory != null && args.inventory == 1 ) {
+            this.inventory.open(cb);
+        } else {
+            this.menu.open(cb,null,'');
+        }
         
-        this.menu.open(cb,null,'');
     }
 
     this.unitText = function(u) {

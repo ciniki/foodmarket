@@ -38,6 +38,24 @@ function ciniki_foodmarket_hooks_uiSettings($ciniki, $tnid, $args) {
     } 
 
     //
+    // Check if the inventory flag is turned on, and display the inventory option in the main menu
+    //
+    if( ciniki_core_checkModuleFlags($ciniki, 'ciniki.foodmarket', 0x02)
+        && (isset($args['permissions']['owners'])
+            || isset($args['permissions']['employees'])
+            || isset($args['permissions']['resellers'])
+            || ($ciniki['session']['user']['perms']&0x01) == 0x01
+            )
+        ) {
+        $menu_item = array(
+            'priority'=>6500,
+            'label'=>'Inventory', 
+            'edit'=>array('app'=>'ciniki.foodmarket.main', 'args'=>array('inventory'=>1)),
+            );
+        $rsp['menu_items'][] = $menu_item;
+    }
+
+    //
     // Add the menu option for suppliers
     // 
 /*    if( ciniki_core_checkModuleFlags($ciniki, 'ciniki.foodmarket', 0x0100)

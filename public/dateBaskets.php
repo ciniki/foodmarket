@@ -455,7 +455,9 @@ function ciniki_foodmarket_dateBaskets($ciniki) {
         . "ciniki_foodmarket_product_outputs.product_id, "
         . "ciniki_foodmarket_products.supplier_id, "
         . "ciniki_foodmarket_suppliers.code AS supplier_code, "
+        . "ciniki_foodmarket_product_inputs.flags, "
         . "ciniki_foodmarket_product_inputs.itype, "
+        . "ciniki_foodmarket_product_inputs.inventory, "
         . "IFNULL(ciniki_foodmarket_product_inputs.case_units, 1) AS case_units, "
         . "IFNULL(ciniki_foodmarket_product_inputs.min_quantity, 1) AS min_quantity, "
         . "ciniki_foodmarket_product_outputs.pio_name AS name, "
@@ -487,7 +489,7 @@ function ciniki_foodmarket_dateBaskets($ciniki) {
         . "";
     $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.foodmarket', array(
         array('container'=>'basket_items', 'fname'=>'id', 
-            'fields'=>array('id', 'product_id', 'supplier_id', 'supplier_code', 'itype', 'case_units', 'min_quantity', 'name', 'otype', 'price', 'price_text')),
+            'fields'=>array('id', 'product_id', 'supplier_id', 'supplier_code', 'flags', 'inventory', 'itype', 'case_units', 'min_quantity', 'name', 'otype', 'price', 'price_text')),
         array('container'=>'basket_quantities', 'fname'=>'basket_output_id', 'fields'=>array('quantity')),
         ));
     if( $rc['stat'] != 'ok' ) {
@@ -519,6 +521,34 @@ function ciniki_foodmarket_dateBaskets($ciniki) {
             }
         }
 
+        //
+        // Check if inventory should be retrieved
+        //
+        if( ($item['flags']&0x02) == 0x02 ) {
+            ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQuoteIDs');
+            $strsql = "SELECT items.object_id, SUM(items.unit_quantity) as num_ordered "
+                . "FROM ciniki_poma_order_items AS items "
+                . "INNER JOIN ciniki_poma_orders AS orders ON ("
+                    . "items.order_id = orders.id "
+                    . "AND orders.status < 50 "
+                    . "AND orders.order_date >= '" . ciniki_core_dbQuote($ciniki, $dt->format('Y-m-d')) . "' "
+                    . "AND orders.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+                    . ") "
+                . "WHERE items.object = 'ciniki.foodmarket.output' "
+                . "AND items.object_id = '" . ciniki_core_dbQuote($ciniki, $item['id']) . "' "
+                . "AND items.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+                . "GROUP BY items.object_id "
+                . "";
+            $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.foodmarket', 'item');
+            if( $rc['stat'] != 'ok' ) {
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.125', 'msg'=>'Unable to load inventory', 'err'=>$rc['err']));
+            }
+            if( isset($rc['item']) ) {
+                $item['num_ordered'] = $rc['item']['num_ordered'];
+            }
+        }
+
+
         if( $rsp['baskets_items'][$iid]['min_order_quantity'] > 1 ) {
             $rsp['baskets_items'][$iid]['quantity_text'] = (float)$rsp['baskets_items'][$iid]['quantity'] . '/' . (float)$rsp['baskets_items'][$iid]['min_order_quantity'];
             $percent = bcmul(bcdiv($rsp['baskets_items'][$iid]['quantity'], $rsp['baskets_items'][$iid]['min_order_quantity'], 6), 100, 0);
@@ -526,6 +556,13 @@ function ciniki_foodmarket_dateBaskets($ciniki) {
         } else {
             $rsp['baskets_items'][$iid]['quantity_text'] = $rsp['baskets_items'][$iid]['quantity'];
             $rsp['baskets_items'][$iid]['percent_text'] = '';
+        }
+        if( ($item['flags']&0x02) == 0x02 ) {
+            $rsp['baskets_items'][$iid]['quantity_text'] .= ' [' . (float)$rsp['baskets_items'][$iid]['inventory'];
+            if( isset($item['num_ordered']) ) {
+                $rsp['baskets_items'][$iid]['quantity_text'] .= '/' . (float)($rsp['baskets_items'][$iid]['inventory'] - $item['num_ordered']);
+            }
+            $rsp['baskets_items'][$iid]['quantity_text'] .= ']';
         }
     }
 
