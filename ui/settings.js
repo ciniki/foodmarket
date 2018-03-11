@@ -8,8 +8,10 @@ function ciniki_foodmarket_settings() {
         'search':{'label':'', 'list':{
             'reindex':{'label':'Update Search Index', 'fn':'M.ciniki_foodmarket_settings.menu.keywordsUpdate();'},
             }},
-        '_seasons':{'label':'', 'list':{
-            'seasons':{'label':'Seasons', 'fn':'M.ciniki_foodmarket_settings.seasons.open(\'M.ciniki_foodmarket_settings.menu.open();\');'},
+        '_seasons':{'label':'', 
+            'visible':function() {return M.modFlagSet('ciniki.foodmarket', 0x01);},
+            'list':{
+                'seasons':{'label':'Seasons', 'fn':'M.ciniki_foodmarket_settings.seasons.open(\'M.ciniki_foodmarket_settings.menu.open();\');'},
             }},
     };
     this.menu.open = function(cb) {
