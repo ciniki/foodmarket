@@ -120,55 +120,6 @@ function ciniki_foodmarket_seasonAdd(&$ciniki) {
             );
 
         //
-        // Prepare the autoopen date
-        //
-        $open_dt = clone $sdt;
-        $order_date_args['autoopen'] = 'no';
-        if( isset($settings['dates-open-auto']) && $settings['dates-open-auto'] == 'yes' 
-            && isset($settings['dates-open-time']) && $settings['dates-open-time'] != '' 
-            ) {
-            $ts = strtotime($args['orders_start_date'] . ' ' . $settings['dates-open-time']);
-            if( $ts === FALSE || $ts < 1 ) {
-                $args['open_dt'] = '';
-            } else {
-                $open_dt = new DateTime('@'.$ts, new DateTimeZone($intl_timezone));
-                //
-                // Check for the offset
-                //
-                if( isset($settings['dates-open-offset']) && $settings['dates-open-offset'] > 0 ) {
-                    $open_dt->sub(new DateInterval('P' . $settings['dates-open-offset'] . 'D'));
-                }
-                $order_date_args['autoopen'] = 'yes';
-                $order_date_args['status'] = 5;
-                $order_date_args['flags'] |= 0x02;
-            }
-        }
-
-        //
-        // Prepare the autolock date
-        //
-        $autolock_dt = clone $sdt;
-        $order_date_args['autolock'] = 'no';
-        if( isset($settings['dates-lock-auto']) && $settings['dates-lock-auto'] == 'yes' 
-            && isset($settings['dates-lock-time']) && $settings['dates-lock-time'] != '' 
-            ) {
-            $ts = strtotime($args['orders_start_date'] . ' ' . $settings['dates-lock-time']);
-            if( $ts === FALSE || $ts < 1 ) {
-                $args['autolock_dt'] = '';
-            } else {
-                $autolock_dt = new DateTime('@'.$ts, new DateTimeZone($intl_timezone));
-                //
-                // Check for the offset
-                //
-                if( isset($settings['dates-lock-offset']) && $settings['dates-lock-offset'] > 0 ) {
-                    $autolock_dt->sub(new DateInterval('P' . $settings['dates-lock-offset'] . 'D'));
-                }
-                $order_date_args['autolock'] = 'yes';
-                $order_date_args['flags'] |= 0x01;
-            }
-        }
-        
-        //
         // Prepare the pickup reminder date
         //
         $pickupreminder_dt = clone $sdt;
@@ -225,11 +176,72 @@ function ciniki_foodmarket_seasonAdd(&$ciniki) {
             if( in_array($sdt->format('N'), $days) ) {
                 $order_date_args['order_date'] = $sdt->format('Y-m-d');
                 $order_date_args['display_name'] = $sdt->format('D M jS');
+
+                //
+                // Prepare the autoopen date
+                //
+                $open_dt = clone $sdt;
+                $order_date_args['autoopen'] = 'no';
+                if( isset($settings['dates-open-auto']) 
+                    && ($settings['dates-open-auto'] == 'fixed' || $settings['dates-open-auto'] == 'variable')
+                    && isset($settings['dates-open-time']) && $settings['dates-open-time'] != '' 
+                    ) {
+                    $ts = strtotime($sdt->format('Y-m-d') . ' ' . $settings['dates-open-time']);
+                    if( $ts === FALSE || $ts < 1 ) {
+                        $args['open_dt'] = '';
+                    } else {
+                        $open_dt = new DateTime('@'.$ts, new DateTimeZone($intl_timezone));
+                        //
+                        // Check for the offset
+                        //
+                        if( $settings['dates-open-auto'] == 'fixed' && isset($settings['dates-open-offset']) && $settings['dates-open-offset'] > 0 ) {
+                            $open_dt->sub(new DateInterval('P' . $settings['dates-open-offset'] . 'D'));
+                        } elseif( $settings['dates-open-auto'] == 'variable' ) {
+                            $weekday = strtolower($open_dt->format('D'));
+                            if( isset($settings['dates-open-offset-' . $weekday]) ) {
+                                $open_dt->sub(new DateInterval('P' . $settings['dates-open-offset-' . $weekday] . 'D'));
+                            }
+                        }
+                        $order_date_args['autoopen'] = 'yes';
+                        $order_date_args['status'] = 5;
+                        $order_date_args['flags'] |= 0x02;
+                    }
+                }
+
+                //
+                // Prepare the autolock date
+                //
+                $autolock_dt = clone $sdt;
+                $order_date_args['autolock'] = 'no';
+                if( isset($settings['dates-lock-auto']) 
+                    && ($settings['dates-lock-auto'] == 'fixed' || $settings['dates-lock-auto'] == 'variable')
+                    && isset($settings['dates-lock-time']) && $settings['dates-lock-time'] != '' 
+                    ) {
+                    $ts = strtotime($sdt->format('Y-m-d') . ' ' . $settings['dates-lock-time']);
+                    if( $ts === FALSE || $ts < 1 ) {
+                        $args['autolock_dt'] = '';
+                    } else {
+                        $autolock_dt = new DateTime('@'.$ts, new DateTimeZone($intl_timezone));
+                        //
+                        // Check for the offset
+                        //
+                        if( $settings['dates-lock-auto'] == 'fixed' && isset($settings['dates-lock-offset']) && $settings['dates-lock-offset'] > 0 ) {
+                            $autolock_dt->sub(new DateInterval('P' . $settings['dates-lock-offset'] . 'D'));
+                        } elseif( $settings['dates-lock-auto'] == 'variable' ) {
+                            $weekday = strtolower($autolock_dt->format('D'));
+                            if( isset($settings['dates-lock-offset-' . $weekday]) ) {
+                                $autolock_dt->sub(new DateInterval('P' . $settings['dates-lock-offset-' . $weekday] . 'D'));
+                            }
+                        }
+                        $order_date_args['autolock'] = 'yes';
+                        $order_date_args['flags'] |= 0x01;
+                    }
+                }
+        
                 $order_date_args['open_dt'] = $order_date_args['autoopen'] == 'yes' ? $open_dt->format('Y-m-d H:i:s') : '';
                 $order_date_args['repeats_dt'] = $order_date_args['repeats'] == 'yes' ? $repeats_dt->format('Y-m-d H:i:s') : '';
                 $order_date_args['autolock_dt'] = $order_date_args['autolock'] == 'yes' ? $autolock_dt->format('Y-m-d H:i:s') : '';
                 $order_date_args['pickupreminder_dt'] = $order_date_args['pickupreminder'] == 'yes' ? $pickupreminder_dt->format('Y-m-d H:i:s') : '';
-
                 //
                 // Add the date
                 //
@@ -245,8 +257,8 @@ function ciniki_foodmarket_seasonAdd(&$ciniki) {
             // Increase all the dates
             //
             $sdt->add($oneday);
-            $open_dt->add($oneday);
-            $autolock_dt->add($oneday);
+/*            $open_dt->add($oneday);
+            $autolock_dt->add($oneday); */
             $pickupreminder_dt->add($oneday);
             $repeats_dt->add($oneday);
         }
