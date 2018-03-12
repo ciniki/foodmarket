@@ -153,7 +153,6 @@ function ciniki_foodmarket_web_productList($ciniki, $settings, $tnid, $args) {
     }
 
     $strsql .= "ORDER BY pio_name, io_sequence ";
-error_log($strsql);
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(
         array('container'=>'products', 'fname'=>'id', 
             'fields'=>array('id', 'name', 'permalink', 'image_id', 'legend_codes', 'legend_names', 'synopsis')),
