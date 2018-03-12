@@ -156,7 +156,7 @@ function ciniki_foodmarket_settings() {
     }
     this.season.rowFn = function(s, i, d) {
         if( s == 'products' ) {
-            return 'M.ciniki_foodmarket_settings.season.save("M.ciniki_foodmarket_settings.sproduct.open(\'M.ciniki_foodmarket_settings.seasons.open();\',\'' + d.id + '\',0);");';
+            return 'M.ciniki_foodmarket_settings.season.save("M.ciniki_foodmarket_settings.sproduct.open(\'M.ciniki_foodmarket_settings.season.open();\',\'' + d.id + '\',0);");';
         }
     }
     this.season.open = function(cb, sid) {

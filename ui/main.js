@@ -4838,6 +4838,7 @@ function ciniki_foodmarket_main() {
         this.open();
     }
     this.inventory.open = function(cb) {
+        if( cb != null ) { this.cb = cb; }
         M.api.getJSONCb('ciniki.foodmarket.inventoryList', 
             {'tnid':M.curTenantID, 'categories':'yes', 'category_id':this.category_id}, 
             M.ciniki_foodmarket_main.inventory.processRSP);
