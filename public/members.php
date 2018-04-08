@@ -72,7 +72,7 @@ function ciniki_foodmarket_members($ciniki) {
         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.110', 'msg'=>'Unable to load season', 'err'=>$rc['err']));
     }
     if( !isset($rc['season']) ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.111', 'msg'=>'No seasons setup', 'err'=>$rc['err']));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.111', 'msg'=>'No seasons setup'));
     }
     $season = $rc['season'];
 
