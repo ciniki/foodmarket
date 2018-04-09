@@ -425,11 +425,11 @@ function ciniki_foodmarket_main() {
             'hint':'Search products', 
             'noData':'No products found',
             },
-        'products':{'label':'Products', 'type':'simplegrid', 'num_cols':4, 'sortable':'yes',
+        'products':{'label':'Products', 'type':'simplegrid', 'num_cols':5, 'sortable':'yes',
             'visible':function() {return M.ciniki_foodmarket_main.menu.isVisible(['products'], ['categories']);},
-            'headerValues':['Supplier', 'Name', 'Types', '# Orders'],
-            'cellClasses':['', '', '', ''],
-            'sortTypes':['text', 'text', 'text', 'number'],
+            'headerValues':['Supplier', 'Name', 'Options', 'Available', '# Orders'],
+            'cellClasses':['', '', '', 'multiline', ''],
+            'sortTypes':['text', 'text', 'text', 'text', 'number'],
             'noData':'No Products',
             'addTxt':'Add Product',
             'addFn':'M.ciniki_foodmarket_main.product.open(\'M.ciniki_foodmarket_main.menu.open();\',0,null,null,M.ciniki_foodmarket_main.menu.category_id);',
@@ -782,6 +782,21 @@ function ciniki_foodmarket_main() {
         }
         return '';
     }
+    this.menu.rowStyle = function(s, i, d) {
+        if( s == 'products' ) {
+            if( d.status_text == 'Public' ) {
+                if( d.availability == 'Always' || d.availability == 'Queue' || d.availability == 'Limited' ) {
+                    return 'background: #dfd;';
+                } else if( d.availability == 'Dates' ) {
+                    return 'background: #fed;';
+                }
+            } else if( d.status_text == 'Private' ) {
+                return 'background: #ffd;';
+            }
+            return 'background: #eee;';
+        }
+        return '';
+    }
     this.menu.rowClass = function(s, i, d) {
         if( (s == 'checkout_open_orders' || s == 'checkout_closed_orders' || s == 'unpacked_orders' || s == 'packed_orders' ) && this.order_id == d.id ) {
             return 'highlight';
@@ -1109,8 +1124,9 @@ function ciniki_foodmarket_main() {
             switch (j) {
                 case 0: return d.supplier_code;
                 case 1: return d.name;
-                case 2: return d.input_names;
-                case 3: return d.num_ordered;
+                case 2: return d.input_name;
+                case 3: return '<span class="maintext">' + d.status_text + '</span><span class="subtext">' + d.availability + '</span>';
+                case 4: return d.num_ordered;
             }
         } else if( s == 'inventory_products' ) {
             switch (j) {

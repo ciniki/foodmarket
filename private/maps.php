@@ -72,7 +72,8 @@ function ciniki_foodmarket_maps(&$ciniki) {
     );
     $maps['output'] = array(
         'status'=>array(
-            '10'=>'Active',
+            '5'=>'Inactive',
+            '10'=>'Private',
             '40'=>'Public',
             '90'=>'Archived',
         ),

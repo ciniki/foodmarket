@@ -39,6 +39,16 @@ function ciniki_foodmarket_productList($ciniki) {
     }
 
     //
+    // Load maps
+    //
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'private', 'maps');
+    $rc = ciniki_foodmarket_maps($ciniki);
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+    $maps = $rc['maps'];
+
+    //
     // Get the category type
     //
     $strsql = "SELECT ctype, name "
@@ -69,8 +79,13 @@ function ciniki_foodmarket_productList($ciniki) {
             . "ciniki_foodmarket_product_outputs.retail_sdiscount_percent, "
             . "IFNULL(ciniki_foodmarket_suppliers.code, '') AS supplier_code, "
             . "IFNULL(ciniki_foodmarket_suppliers.name, '') AS supplier_name, "
-            . "IFNULL(ciniki_foodmarket_product_inputs.name, '') AS input_names, "
-            . "IFNULL(ciniki_foodmarket_product_outputs.id, 0) AS output_ids "
+            . "IFNULL(ciniki_foodmarket_product_inputs.id, 0) AS input_id, "
+            . "IFNULL(ciniki_foodmarket_product_inputs.itype, 0) AS itype, "
+            . "IFNULL(ciniki_foodmarket_product_inputs.name, '') AS input_name, "
+            . "IFNULL(ciniki_foodmarket_product_outputs.id, 0) AS output_id, "
+            . "IFNULL(ciniki_foodmarket_product_outputs.status, 0) AS output_status, "
+            . "IFNULL(ciniki_foodmarket_product_outputs.otype, 0) AS otype, "
+            . "IFNULL(ciniki_foodmarket_product_outputs.flags, 0) AS oflags "
             . "FROM ciniki_foodmarket_products "
             . "LEFT JOIN ciniki_foodmarket_product_inputs ON ("
                 . "ciniki_foodmarket_products.id = ciniki_foodmarket_product_inputs.product_id "
@@ -99,8 +114,13 @@ function ciniki_foodmarket_productList($ciniki) {
             . "ciniki_foodmarket_product_outputs.retail_sdiscount_percent, "
             . "IFNULL(ciniki_foodmarket_suppliers.code, '') AS supplier_code, "
             . "IFNULL(ciniki_foodmarket_suppliers.name, '') AS supplier_name, "
-            . "IFNULL(ciniki_foodmarket_product_inputs.name, '') AS input_names, "
-            . "IFNULL(ciniki_foodmarket_product_outputs.id, 0) AS output_ids "
+            . "IFNULL(ciniki_foodmarket_product_inputs.id, 0) AS input_id, "
+            . "IFNULL(ciniki_foodmarket_product_inputs.itype, 0) AS itype, "
+            . "IFNULL(ciniki_foodmarket_product_inputs.name, '') AS input_name, "
+            . "IFNULL(ciniki_foodmarket_product_outputs.id, 0) AS output_id, "
+            . "IFNULL(ciniki_foodmarket_product_outputs.status, 0) AS output_status, "
+            . "IFNULL(ciniki_foodmarket_product_outputs.otype, 0) AS otype, "
+            . "IFNULL(ciniki_foodmarket_product_outputs.flags, 0) AS oflags "
             . "FROM ciniki_foodmarket_products "
             . "LEFT JOIN ciniki_foodmarket_product_inputs ON ("
                 . "ciniki_foodmarket_products.id = ciniki_foodmarket_product_inputs.product_id "
@@ -128,8 +148,13 @@ function ciniki_foodmarket_productList($ciniki) {
             . "ciniki_foodmarket_products.supplier_id, "
             . "IFNULL(ciniki_foodmarket_suppliers.code, '') AS supplier_code, "
             . "IFNULL(ciniki_foodmarket_suppliers.name, '') AS supplier_name, "
-            . "IFNULL(ciniki_foodmarket_product_inputs.name, '') AS input_names, "
-            . "IFNULL(ciniki_foodmarket_product_outputs.id, 0) AS output_ids "
+            . "IFNULL(ciniki_foodmarket_product_inputs.id, 0) AS input_id, "
+            . "IFNULL(ciniki_foodmarket_product_inputs.itype, 0) AS itype, "
+            . "IFNULL(ciniki_foodmarket_product_inputs.name, '') AS input_name, "
+            . "IFNULL(ciniki_foodmarket_product_outputs.id, 0) AS output_id, "
+            . "IFNULL(ciniki_foodmarket_product_outputs.status, 0) AS output_status, "
+            . "IFNULL(ciniki_foodmarket_product_outputs.otype, 0) AS otype, "
+            . "IFNULL(ciniki_foodmarket_product_outputs.flags, 0) AS oflags "
             . "FROM ciniki_foodmarket_category_items "
             . "LEFT JOIN ciniki_foodmarket_products ON ("
                 . "ciniki_foodmarket_category_items.product_id = ciniki_foodmarket_products.id "
@@ -160,8 +185,13 @@ function ciniki_foodmarket_productList($ciniki) {
             . "ciniki_foodmarket_products.supplier_id, "
             . "IFNULL(ciniki_foodmarket_suppliers.code, '') AS supplier_code, "
             . "IFNULL(ciniki_foodmarket_suppliers.name, '') AS supplier_name, "
-            . "IFNULL(ciniki_foodmarket_product_inputs.name, '') AS input_names, "
-            . "IFNULL(ciniki_foodmarket_product_outputs.id, 0) AS output_ids "
+            . "IFNULL(ciniki_foodmarket_product_inputs.id, 0) AS input_id, "
+            . "IFNULL(ciniki_foodmarket_product_inputs.itype, 0) AS itype, "
+            . "IFNULL(ciniki_foodmarket_product_inputs.name, '') AS input_name, "
+            . "IFNULL(ciniki_foodmarket_product_outputs.id, 0) AS output_id, "
+            . "IFNULL(ciniki_foodmarket_product_outputs.status, 0) AS output_status, "
+            . "IFNULL(ciniki_foodmarket_product_outputs.otype, 0) AS otype, "
+            . "IFNULL(ciniki_foodmarket_product_outputs.flags, 0) AS oflags "
             . "FROM ciniki_foodmarket_products "
             . "LEFT JOIN ciniki_foodmarket_category_items ON ("
                 . "ciniki_foodmarket_products.id = ciniki_foodmarket_category_items.product_id "
@@ -192,8 +222,13 @@ function ciniki_foodmarket_productList($ciniki) {
             . "ciniki_foodmarket_products.supplier_id, "
             . "IFNULL(ciniki_foodmarket_suppliers.code, '') AS supplier_code, "
             . "IFNULL(ciniki_foodmarket_suppliers.name, '') AS supplier_name, "
-            . "IFNULL(ciniki_foodmarket_product_inputs.name, '') AS input_names, "
-            . "IFNULL(ciniki_foodmarket_product_outputs.id, 0) AS output_ids "
+            . "IFNULL(ciniki_foodmarket_product_inputs.id, 0) AS input_id, "
+            . "IFNULL(ciniki_foodmarket_product_inputs.itype, 0) AS itype, "
+            . "IFNULL(ciniki_foodmarket_product_inputs.name, '') AS input_name, "
+            . "IFNULL(ciniki_foodmarket_product_outputs.id, 0) AS output_id, "
+            . "IFNULL(ciniki_foodmarket_product_outputs.status, 0) AS output_status, "
+            . "IFNULL(ciniki_foodmarket_product_outputs.otype, 0) AS otype, "
+            . "IFNULL(ciniki_foodmarket_product_outputs.flags, 0) AS oflags "
             . "FROM ciniki_foodmarket_products "
             . "LEFT JOIN ciniki_foodmarket_product_inputs ON ("
                 . "ciniki_foodmarket_products.id = ciniki_foodmarket_product_inputs.product_id "
@@ -220,8 +255,13 @@ function ciniki_foodmarket_productList($ciniki) {
             . "ciniki_foodmarket_products.supplier_id, "
             . "IFNULL(ciniki_foodmarket_suppliers.code, '') AS supplier_code, "
             . "IFNULL(ciniki_foodmarket_suppliers.name, '') AS supplier_name, "
-            . "IFNULL(ciniki_foodmarket_product_inputs.name, '') AS input_names, "
-            . "IFNULL(ciniki_foodmarket_product_outputs.id, 0) AS output_ids "
+            . "IFNULL(ciniki_foodmarket_product_inputs.id, 0) AS input_id, "
+            . "IFNULL(ciniki_foodmarket_product_inputs.itype, 0) AS itype, "
+            . "IFNULL(ciniki_foodmarket_product_inputs.name, '') AS input_name, "
+            . "IFNULL(ciniki_foodmarket_product_outputs.id, 0) AS output_id, "
+            . "IFNULL(ciniki_foodmarket_product_outputs.status, 0) AS output_status, "
+            . "IFNULL(ciniki_foodmarket_product_outputs.otype, 0) AS otype, "
+            . "IFNULL(ciniki_foodmarket_product_outputs.flags, 0) AS oflags "
             . "FROM ciniki_foodmarket_products "
             . "LEFT JOIN ciniki_foodmarket_product_inputs ON ("
                 . "ciniki_foodmarket_products.id = ciniki_foodmarket_product_inputs.product_id "
@@ -242,10 +282,15 @@ function ciniki_foodmarket_productList($ciniki) {
     }
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(
-        array('container'=>'products', 'fname'=>'id', 
-            'fields'=>array('id', 'name', 'permalink', 'status', 'flags', 'supplier_id', 'supplier_code', 'supplier_name', 'input_names', 'output_ids'),
-            'lists'=>array('input_names', 'output_ids'),
+        array('container'=>'products', 'fname'=>'input_id', 
+            'fields'=>array('id', 'name', 'permalink', 'status', 'flags', 'supplier_id', 'supplier_code', 'supplier_name', 'itype', 'input_name'),
+//            'lists'=>array('output_ids'),
             ),
+        array('container'=>'outputs', 'fname'=>'output_id',
+            'fields'=>array('id'=>'output_id', 'status'=>'output_status', 'status_text'=>'output_status', 'otype', 'flags'=>'oflags'),
+            'maps'=>array('status_text'=>$maps['output']['status']),
+            ),
+//        array('container'=>'inputs', 'fname'=>'option_id', 'fields'=>array('id'=>'input_id', 'input_name')),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
@@ -258,8 +303,32 @@ function ciniki_foodmarket_productList($ciniki) {
 
     $output_ids = array();
     foreach($products as $pid => $product) {
-        $products[$pid]['input_names'] = str_replace(',', ', ', $product['input_names']);
-        $output_ids = array_merge($output_ids, explode(',', $product['output_ids']));
+        $products[$pid]['output_ids'] = '';
+//        $products[$pid]['input_names'] = str_replace(',', ', ', $product['input_name']);
+        $products[$pid]['status_text'] = '';
+        $products[$pid]['availability'] = '';
+        if( isset($product['outputs']) ) {
+            foreach($product['outputs'] as $output) {
+                $output_ids[] = $output['id'];
+                if( ($product['itype'] == $output['otype'] && $output['otype'] < 50) || ($product['itype'] == 50 && $output['otype'] == 30) ) {
+                    $products[$pid]['status_text'] = $output['status_text'];
+                }
+                if( ($output['flags']&0x0100) == 0x0100 ) {
+                    error_log('testing');
+                    $products[$pid]['availability'] = 'Always';
+                } elseif( ($output['flags']&0x0200) == 0x0200 ) {
+                    $products[$pid]['availability'] = 'Dates';
+                } elseif( ($output['flags']&0x0400) == 0x0400 ) {
+                    $products[$pid]['availability'] = 'Queue';
+                } elseif( ($output['flags']&0x0800) == 0x0800 ) {
+                    $products[$pid]['availability'] = 'Limited';
+                }
+                $output_ids[] = $output['id'];
+                $products[$pid]['output_ids'] .= ($products[$pid]['output_ids'] != '' ? ',' . $output['id'] : '');
+            }
+//            $products[$pid]['output_ids'] = $output_ids;
+        }
+//        $output_ids = array_merge($output_ids, explode(',', $product['output_ids']));
     }
     $output_ids = array_unique($output_ids);
     //
