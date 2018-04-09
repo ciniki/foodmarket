@@ -314,7 +314,6 @@ function ciniki_foodmarket_productList($ciniki) {
                     $products[$pid]['status_text'] = $output['status_text'];
                 }
                 if( ($output['flags']&0x0100) == 0x0100 ) {
-                    error_log('testing');
                     $products[$pid]['availability'] = 'Always';
                 } elseif( ($output['flags']&0x0200) == 0x0200 ) {
                     $products[$pid]['availability'] = 'Dates';
