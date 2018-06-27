@@ -178,9 +178,9 @@ function ciniki_foodmarket_web_productList($ciniki, $settings, $tnid, $args) {
             && isset($product['options']) 
             ) {
             foreach($product['options'] as $oid => $option) {
-                if( $product['retail_mdiscount_percent'] > 0 && $product['member_price_display'] != '' ) {
-                    $products[$pid]['sale_price'] = $product['member_price'];
-                    $products[$pid]['sale_price_display'] = $product['member_price_display'];
+                if( $option['retail_mdiscount_percent'] > 0 && $option['member_price_display'] != '' ) {
+                    $products[$pid]['options'][$oid]['sale_price'] = $option['member_price'];
+                    $products[$pid]['options'][$oid]['sale_price_display'] = $option['member_price_display'];
                 }
             }
         }
