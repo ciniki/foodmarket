@@ -179,6 +179,7 @@ function ciniki_foodmarket_poma_itemLookup($ciniki, $tnid, $args) {
                 . "ciniki_foodmarket_product_outputs.retail_price, "
                 . "ciniki_foodmarket_product_outputs.retail_taxtype_id, "
                 . "ciniki_foodmarket_basket_items.quantity, "
+                . "IFNULL(ciniki_foodmarket_product_inputs.flags, 0) AS input_flags, "
                 . "IFNULL(ciniki_foodmarket_product_inputs.inventory, 0) AS inventory, "
                 . "IFNULL(ciniki_foodmarket_products.packing_order, 10) AS packing_order "
                 . "FROM ciniki_foodmarket_basket_items "
