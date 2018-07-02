@@ -76,7 +76,7 @@ function ciniki_foodmarket_seasonCustomerProductAdd(&$ciniki, $tnid, $args) {
         //
         // Get the date id for this order date
         //
-        $strsql = "SELECT id, order_date "
+        $strsql = "SELECT id, order_date, DATEDIFF(order_date, UTC_TIMESTAMP()) AS days, status "
             . "FROM ciniki_poma_order_dates "
             . "WHERE order_date = '" . ciniki_core_dbQuote($ciniki, $sdt->format('Y-m-d')) . "' "
             . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
@@ -90,22 +90,29 @@ function ciniki_foodmarket_seasonCustomerProductAdd(&$ciniki, $tnid, $args) {
         }
         $date_id = $rc['date']['id'];
         $order_date = $rc['date']['order_date'];
-     
+        $date_status = $rc['date']['status'];
+        $days_until_order = $rc['date']['days'];
+
         //
-        // Add the item, creating order if necessary
+        // Check if order date is in the past, then ignore they get less weeks
         //
-        $rc = ciniki_poma_orderCreateItemsAdd($ciniki, $tnid, array(
-            'date' => array(
-                'id' => $date_id,
-                'order_date' => $order_date,
-                ),
-            'customer_id' => $args['customer_id'],
-            'items' => array(
-                array('object' => 'ciniki.foodmarket.seasonproduct', 'object_id' => $product['id'], 'quantity' => 1),
-                ),
-            ));
-        if( $rc['stat'] != 'ok' ) {
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.122', 'msg'=>'Unable to create orders', 'err'=>$rc['err']));
+        if( $days_until_order > 0 ) {
+            //
+            // Add the item, creating order if necessary
+            //
+            $rc = ciniki_poma_orderCreateItemsAdd($ciniki, $tnid, array(
+                'date' => array(
+                    'id' => $date_id,
+                    'order_date' => $order_date,
+                    ),
+                'customer_id' => $args['customer_id'],
+                'items' => array(
+                    array('object' => 'ciniki.foodmarket.seasonproduct', 'object_id' => $product['id'], 'quantity' => 1),
+                    ),
+                ));
+            if( $rc['stat'] != 'ok' ) {
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.122', 'msg'=>'Unable to create orders', 'err'=>$rc['err']));
+            }
         }
         
         $week_number++;
