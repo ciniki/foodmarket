@@ -23,6 +23,7 @@ function ciniki_foodmarket_datePacking($ciniki) {
         'date_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Order Date'),
         'order_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Order'),
         'order_packed'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Order Packed'),
+        'orders_packed'=>array('required'=>'no', 'blank'=>'no', 'name'=>'All Orders Packed'),
         'orders'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Orders'),
         'baskets'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Baskets'),
         'packing_basket_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Basket'),
@@ -76,6 +77,7 @@ function ciniki_foodmarket_datePacking($ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectAdd');
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'poma', 'private', 'orderRemoveFromInventory');
 
     $dt = new DateTime('now', new DateTimezone($intl_timezone));
     //
@@ -173,7 +175,6 @@ function ciniki_foodmarket_datePacking($ciniki) {
             //
             // Update inventory for order packed
             //
-            ciniki_core_loadMethod($ciniki, 'ciniki', 'poma', 'private', 'orderRemoveFromInventory');
             $rc = ciniki_poma_orderRemoveFromInventory($ciniki, $args['tnid'], $args['order_id']);
             if( $rc['stat'] != 'ok' ) {
                 return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.94', 'msg'=>'Unable to remove items from inventory', 'err'=>$rc['err']));
@@ -185,6 +186,43 @@ function ciniki_foodmarket_datePacking($ciniki) {
             $rc = ciniki_core_objectUpdate($ciniki, $args['tnid'], 'ciniki.poma.order', $args['order_id'], array('status'=>50), 0x07);
             if( $rc['stat'] != 'ok' ) {
                 return $rc;
+            }
+        }
+    }
+
+    //
+    // Mark all orders packed
+    //
+    if( isset($args['orders_packed']) && $args['orders_packed'] == 'yes' ) {
+        $strsql = "SELECT id, status "
+            . "FROM ciniki_poma_orders "
+            . "WHERE date_id = '" . ciniki_core_dbQuote($ciniki, $args['date_id']) . "' "
+            . "AND status < 50 "
+            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+            . "";
+        $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.poma', 'order');
+        if( $rc['stat'] != 'ok' ) { 
+            return $rc;
+        }
+        if( isset($rc['rows']) ) {
+            foreach($rc['rows'] as $order) {
+                if( $order['status'] < 50 ) {
+                    //
+                    // Update inventory for order packed
+                    //
+                    $rc = ciniki_poma_orderRemoveFromInventory($ciniki, $args['tnid'], $order['id']);
+                    if( $rc['stat'] != 'ok' ) {
+                        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.94', 'msg'=>'Unable to remove items from inventory', 'err'=>$rc['err']));
+                    }
+
+                    //
+                    // Update the status of the order
+                    //
+                    $rc = ciniki_core_objectUpdate($ciniki, $args['tnid'], 'ciniki.poma.order', $order['id'], array('status'=>50), 0x07);
+                    if( $rc['stat'] != 'ok' ) {
+                        return $rc;
+                    }
+                }
             }
         }
     }
