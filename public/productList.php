@@ -377,9 +377,9 @@ function ciniki_foodmarket_productList($ciniki) {
         $products[$pid]['member_price_display'] = '';
         if( isset($product['outputs']) ) {
             foreach($product['outputs'] as $output) {
-                if( $output['otype'] == 71 || $output['otype'] == 72 ) {
+                if( $output['status'] > 5 && $output['status'] < 90 && ($output['otype'] == 71 || $output['otype'] == 72) ) {
                     $products[$pid]['basket_price_display'] = $output['retail_price_text'];
-                } elseif( $output['otype'] <= 50 ) {
+                } elseif( $output['status'] > 5 && $output['status'] < 90 && $output['otype'] <= 50 ) {
                     $products[$pid]['market_price_display'] = $output['retail_price_text'];
                     if( $output['retail_sdiscount_percent'] > 0 ) {
                         $products[$pid]['sale_price_display'] = $output['retail_sprice_text'];
