@@ -110,7 +110,11 @@ function ciniki_foodmarket_seasonCustomerProductAdd(&$ciniki, $tnid, $args) {
                     array('object' => 'ciniki.foodmarket.seasonproduct', 'object_id' => $product['id'], 'quantity' => 1),
                     ),
                 ));
-            if( $rc['stat'] != 'ok' ) {
+            //
+            // Ignore if date already closed.
+            //
+            if( $rc['stat'] != 'ok' && $rc['err']['code'] != 'ciniki.poma.47' ) {
+                
                 return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.122', 'msg'=>'Unable to create orders', 'err'=>$rc['err']));
             }
         }
