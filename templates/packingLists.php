@@ -40,10 +40,31 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $tnid, $args) {
     $intl_currency = $rc['settings']['intl-default-currency'];
 
     //
+    // Load any packing slip notes
+    //
+    $strsql = "SELECT id, customer_id, content "
+        . "FROM ciniki_poma_notes "
+        . "WHERE tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+        . "AND ntype = 70 "
+        . "AND status < 60 "
+        . "ORDER BY customer_id ";
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
+    $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.foodmarket', array(
+        array('container'=>'customers', 'fname'=>'customer_id', 'fields'=>array()),
+        array('container'=>'notes', 'fname'=>'id', 'fields'=>array('id', 'content')),
+        ));
+    if( $rc['stat'] != 'ok' ) {
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.128', 'msg'=>'Unable to load notes', 'err'=>$rc['err']));
+    }
+    $notes = isset($rc['customers']) ? $rc['customers'] : array();
+
+
+    //
     // Load the orders and their items/subitems
     //
     $strsql = "SELECT ciniki_poma_orders.id, "
         . "ciniki_poma_orders.billing_name, "
+        . "ciniki_poma_orders.customer_id, "
         . "ciniki_customers.first, "
         . "ciniki_customers.last, "
         . "ciniki_customers.sort_name, "
@@ -98,7 +119,7 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $tnid, $args) {
         . "";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
     $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.poma', array(
-        array('container'=>'orders', 'fname'=>'id', 'fields'=>array('id', 'billing_name', 'sort_name', 'first', 'last', 'order_date_text')),
+        array('container'=>'orders', 'fname'=>'id', 'fields'=>array('id', 'billing_name', 'customer_id', 'sort_name', 'first', 'last', 'order_date_text')),
         array('container'=>'items', 'fname'=>'item_id', 
             'fields'=>array('id'=>'item_id', 'parent_id', 'line_number', 'code', 'description', 'object', 'object_id', 
                 'flags', 'itype', 'weight_units', 'weight_quantity', 'unit_quantity', 'unit_suffix', 'sequence', 'packing_order')), 
@@ -440,6 +461,16 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $tnid, $args) {
         } else {
             $w = array(5, 8, 10, 15, 142);
         }
+        //
+        // Check for any customer packing notes
+        //
+        if( isset($notes[$order['customer_id']]['notes']) ) {
+            $pdf->SetFont('helvetica', 'B', 14);
+            foreach($notes[$order['customer_id']]['notes'] as $note) {
+                $pdf->MultiCell($pdf->usable_width, 10, $note['content'], 0, 'L', false, 1);
+            }
+        }
+
         $num_baskets = 0;
         foreach($order['items'] as $item) {
             if( !isset($item['basket']) || $item['basket'] != 'yes' ) {
