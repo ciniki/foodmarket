@@ -4887,7 +4887,7 @@ function ciniki_foodmarket_main() {
     this.inventory.cellValue = function(s, i, j, d) {
         if( s == 'inventory_products' ) {
             switch (j) {
-                case 0: return d.name;
+                case 0: return d.name + (d.input_name != '' ? ' - ' + d.input_name : '');
                 case 1: return d.inventory;
                 case 2: return d.num_ordered;
                 case 3: return d.num_available;

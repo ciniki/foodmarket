@@ -298,7 +298,7 @@ function ciniki_foodmarket_inventoryList($ciniki) {
     }
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(
-        array('container'=>'products', 'fname'=>'id', 
+        array('container'=>'products', 'fname'=>'input_id', 
             'fields'=>array('id', 'name', 'input_id', 'input_name', 'permalink', 'status', 'flags', 'inventory',
                 'supplier_id', 'supplier_code', 'supplier_name', 'output_ids'),
             'lists'=>array('output_ids'),
