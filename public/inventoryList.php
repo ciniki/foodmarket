@@ -198,7 +198,6 @@ function ciniki_foodmarket_inventoryList($ciniki) {
             . "AND items.category_id = '" . ciniki_core_dbQuote($ciniki, $args['category_id']) . "' "
             . "ORDER BY products.name, inputs.name, inputs.id, outputs.id "
             . "";
-        error_log($strsql);
     } elseif( isset($args['category_id']) && $args['category_id'] != '' && $args['category_id'] == 0 ) {
         $strsql = "SELECT products.id, "
             . "products.name, "
@@ -347,15 +346,11 @@ function ciniki_foodmarket_inventoryList($ciniki) {
             foreach($products as $pid => $product) {
                 $products[$pid]['num_ordered'] = 0;
                 $oids = explode(',', $product['output_ids']);
-                error_log($product['name'] . '-' . $products[$pid]['num_ordered']);
-                error_log($product['output_ids']);
                 foreach($oids as $output_id) {
                     if( isset($rc['items'][$output_id]['num_ordered']) ) {
-                        error_log('add: ' . $rc['items'][$output_id]['num_ordered']);
                         $products[$pid]['num_ordered'] += $rc['items'][$output_id]['num_ordered'];
                     }
                 }
-                error_log($product['name'] . '-' . $products[$pid]['num_ordered']);
                 $products[$pid]['num_available'] = $products[$pid]['inventory'] - $products[$pid]['num_ordered'];
             }
         }
