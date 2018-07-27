@@ -4899,6 +4899,7 @@ function ciniki_foodmarket_main() {
         return 'M.ciniki_foodmarket_main.product.open(\'M.ciniki_foodmarket_main.inventory.open();\',\'' + d.id + '\',null,M.ciniki_foodmarket_main.inventory.nplist);';
     }
     this.inventory.addQuantity = function(iid,i,o,a) {
+        this.savePos();
         for(var i in this.data.inventory_products) {
             if( this.data.inventory_products[i].input_id == iid ) {
                 M.ciniki_foodmarket_main.inventoryadd.open('M.ciniki_foodmarket_main.inventory.open();',this.data.inventory_products[i]);
@@ -4946,7 +4947,7 @@ function ciniki_foodmarket_main() {
             'cellClasses':['', 'alignright', 'alignright', 'alignright'],
             },
         '_qty':{'label':'', 'fields':{
-            'addq':{'label':'Add Quantity', 'type':'number', 'size':'small', 'autofocus':'yes'},
+            'addq':{'label':'Add Quantity', 'type':'number', 'size':'small', 'autofocus':'yes', 'enterFn':'M.ciniki_foodmarket_main.inventoryadd.save();'},
             }},
         '_buttons':{'label':'', 'buttons':{
             'save':{'label':'Add', 'fn':'M.ciniki_foodmarket_main.inventoryadd.save();'},

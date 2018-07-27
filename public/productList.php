@@ -404,9 +404,12 @@ function ciniki_foodmarket_productList($ciniki) {
                 $output_ids[] = $output['id'];
                 $products[$pid]['output_ids'] .= ($products[$pid]['output_ids'] != '' ? ',' . $output['id'] : '');
             }
-//            $products[$pid]['output_ids'] = $output_ids;
         }
-//        $output_ids = array_merge($output_ids, explode(',', $product['output_ids']));
+        if( $product['status'] == 10 ) {
+            $products[$pid]['status_text'] = 'Private';
+        } elseif( $product['status'] == 90 ) {
+            $products[$pid]['status_text'] = 'Archived';
+        }
     }
     $output_ids = array_unique($output_ids);
     //

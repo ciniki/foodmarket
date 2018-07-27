@@ -127,6 +127,7 @@ function ciniki_foodmarket_inventoryList($ciniki) {
                 . ") "
             . "WHERE products.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND outputs.retail_sdiscount_percent > 0 "
+            . "AND products.status < 90 "
             . "ORDER BY products.name, inputs.name, output_ids "
             . "";
 
@@ -160,6 +161,7 @@ function ciniki_foodmarket_inventoryList($ciniki) {
                 . ") "
             . "WHERE products.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND (products.flags&0x01) = 0x01 "
+            . "AND products.status < 90 "
             . "ORDER BY products.name, ciniki_foodmarket_product_inputs.name, output_ids "
             . "";
 
@@ -179,6 +181,7 @@ function ciniki_foodmarket_inventoryList($ciniki) {
             . "FROM ciniki_foodmarket_category_items AS items "
             . "INNER JOIN ciniki_foodmarket_products AS products ON ("
                 . "items.product_id = products.id "
+                . "AND products.status < 90 "
                 . "AND products.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
                 . ") "
             . "INNER JOIN ciniki_foodmarket_product_inputs AS inputs ON ("
@@ -230,6 +233,7 @@ function ciniki_foodmarket_inventoryList($ciniki) {
                 . "AND suppliers.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
                 . ") "
             . "WHERE products.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+            . "AND products.status < 90 "
             . "AND items.id IS NULL "
             . "ORDER BY products.name, inputs.name "
             . "";
@@ -292,6 +296,7 @@ function ciniki_foodmarket_inventoryList($ciniki) {
                 . "AND suppliers.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
                 . ") "
             . "WHERE products.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+            . "AND products.status < 90 "
             . "ORDER BY products.date_added DESC, inputs.name "
             . "LIMIT 25 "
             . "";
