@@ -1457,7 +1457,11 @@ function ciniki_foodmarket_main() {
         M.api.openPDF('ciniki.poma.invoicePDF', {'tnid':M.curTenantID, 'order_id':this.order_id, 'template':'rawinvoice'});
     }
     this.menu.move = function() {
-        this.sections.move_orderdates.visible = 'yes';
+        if( this.sections.move_orderdates.visible == 'hidden' ) {
+            this.sections.move_orderdates.visible = 'yes';
+        } else {
+            this.sections.move_orderdates.visible = 'hidden';
+        }
         this.refreshSection('move_orderdates');
     }
     this.menu.moveorder = function(date_id) {
