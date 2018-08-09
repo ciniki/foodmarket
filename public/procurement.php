@@ -23,6 +23,7 @@ function ciniki_foodmarket_procurement($ciniki) {
         'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'),
         'date_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Date'),
         'supplier_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Supplier'),
+        'output'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Output'),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
@@ -495,6 +496,25 @@ function ciniki_foodmarket_procurement($ciniki) {
                 'quantity'=>$input['order_quantity'],
                 'size'=>$input['sizetext'],
                 );
+        }
+
+        //
+        // Check if output should PDF
+        //
+        if( isset($args['output']) && $args['output'] == 'download' ) {
+            ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'templates', 'procurement');
+            $rc = ciniki_foodmarket_templates_procurement($ciniki, $args['tnid'], array(
+                'items' => $rsp['procurement_supplier_inputs'],
+                ));
+            if( $rc['stat'] != 'ok' ) {
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.129', 'msg'=>'Unable to generate PDF', 'err'=>$rc['err']));
+            }
+
+            $pdf = $rc['pdf'];
+            if( $args['output'] == 'download' ) {
+                $pdf->Output('procurement.pdf', 'D');
+                return array('stat'=>'exit');
+            } 
         }
     }
 

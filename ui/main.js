@@ -189,7 +189,10 @@ function ciniki_foodmarket_main() {
             'headerValues':['Invoice #', 'Date', 'Amount', 'Status'],
             },
         'checkout_move':{'label':'', 
-            'visible':function() { return (M.ciniki_foodmarket_main.menu.order_id > 0 ? 'yes' : 'no'); },
+            'visible':function() { return ( M.ciniki_foodmarket_main.menu.sections._tabs.selected == 'checkout' 
+                && M.ciniki_foodmarket_main.menu.sections._checkouttabs.selected == 'order' 
+                && M.ciniki_foodmarket_main.menu.data.order != null
+                && M.ciniki_foodmarket_main.menu.order_id > 0 ) ? 'yes':'no'; },
             'buttons':{
                 'move':{'label':'Move Order', 'fn':'M.ciniki_foodmarket_main.menu.move();'},
             }},
@@ -309,6 +312,11 @@ function ciniki_foodmarket_main() {
             'headerValues':['SKU', 'Product', 'Cost', 'Required', 'Order'],
             'cellClasses':['', '', 'nobreak', 'nobreak', 'nobreak'],
             },
+        'procurement_buttons':{'label':'', 
+            'visible':function() { return (M.ciniki_foodmarket_main.menu.sections._tabs.selected == 'procurement' && M.ciniki_foodmarket_main.menu.supplier_id > 0) ? 'yes':'no'; },
+            'buttons':{
+                'download':{'label':'Print', 'fn':'M.ciniki_foodmarket_main.menu.printProcurement();'},
+            }},
         'procurement_supplier_order':{'label':'Order', 'type':'simplegrid', 'num_cols':4,
             'visible':function() { return (M.ciniki_foodmarket_main.menu.sections._tabs.selected == 'procurement' && M.ciniki_foodmarket_main.menu.supplier_id > 0) ? 'yes':'no'; },
             'noData':'Nothing ordered',
@@ -1545,6 +1553,9 @@ function ciniki_foodmarket_main() {
             }
         }
         return false;
+    }
+    this.menu.printProcurement = function() {
+        M.api.openPDF('ciniki.foodmarket.procurement', {'tnid':M.curTenantID, 'date_id':this.date_id, 'supplier_id':this.supplier_id, 'output':'download'});
     }
 
     /* Dates */
