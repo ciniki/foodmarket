@@ -31,7 +31,7 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $tnid, $args) {
     // Load tenant settings
     //
     ciniki_core_loadMethod($ciniki, 'ciniki', 'tenants', 'private', 'intlSettings');
-    $rc = ciniki_tenants_intlSettings($ciniki, $args['tnid']);
+    $rc = ciniki_tenants_intlSettings($ciniki, $tnid);
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
