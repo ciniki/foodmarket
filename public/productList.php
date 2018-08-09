@@ -212,7 +212,7 @@ function ciniki_foodmarket_productList($ciniki) {
             . "ciniki_foodmarket_products.supplier_id, "
             . "IFNULL(ciniki_foodmarket_suppliers.code, '') AS supplier_code, "
             . "IFNULL(ciniki_foodmarket_suppliers.name, '') AS supplier_name, "
-            . "IFNULL(ciniki_foodmarket_product_inputs.id, 0) AS input_id, "
+            . "IFNULL(ciniki_foodmarket_product_inputs.id, CONCAT_WS('-', 0, ciniki_foodmarket_products.id)) AS input_id, "
             . "IFNULL(ciniki_foodmarket_product_inputs.itype, 0) AS itype, "
             . "IFNULL(ciniki_foodmarket_product_inputs.name, '') AS input_name, "
             . "IFNULL(ciniki_foodmarket_product_inputs.case_cost, '') AS case_cost, "
@@ -247,7 +247,7 @@ function ciniki_foodmarket_productList($ciniki) {
                 . ") "
             . "WHERE ciniki_foodmarket_products.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND ciniki_foodmarket_category_items.id IS NULL "
-            . "ORDER BY ciniki_foodmarket_products.name, ciniki_foodmarket_product_inputs.name "
+            . "ORDER BY ciniki_foodmarket_products.name, ciniki_foodmarket_products.id, ciniki_foodmarket_product_inputs.name "
             . "";
     } elseif( isset($args['category_id']) && $args['category_id'] == -1 ) {
         $strsql = "SELECT ciniki_foodmarket_products.id, "
@@ -338,7 +338,7 @@ function ciniki_foodmarket_productList($ciniki) {
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(
         array('container'=>'products', 'fname'=>'input_id', 
             'fields'=>array('id', 'name', 'permalink', 'status', 'flags', 'supplier_id', 'supplier_code', 'supplier_name', 
-                'itype', 'input_name', 'case_cost', 'half_cost', 'unit_cost'),
+                'itype', 'input_name', 'case_cost', 'half_cost', 'unit_cost', 'retail_price_text'),
 //            'lists'=>array('output_ids'),
             ),
         array('container'=>'outputs', 'fname'=>'output_id',
@@ -366,7 +366,9 @@ function ciniki_foodmarket_productList($ciniki) {
 //        $products[$pid]['input_names'] = str_replace(',', ', ', $product['input_name']);
         $products[$pid]['status_text'] = '';
         $products[$pid]['availability'] = '';
-        if( $product['itype'] == 50 ) {
+        if( $product['itype'] == 0 ) {
+            $products[$pid]['cost_display'] = $product['retail_price_text'];
+        } elseif( $product['itype'] == 50 ) {
             $products[$pid]['cost_display'] = '$' . number_format($product['case_cost'], 2) . ' (' . '$' . number_format($product['unit_cost'], 2) . '/unit';
         } else {
             $products[$pid]['cost_display'] = '$' . number_format($product['unit_cost'], 2);
