@@ -469,12 +469,12 @@ function ciniki_foodmarket_main() {
             'noData':'No Products',
             },
         /* Products - Inventory */
-        'inventory_products':{'label':'Products', 'type':'simplegrid', 'num_cols':6, 'sortable':'yes',
+        'inventory_products':{'label':'Products', 'type':'simplegrid', 'num_cols':7, 'sortable':'yes',
             'visible':function() {return M.ciniki_foodmarket_main.menu.isVisible(['products'], ['inventory']);},
-            'headerValues':['Supplier', 'Name', 'Options', 'Inventory', 'On Order', 'Available'],
-            'headerClasses':['', '', '', 'alignright', 'alignright', 'alignright'],
-            'cellClasses':['', '', '', 'alignright', 'alignright', 'alignright'],
-            'sortTypes':['text', 'text', 'text', 'number', 'number', 'number'],
+            'headerValues':['Supplier', 'Name', 'Options', 'Available', 'Inventory', 'On Order', 'Available'],
+            'headerClasses':['', '', '', '', 'alignright', 'alignright', 'alignright'],
+            'cellClasses':['', '', '', 'multiline', 'alignright', 'alignright', 'alignright'],
+            'sortTypes':['text', 'text', 'text', 'text', 'number', 'number', 'number'],
             'noData':'No Products',
             'addTxt':'Add Product',
             'addFn':'M.ciniki_foodmarket_main.product.open(\'M.ciniki_foodmarket_main.menu.open();\',0,null,null,M.ciniki_foodmarket_main.menu.category_id);',
@@ -1188,9 +1188,10 @@ function ciniki_foodmarket_main() {
                 case 0: return d.supplier_code;
                 case 1: return d.name;
                 case 2: return d.input_name;
-                case 3: return d.inventory;
-                case 4: return d.num_ordered;
-                case 5: return d.num_available;
+                case 3: return '<span class="maintext">' + d.status_text + '</span><span class="subtext">' + d.availability + '</span>';
+                case 4: return d.inventory;
+                case 5: return d.num_ordered;
+                case 6: return d.num_available;
             }
         } else if( s == 'customers' ) {
             return (d.num_notes != null && d.num_notes > 0 ? '*' : '') 
@@ -4931,9 +4932,9 @@ function ciniki_foodmarket_main() {
             }},
         'inventory_products':{'label':'Products', 'type':'simplegrid', 'num_cols':5, 'sortable':'yes',
             'headerValues':['Name', 'Inv', 'Ord', 'Avl'],
-            'headerClasses':['', '', '', 'alignright', 'alignright', 'alignright'],
-            'cellClasses':['', '', '', 'alignright', 'alignright', 'alignright'],
-            'sortTypes':['text', 'text', 'text', 'number', 'number', 'number'],
+            'headerClasses':['', 'alignright', 'alignright', 'alignright'],
+            'cellClasses':['multiline', 'alignright', 'alignright', 'alignright'],
+            'sortTypes':['text', 'number', 'number', 'number'],
             'noData':'No Products',
             },
     };
@@ -4944,7 +4945,7 @@ function ciniki_foodmarket_main() {
     this.inventory.cellValue = function(s, i, j, d) {
         if( s == 'inventory_products' ) {
             switch (j) {
-                case 0: return d.name + (d.input_name != '' ? ' - ' + d.input_name : '');
+                case 0: return '<span class="maintext">' + d.name + (d.input_name != '' ? ' - ' + d.input_name : '') + '</span><span class="subtext">' + d.status_text + ' - ' + d.availability + '</span>';
                 case 1: return d.inventory;
                 case 2: return d.num_ordered;
                 case 3: return d.num_available;

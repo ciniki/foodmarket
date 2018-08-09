@@ -353,7 +353,7 @@ function ciniki_foodmarket_inventoryList($ciniki) {
                 if( $output['otype'] < 70 ) {
                     $status = $output['status'];
                 }
-                if( $output['otype'] < 70 && $output['status'] == 40 ) {
+                if( $output['otype'] < 70 ) {
                     if( ($output['flags']&0x0100) == 0x0100 ) {
                         $products[$pid]['availability'] = 'Always';
                     } elseif( ($output['flags']&0x0200) == 0x0200 ) {
