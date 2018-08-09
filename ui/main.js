@@ -1248,6 +1248,23 @@ function ciniki_foodmarket_main() {
             }
         } 
     };
+    this.menu.cellClass = function(s, i, j, d) {
+        var addclass = '';
+        if( s == 'baskets_items' ) {
+            var bid = this.sections[s].basket_ids[(j-3)];
+            var q = '';
+            if( d.basket_quantities != null && d.basket_quantities[bid] != null ) {
+                q = parseFloat(d.basket_quantities[bid].quantity);
+                if( q > 0 ) {
+                    addclass = 'statusgreen';
+                }
+            } 
+        }
+        if( this.sections[s].cellClasses != null && this.sections[s].cellClasses[j] != null ) {
+            return this.sections[s].cellClasses[j] + ' ' + addclass;
+        }
+        return addclass;
+    }
     this.menu.cellSortValue = function(s, i, j, d) {
         if( s == 'baskets_items' ) {
             switch(j) {
