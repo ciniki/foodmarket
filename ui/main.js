@@ -2253,7 +2253,7 @@ function ciniki_foodmarket_main() {
                 'packing_order':{'label':'Packing', 'type':'toggle', 'toggles':this.packingToggles},
             }},
         'inputs':{'label':'Purchase Options', 'type':'simplegrid', 'num_cols':'2', 'aside':'yes',
-            'visible':function() { return (M.ciniki_foodmarket_main.product.inputVisible('inputs') == 'yes' && M.ciniki_foodmarket_main.product.product_id > 0 ? 'yes' : 'no'); },
+            'visible':function() { return (M.ciniki_foodmarket_main.product.inputVisible('inputs') == 'yes' && M.ciniki_foodmarket_main.product.product_id > 0 ? 'yes' : 'hidden'); },
             'cellClasses':['', 'multiline alignright'],
             'addTxt':'Add',
             'addFn':'M.ciniki_foodmarket_main.product.addInput();',
@@ -2822,7 +2822,7 @@ function ciniki_foodmarket_main() {
         this.sections._tabs.selected = tab;
 //        this.refreshSections(['_tabs', '_inputs']);
         this.refreshSections(['_tabs', 'inputs']);
-        this.showHideSections(['_categories', '_synopsis', '_description', '_ingredients', '_available', '_storage', '_culinary']);
+        this.showHideSections(['_categories', '_synopsis', '_description', '_ingredients', '_available', '_storage', '_culinary', 'inputs']);
         this.updatePanel();
 //        this.updateInput('input1');
 //        this.showHideInputs();
