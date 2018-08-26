@@ -152,6 +152,7 @@ function ciniki_foodmarket_dateItems($ciniki) {
     // Delete the order date item to the database
     //
     if( isset($args['delete_output_id']) && $args['delete_output_id'] > 0 ) {
+         
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectDelete');
         $rc = ciniki_core_objectDelete($ciniki, $args['tnid'], 'ciniki.foodmarket.dateitem', $args['delete_output_id'], null, 0x07);
         if( $rc['stat'] != 'ok' ) {
@@ -169,7 +170,8 @@ function ciniki_foodmarket_dateItems($ciniki) {
     //
     // Get the products for the current date
     //
-    $strsql = "SELECT ciniki_foodmarket_product_outputs.id, "
+    $strsql = "SELECT ciniki_foodmarket_date_items.id, "
+        . "ciniki_foodmarket_product_outputs.id AS output_id, "
         . "ciniki_foodmarket_product_outputs.product_id, "
         . "IFNULL(ciniki_foodmarket_products.supplier_id, 0) AS supplier_id, "
         . "IFNULL(ciniki_foodmarket_suppliers.code, '') AS supplier_code, "
@@ -193,7 +195,7 @@ function ciniki_foodmarket_dateItems($ciniki) {
         . "ORDER BY supplier_code, pio_name "
         . "";
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.poma', array(
-        array('container'=>'products', 'fname'=>'id', 'fields'=>array('id', 'product_id', 'supplier_id', 'supplier_code', 'name'=>'pio_name')),
+        array('container'=>'products', 'fname'=>'id', 'fields'=>array('id', 'output_id', 'product_id', 'supplier_id', 'supplier_code', 'name'=>'pio_name')),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
@@ -203,7 +205,7 @@ function ciniki_foodmarket_dateItems($ciniki) {
     }
     $date_output_ids = array();
     foreach($rsp['availability_date_outputs'] as $product) {
-        $date_output_ids[] = $product['id'];
+        $date_output_ids[] = $product['output_id'];
     }
 
     //

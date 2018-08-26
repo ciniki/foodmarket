@@ -1578,24 +1578,29 @@ function ciniki_foodmarket_main() {
 
     /* Dates */
     this.menu.dateItemAdd = function(e, oid) {
+        this.savePos();
         M.api.getJSONCb('ciniki.foodmarket.dateItems', {'tnid':M.curTenantID, 'date_id':this.date_id, 'add_output_id':oid}, 
             M.ciniki_foodmarket_main.menu.processAvailability);
     }
     this.menu.dateItemDelete = function(e, oid) {
+        this.savePos();
         M.api.getJSONCb('ciniki.foodmarket.dateItems', {'tnid':M.curTenantID, 'date_id':this.date_id, 'delete_output_id':oid}, 
             M.ciniki_foodmarket_main.menu.processAvailability);
     }
     this.menu.basketCopyLast = function() {
+        this.savePos();
         M.api.getJSONCb('ciniki.foodmarket.dateBaskets', 
             {'tnid':M.curTenantID, 'date_id':this.date_id, 'copylast':'yes', 'outputs':'yes'},
             M.ciniki_foodmarket_main.menu.processBaskets);
     }
     this.menu.basketItemRemove = function(e, iid) {
+        this.savePos();
         M.api.getJSONCb('ciniki.foodmarket.dateBaskets', 
             {'tnid':M.curTenantID, 'date_id':this.date_id, 'remove_item_id':iid, 'outputs':'yes'},
             M.ciniki_foodmarket_main.menu.processBaskets);
     }
     this.menu.basketItemAdd = function(e, oid) {
+        this.savePos();
         M.api.getJSONCb('ciniki.foodmarket.dateBaskets', {'tnid':M.curTenantID, 
             'date_id':this.date_id, 'basket_output_id':0, 'item_output_id':oid, 'quantity':0, 'outputs':'yes'}, M.ciniki_foodmarket_main.menu.processBaskets); /*function(rsp) {
                 if( rsp.stat != 'ok' ) {
@@ -1624,6 +1629,7 @@ function ciniki_foodmarket_main() {
             });
     }
     this.menu.basketsSubmit = function() {
+        this.savePos();
         M.api.getJSONCb('ciniki.foodmarket.dateBaskets', 
             {'tnid':M.curTenantID, 'date_id':this.date_id, 'datestatus':'substitutions', 'outputs':'yes'}, 
             M.ciniki_foodmarket_main.menu.processBaskets);
