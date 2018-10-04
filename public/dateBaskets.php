@@ -193,6 +193,8 @@ function ciniki_foodmarket_dateBaskets($ciniki) {
 
     $dt = new DateTime('now', new DateTimezone($intl_timezone));
 
+// Used for debugging, allowed to go back 2 months
+//        $dt->sub(new DateInterval('P2M'));
     $strsql = "SELECT ciniki_poma_order_dates.id, "
         . "ciniki_poma_order_dates.order_date, "
         . "ciniki_poma_order_dates.display_name, "
@@ -371,10 +373,18 @@ function ciniki_foodmarket_dateBaskets($ciniki) {
         //
         // Get the previous basket items
         //
-        $strsql = "SELECT id, basket_output_id, item_output_id, quantity "
-            . "FROM ciniki_foodmarket_basket_items "
-            . "WHERE date_id = '" . ciniki_core_dbQuote($ciniki, $prev_basket_date_id) . "' "
-            . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+        $strsql = "SELECT bitems.id, "
+            . "bitems.basket_output_id, "
+            . "bitems.item_output_id, "
+            . "bitems.quantity, "
+            . "outputs.status "
+            . "FROM ciniki_foodmarket_basket_items AS bitems "
+            . "LEFT JOIN ciniki_foodmarket_product_outputs AS outputs ON ("
+                . "bitems.item_output_id = outputs.id "
+                . "AND outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+                . ") "
+            . "WHERE bitems.date_id = '" . ciniki_core_dbQuote($ciniki, $prev_basket_date_id) . "' "
+            . "AND bitems.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "";
         $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.foodmarket', 'item');
         if( $rc['stat'] != 'ok' ) {
@@ -383,6 +393,12 @@ function ciniki_foodmarket_dateBaskets($ciniki) {
         if( isset($rc['rows']) ) {  
             $items = $rc['rows'];
             foreach($items as $item) {
+                //
+                // Skip any items that are not currently private or public.
+                //
+                if( $item['status'] < 10 ) {
+                    continue;
+                }
                 $rc = ciniki_core_objectAdd($ciniki, $args['tnid'], 'ciniki.foodmarket.basketitem', array(
                     'basket_output_id'=>$item['basket_output_id'],
                     'date_id'=>$args['date_id'],
@@ -599,6 +615,8 @@ function ciniki_foodmarket_dateBaskets($ciniki) {
                 . "AND ciniki_foodmarket_suppliers.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
                 . ") "
             . "WHERE ciniki_foodmarket_product_outputs.otype IN (71, 72) "
+            . "AND ciniki_foodmarket_product_outputs.status >= 10 "
+            . "AND ciniki_foodmarket_product_outputs.status <= 60 "
             . "";
         if( count($output_ids) > 0 ) {
             $strsql .= "AND ciniki_foodmarket_product_outputs.id NOT IN (" . ciniki_core_dbQuoteIDs($ciniki, $output_ids) . ") ";
@@ -609,7 +627,7 @@ function ciniki_foodmarket_dateBaskets($ciniki) {
             . "";
         $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.poma', array(
             array('container'=>'outputs', 'fname'=>'id', 
-                'fields'=>array('id', 'product_id', 'supplier_id', 'supplier_code', 'name'=>'name', 'last_order_date', 'days'),
+                'fields'=>array('id', 'product_id', 'supplier_id', 'supplier_code', 'name'=>'name', 'last_order_date', 'days', 'status'),
                 'utctotz'=>array('last_order_date'=>array('timezone'=>'UTC', 'format'=>$date_format)),
                 ),
             ));

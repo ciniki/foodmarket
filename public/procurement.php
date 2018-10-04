@@ -112,6 +112,8 @@ function ciniki_foodmarket_procurement($ciniki) {
         $rsp['date_status'] = $rc['date']['status'];
     }
 
+// For debugging, Substract 2 months
+//$dt->sub(new DateInterval('P2M'));
     $strsql = "SELECT ciniki_poma_order_dates.id, "
         . "ciniki_poma_order_dates.order_date, "
         . "ciniki_poma_order_dates.display_name, "
