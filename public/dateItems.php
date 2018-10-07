@@ -205,7 +205,9 @@ function ciniki_foodmarket_dateItems($ciniki) {
     }
     $date_output_ids = array();
     foreach($rsp['availability_date_outputs'] as $product) {
-        $date_output_ids[] = $product['output_id'];
+        if( isset($product['output_id']) && $product['output_id'] > 0 ) {
+            $date_output_ids[] = $product['output_id'];
+        }
     }
 
     //
