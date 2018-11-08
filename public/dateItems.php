@@ -177,7 +177,7 @@ function ciniki_foodmarket_dateItems($ciniki) {
         . "IFNULL(ciniki_foodmarket_suppliers.code, '') AS supplier_code, "
         . "ciniki_foodmarket_product_outputs.pio_name "
         . "FROM ciniki_foodmarket_date_items "
-        . "LEFT JOIN ciniki_foodmarket_product_outputs ON ("
+        . "INNER JOIN ciniki_foodmarket_product_outputs ON ("
             . "ciniki_foodmarket_date_items.output_id  = ciniki_foodmarket_product_outputs.id "
             . "AND ciniki_foodmarket_product_outputs.status > 5 "
             . "AND ciniki_foodmarket_product_outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
