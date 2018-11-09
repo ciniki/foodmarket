@@ -166,16 +166,16 @@ function ciniki_foodmarket_productList($ciniki) {
             . "ciniki_foodmarket_products.supplier_id, "
             . "IFNULL(ciniki_foodmarket_suppliers.code, '') AS supplier_code, "
             . "IFNULL(ciniki_foodmarket_suppliers.name, '') AS supplier_name, "
-            . "IFNULL(ciniki_foodmarket_product_inputs.id, 0) AS input_id, "
+            . "IFNULL(ciniki_foodmarket_product_inputs.id, ciniki_foodmarket_products.id) AS input_id, "
             . "IFNULL(ciniki_foodmarket_product_inputs.itype, 0) AS itype, "
             . "IFNULL(ciniki_foodmarket_product_inputs.name, '') AS input_name, "
             . "IFNULL(ciniki_foodmarket_product_inputs.case_cost, '') AS case_cost, "
             . "IFNULL(ciniki_foodmarket_product_inputs.half_cost, '') AS half_cost, "
             . "IFNULL(ciniki_foodmarket_product_inputs.unit_cost, '') AS unit_cost, "
             . "IFNULL(ciniki_foodmarket_product_outputs.id, 0) AS output_id, "
-            . "IFNULL(ciniki_foodmarket_product_outputs.status, 0) AS output_status, "
+            . "IFNULL(ciniki_foodmarket_product_outputs.status, ciniki_foodmarket_products.status) AS output_status, "
             . "IFNULL(ciniki_foodmarket_product_outputs.otype, 0) AS otype, "
-            . "IFNULL(ciniki_foodmarket_product_outputs.flags, 0) AS oflags, "
+            . "IFNULL(ciniki_foodmarket_product_outputs.flags, 0x0100) AS oflags, "
             . "IFNULL(ciniki_foodmarket_product_outputs.retail_percent, 0) AS retail_percent, "
             . "IFNULL(ciniki_foodmarket_product_outputs.retail_price_text, '') AS retail_price_text, "
             . "IFNULL(ciniki_foodmarket_product_outputs.retail_mdiscount_percent, 0) AS retail_mdiscount_percent, "
@@ -203,6 +203,7 @@ function ciniki_foodmarket_productList($ciniki) {
             . "AND ciniki_foodmarket_category_items.category_id = '" . ciniki_core_dbQuote($ciniki, $args['category_id']) . "' "
             . "ORDER BY ciniki_foodmarket_products.name, ciniki_foodmarket_product_inputs.name "
             . "";
+            error_log($strsql);
     } elseif( isset($args['category_id']) && $args['category_id'] != '' && $args['category_id'] == 0 ) {
         $strsql = "SELECT ciniki_foodmarket_products.id, "
             . "ciniki_foodmarket_products.name, "
@@ -391,7 +392,8 @@ function ciniki_foodmarket_productList($ciniki) {
                     }
                 }
                 $output_ids[] = $output['id'];
-                if( ($product['itype'] == $output['otype'] && $output['otype'] < 50) || ($product['itype'] == 50 && $output['otype'] == 30) ) {
+                error_log($product['name'] . '-' . $product['itype'] . ': ' . $output['otype']);
+                if( ($product['itype'] == $output['otype'] && $output['otype'] <= 50) || ($product['itype'] == 50 && $output['otype'] == 30) || $output['otype'] == 70 ) {
                     $products[$pid]['status_text'] = $output['status_text'];
                 }
                 if( ($output['flags']&0x0100) == 0x0100 ) {
