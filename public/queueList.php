@@ -292,6 +292,7 @@ function ciniki_foodmarket_queueList($ciniki) {
                 . "AND ciniki_customers.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
                 . ") "
             . "WHERE ciniki_poma_queued_items.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+            . "AND ciniki_poma_queued_items.status < 90 "
             . "GROUP BY customer_id "
             . "ORDER BY ciniki_customers.display_name "
             . "";
