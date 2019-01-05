@@ -54,7 +54,7 @@ function ciniki_foodmarket_poma_queueItemLookup($ciniki, $tnid, $args) {
             return $rc;
         }
         if( !isset($rc['output']) ) {
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.74', 'msg'=>'Unable to find item'));
+            return array('stat'=>'noexist', 'err'=>array('code'=>'ciniki.foodmarket.74', 'msg'=>'Unable to find item'));
         }
         $item = $rc['output'];
 
