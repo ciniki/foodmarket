@@ -175,7 +175,7 @@ function ciniki_foodmarket_productList($ciniki) {
             . "IFNULL(ciniki_foodmarket_product_outputs.id, 0) AS output_id, "
             . "IFNULL(ciniki_foodmarket_product_outputs.status, ciniki_foodmarket_products.status) AS output_status, "
             . "IFNULL(ciniki_foodmarket_product_outputs.otype, 0) AS otype, "
-            . "IFNULL(ciniki_foodmarket_product_outputs.flags, 0x0100) AS oflags, "
+            . "IFNULL(ciniki_foodmarket_product_outputs.flags, (0+0x0100)) AS oflags, "
             . "IFNULL(ciniki_foodmarket_product_outputs.retail_percent, 0) AS retail_percent, "
             . "IFNULL(ciniki_foodmarket_product_outputs.retail_price_text, '') AS retail_price_text, "
             . "IFNULL(ciniki_foodmarket_product_outputs.retail_mdiscount_percent, 0) AS retail_mdiscount_percent, "
