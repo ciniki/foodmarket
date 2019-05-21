@@ -172,6 +172,25 @@ function ciniki_foodmarket_members($ciniki) {
             return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.115', 'msg'=>'Unable to setup orders', 'err'=>$rc['err']));
         }
     }
+    if( isset($args['action']) && $args['action'] == 'customerproductremove' 
+        && isset($args['customer_id']) && $args['customer_id'] > 0 
+        && isset($args['product_id']) && $args['product_id'] > 0 
+        && isset($args['day']) && $args['day'] != '' 
+        ) {
+        //
+        // Add the orders and products for the customer
+        //
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'private', 'seasonCustomerProductRemove');
+        $rc = ciniki_foodmarket_seasonCustomerProductRemove($ciniki, $args['tnid'], array(
+            'season_id' => $season['id'], 
+            'customer_id' => $args['customer_id'], 
+            'product_id' => $args['product_id'],
+            'day' => $args['day'],
+            ));
+        if( $rc['stat'] != 'ok' ) {
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.131', 'msg'=>'Unable to remove product', 'err'=>$rc['err']));
+        }
+    }
 
     //
     // Get the list of season members

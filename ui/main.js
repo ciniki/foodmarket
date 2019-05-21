@@ -1228,7 +1228,11 @@ function ciniki_foodmarket_main() {
             } else if( j == 1 ) {
                 return d.repeat_days;
             } else {
-                return '<button onclick=\'event.stopPropagation(); M.ciniki_foodmarket_main.menu.customerProductAdd("' + d.id + '","' + this.sections.seasonproducts.days[(j-2)] + '");\'>Add</button>';
+                var r = '';
+                if( M.ciniki_foodmarket_main.menu.customer_id > 0 ) {   
+                    r = ' <button onclick=\'event.stopPropagation(); M.ciniki_foodmarket_main.menu.customerProductRemove("' + d.id + '","' + this.sections.seasonproducts.days[(j-2)] + '");\'>Remove</button>';
+                }
+                return '<button onclick=\'event.stopPropagation(); M.ciniki_foodmarket_main.menu.customerProductAdd("' + d.id + '","' + this.sections.seasonproducts.days[(j-2)] + '");\'>Add</button>' + r;
             }
         }
 
@@ -1366,6 +1370,7 @@ function ciniki_foodmarket_main() {
             return 'M.ciniki_foodmarket_main.menu.openMember(\'' + d.customer_id + '\');';
         }
         if( s == 'memberorders' ) {
+            return '';
             return 'M.ciniki_foodmarket_main.menu.openOrder(\'' + d.id + '\');';
         }
         /* Suppliers */
@@ -1731,6 +1736,13 @@ function ciniki_foodmarket_main() {
         M.api.getJSONCb('ciniki.foodmarket.members', 
             {'tnid':M.curTenantID, 'season_id':this.season_id, 'action':'customerproductadd', 'customer_id':this.customer_id, 'product_id':pid, 'day':day}, 
             M.ciniki_foodmarket_main.menu.processMembers);
+    }
+    this.menu.customerProductRemove = function(pid, day) {
+        if( confirm("Are you sure you want to remove this product from the customers orders?") ) {
+            M.api.getJSONCb('ciniki.foodmarket.members', 
+                {'tnid':M.curTenantID, 'season_id':this.season_id, 'action':'customerproductremove', 'customer_id':this.customer_id, 'product_id':pid, 'day':day}, 
+                M.ciniki_foodmarket_main.menu.processMembers);
+        }
     }
     this.menu.newSeasonCustomer = function(cid) {
         this.customer_id = cid;
