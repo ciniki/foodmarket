@@ -57,7 +57,7 @@ function ciniki_foodmarket_legendUpdate(&$ciniki) {
             return $rc;
         }
         if( $rc['num_rows'] > 0 ) {
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.12', 'msg'=>'You already have an legend with this name, please choose another.'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.141', 'msg'=>'You already have an legend with this name, please choose another.'));
         }
     }
 

@@ -93,10 +93,10 @@ function ciniki_foodmarket_categoryGet($ciniki) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQuery');
         $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.foodmarket', 'category');
         if( $rc['stat'] != 'ok' ) {
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.8', 'msg'=>'Category not found', 'err'=>$rc['err']));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.139', 'msg'=>'Category not found', 'err'=>$rc['err']));
         }
         if( !isset($rc['category']) ) {
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.9', 'msg'=>'Unable to find Category'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.140', 'msg'=>'Unable to find Category'));
         }
         $category = $rc['category'];
 

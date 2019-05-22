@@ -51,7 +51,7 @@ function ciniki_foodmarket_newList($ciniki) {
             return $rc;
         }
         if( !isset($rc['product']) ) {
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.69', 'msg'=>'Could not find that product.'));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.143', 'msg'=>'Could not find that product.'));
         }
         $product = $rc['product'];
 

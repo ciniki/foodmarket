@@ -29,7 +29,7 @@ function ciniki_foodmarket_web_processRequestSlideshow(&$ciniki, $settings, $tni
         array_shift($uri_split);
     }
     if( !isset($uri_split[0]) || $uri_split[0] == '' ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.84', 'msg'=>'No slideshow specified'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.145', 'msg'=>'No slideshow specified'));
     }
     $slideshow_permalink = $uri_split[0];
 
@@ -102,10 +102,10 @@ function ciniki_foodmarket_web_processRequestSlideshow(&$ciniki, $settings, $tni
             array('container'=>'outputs', 'fname'=>'oid', 'fields'=>array('id'=>'oid', 'uuid', 'io_name', 'price_text')),
             ));
         if( $rc['stat'] != 'ok' ) {
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.81', 'msg'=>'', 'err'=>$rc['err']));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.146', 'msg'=>'', 'err'=>$rc['err']));
         }
         if( !isset($rc['products']) ) {
-            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.82', 'msg'=>''));
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.144', 'msg'=>''));
         }
         $products = $rc['products'];
         

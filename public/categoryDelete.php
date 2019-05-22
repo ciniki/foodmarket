@@ -86,7 +86,7 @@ function ciniki_foodmarket_categoryDelete(&$ciniki) {
         return $rc;
     }
     if( $rc['num'] > 0 ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.7', 'msg'=>'You still have ' . $rc['num'] . ' item' . ($rc['num']>1?'s':'') . ' in this category.'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.138', 'msg'=>'You still have ' . $rc['num'] . ' item' . ($rc['num']>1?'s':'') . ' in this category.'));
     }
 
     //

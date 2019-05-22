@@ -94,7 +94,7 @@ function ciniki_foodmarket_templates_catalog(&$ciniki, $tnid, $args) {
         return $rc;
     }
     if( !isset($rc['categories']) ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.57', 'msg'=>'No products found'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.142', 'msg'=>'No products found'));
     }
     $categories = $rc['categories'];
 

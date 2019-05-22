@@ -55,7 +55,7 @@ function ciniki_foodmarket_seasonCustomerProductAdd(&$ciniki, $tnid, $args) {
         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.118', 'msg'=>'Unable to load product', 'err'=>$rc['err']));
     }
     if( !isset($rc['product']) ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.119', 'msg'=>'Unable to find requested product'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.148', 'msg'=>'Unable to find requested product'));
     }
     $product = $rc['product'];
 

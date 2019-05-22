@@ -177,7 +177,7 @@ function ciniki_foodmarket_datePacking($ciniki) {
             //
             $rc = ciniki_poma_orderRemoveFromInventory($ciniki, $args['tnid'], $args['order_id']);
             if( $rc['stat'] != 'ok' ) {
-                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.94', 'msg'=>'Unable to remove items from inventory', 'err'=>$rc['err']));
+                return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.147', 'msg'=>'Unable to remove items from inventory', 'err'=>$rc['err']));
             }
 
             //

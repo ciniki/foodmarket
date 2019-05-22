@@ -51,7 +51,7 @@ function ciniki_foodmarket_legendDelete(&$ciniki) {
         return $rc;
     }
     if( !isset($rc['legend']) ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.5', 'msg'=>'Category does not exist.'));
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.137', 'msg'=>'Category does not exist.'));
     }
     $legend = $rc['legend'];
 
