@@ -96,6 +96,26 @@ function ciniki_foodmarket_main() {
                     'complex_options':{'name':'name_status', 'value':'id'}, 'options':{},
                     },
             }},
+        '_years':{'label':'', 'type':'paneltabs', 'selected':'', 'tabs':{},
+            'visible':function() { return M.ciniki_foodmarket_main.menu.isVisible(['dates']); },
+            },
+        '_months':{'label':'', 'type':'paneltabs', 'selected':'0', 
+            'visible':function() { return M.ciniki_foodmarket_main.menu.isVisible(['dates']); },
+            'tabs':{
+                '0':{'label':'All', 'fn':'M.ciniki_foodmarket_main.menu.switchMonthTab(0);'},
+                '1':{'label':'Jan', 'fn':'M.ciniki_foodmarket_main.menu.switchMonthTab(1);'},
+                '2':{'label':'Feb', 'fn':'M.ciniki_foodmarket_main.menu.switchMonthTab(2);'},
+                '3':{'label':'Mar', 'fn':'M.ciniki_foodmarket_main.menu.switchMonthTab(3);'},
+                '4':{'label':'Apr', 'fn':'M.ciniki_foodmarket_main.menu.switchMonthTab(4);'},
+                '5':{'label':'May', 'fn':'M.ciniki_foodmarket_main.menu.switchMonthTab(5);'},
+                '6':{'label':'Jun', 'fn':'M.ciniki_foodmarket_main.menu.switchMonthTab(6);'},
+                '7':{'label':'Jul', 'fn':'M.ciniki_foodmarket_main.menu.switchMonthTab(7);'},
+                '8':{'label':'Aug', 'fn':'M.ciniki_foodmarket_main.menu.switchMonthTab(8);'},
+                '9':{'label':'Sep', 'fn':'M.ciniki_foodmarket_main.menu.switchMonthTab(9);'},
+                '10':{'label':'Oct', 'fn':'M.ciniki_foodmarket_main.menu.switchMonthTab(10);'},
+                '11':{'label':'Nov', 'fn':'M.ciniki_foodmarket_main.menu.switchMonthTab(11);'},
+                '12':{'label':'Dec', 'fn':'M.ciniki_foodmarket_main.menu.switchMonthTab(12);'},
+            }},
         'customer_details':{'label':'Customer', 'aside':'yes', 'type':'simplegrid', 'num_cols':1,
             'visible':function() { 
                 var t=M.ciniki_foodmarket_main.menu.sections._tabs.selected; 
@@ -1650,6 +1670,14 @@ function ciniki_foodmarket_main() {
         this.order_id = oid;
         this.open();
     }
+    this.menu.switchYearTab = function(y) {
+        this.sections._years.selected = y;
+        this.open();
+    }
+    this.menu.switchMonthTab = function(m) {
+        this.sections._months.selected = m;
+        this.open();
+    }
     /* Queue */
     this.menu.queueQuantityGet = function(o, i) {
         var q = prompt("Quantity: ", '');
@@ -1795,7 +1823,7 @@ function ciniki_foodmarket_main() {
         } 
         else if( this.sections._tabs.selected == 'dates' ) {
             M.api.getJSONCb('ciniki.poma.dateList', 
-                {'tnid':M.curTenantID}, 
+                {'tnid':M.curTenantID, 'year':this.sections._years.selected, 'month':this.sections._months.selected}, 
                 M.ciniki_foodmarket_main.menu.processDates);
         }
         else if( this.sections._tabs.selected == 'queue' ) {
@@ -2004,6 +2032,16 @@ function ciniki_foodmarket_main() {
         p.data = rsp;
         p.data.order_dates = rsp.dates;
         p.date_nplist = (rsp.date_nplist != null ? rsp.date_nplist : null);
+        p.sections._years.tabs = {};
+        if( rsp.first_year != null ) {
+            var year = new Date().getFullYear();
+            for(var i=rsp.first_year;i<=year;i++) {
+                p.sections._years.tabs[i] = {'label':i, 'fn':'M.ciniki_foodmarket_main.menu.switchYearTab(' + i + ');'};
+            }
+            if( p.sections._years.selected == '' ) {
+                p.sections._years.selected = year;
+            }
+        }
         p.refresh();
         p.show();
     }
