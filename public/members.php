@@ -57,6 +57,16 @@ function ciniki_foodmarket_members($ciniki) {
     $maps = $rc['maps'];
     
     //
+    // Load ciniki.poma maps
+    //
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'poma', 'private', 'maps');
+    $rc = ciniki_poma_maps($ciniki);
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+    $poma_maps = $rc['maps'];
+    
+    //
     // Load the season
     //
     $strsql = "SELECT id, start_date, end_date, csa_start_date, csa_end_date, csa_days "
@@ -239,6 +249,8 @@ function ciniki_foodmarket_members($ciniki) {
         $strsql = "SELECT orders.id, "
             . "orders.order_number, "
             . "orders.order_date, "
+            . "orders.status, "
+            . "orders.status AS status_text, "
             . "items.id AS item_id, "
             . "items.code, "
             . "items.description, "
@@ -259,7 +271,8 @@ function ciniki_foodmarket_members($ciniki) {
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
         $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(
             array('container'=>'orders', 'fname'=>'id', 
-                'fields'=>array('id', 'order_number', 'order_date'),
+                'fields'=>array('id', 'order_number', 'order_date', 'status', 'status_text'),
+                'maps'=>array('status_text'=>$poma_maps['order']['status']),
                 'utctotz'=>array('order_date'=>array('format'=>$date_format, 'timezone'=>'UTC')),
                 ),
             array('container'=>'items', 'fname'=>'item_id', 
@@ -271,8 +284,10 @@ function ciniki_foodmarket_members($ciniki) {
         }
         if( isset($rc['orders']) ) {
             $rsp['memberorders'] = $rc['orders'];
+            $order_sequence = 1;
             foreach($rsp['memberorders'] as $oid => $order) {
                 $rsp['memberorders'][$oid]['products'] = '';
+                $rsp['memberorders'][$oid]['sequence'] = $order_sequence++;
                 if( isset($order['items']) ) {
                     foreach($order['items'] as $item) {
                         $rsp['memberorders'][$oid]['products'] .= ($rsp['memberorders'][$oid]['products'] != '' ? ", \n" : '') 

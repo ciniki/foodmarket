@@ -617,11 +617,11 @@ function ciniki_foodmarket_main() {
             'sortTypes':['text', 'text'],
             'noData':'No orders',
             },
-        'memberorders':{'label':'Orders', 'type':'simplegrid', 'num_cols':2, 'sortable':'yes',
+        'memberorders':{'label':'Orders', 'type':'simplegrid', 'num_cols':4, 'sortable':'yes',
             'visible':function() {var p=M.ciniki_foodmarket_main.menu; return (p.sections._tabs.selected=='members' && M.ciniki_foodmarket_main.menu.customer_id > 0 )?'yes':'no';},
-            'cellClasses':['', ''],
-            'headerValues':['Date', 'Products'],
-            'sortTypes':['text', 'text'],
+            'cellClasses':['', '', '', ''],
+            'headerValues':['Week #', 'Date', 'Products', 'Status'],
+            'sortTypes':['number', 'text', 'text', 'text'],
             'noData':'No orders',
             },
 
@@ -1238,8 +1238,10 @@ function ciniki_foodmarket_main() {
         }
         if( s == 'memberorders' ) {
             switch(j) {
-                case 0: return d.order_date;
-                case 1: return d.products;
+                case 0: return d.sequence;
+                case 1: return d.order_date;
+                case 2: return d.products;
+                case 3: return d.status_text;
             }
         }
         if( s == 'seasonproducts' ) {
