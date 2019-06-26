@@ -273,7 +273,7 @@ function ciniki_foodmarket_members($ciniki) {
             array('container'=>'orders', 'fname'=>'id', 
                 'fields'=>array('id', 'order_number', 'order_date', 'status', 'status_text'),
                 'maps'=>array('status_text'=>$poma_maps['order']['status']),
-                'utctotz'=>array('order_date'=>array('format'=>$date_format, 'timezone'=>'UTC')),
+                'utctotz'=>array('order_date'=>array('format'=>'D M d, Y', 'timezone'=>'UTC')),
                 ),
             array('container'=>'items', 'fname'=>'item_id', 
                 'fields'=>array('id'=>'item_id', 'code', 'description', 'itype', 'weight_quantity', 'unit_quantity'),
