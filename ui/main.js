@@ -2050,6 +2050,10 @@ function ciniki_foodmarket_main() {
         p.sections._years.tabs = {};
         if( rsp.first_year != null ) {
             var year = new Date().getFullYear();
+            var month = new Date().getMonth();
+            if( month >= 10 ) {
+                year++;
+            }
             for(var i=rsp.first_year;i<=year;i++) {
                 p.sections._years.tabs[i] = {'label':i, 'fn':'M.ciniki_foodmarket_main.menu.switchYearTab(' + i + ');'};
             }
