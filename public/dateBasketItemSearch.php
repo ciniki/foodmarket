@@ -39,6 +39,8 @@ function ciniki_foodmarket_dateBasketItemSearch($ciniki) {
         return $rc;
     }
 
+    $args['search_str'] = preg_replace("/ /", '%', $args['search_str']);
+
     ciniki_core_loadMethod($ciniki, 'ciniki', 'users', 'private', 'dateFormat');
     $date_format = ciniki_users_dateFormat($ciniki, 'php');
 
@@ -70,6 +72,7 @@ function ciniki_foodmarket_dateBasketItemSearch($ciniki) {
             . ") "
         . "WHERE ciniki_foodmarket_product_outputs.otype IN (71, 72) "
         . "AND ciniki_foodmarket_product_outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+        . "AND ciniki_foodmarket_product_outputs.status IN (10, 40) "
         . "AND ("
             . "ciniki_foodmarket_product_outputs.pio_name LIKE '" . ciniki_core_dbQuote($ciniki, $args['search_str']) . "%' "
             . "OR ciniki_foodmarket_product_outputs.pio_name LIKE '% " . ciniki_core_dbQuote($ciniki, $args['search_str']) . "%' "
@@ -92,11 +95,7 @@ function ciniki_foodmarket_dateBasketItemSearch($ciniki) {
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
-    if( isset($rc['products']) ) {
-        $products = $rc['products'];
-    } else {
-        $products = array();
-    }
+    $products = isset($rc['products']) ? $rc['products'] : array();
 
     return array('stat'=>'ok', 'products'=>$products);
 }
