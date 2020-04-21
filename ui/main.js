@@ -902,7 +902,13 @@ function ciniki_foodmarket_main() {
             return d.detail.value;
         }
         /* Checkout */
-        if( s == 'checkout_open_orders' || s == 'checkout_closed_orders' ) { 
+        if( s == 'checkout_open_orders' && j == 1 ) { 
+            if( d.pickup_time == '' ) {
+                return '??';
+            }
+            return d.pickup_time.replace(/ (am|pm|AM|PM|Am|Pm)/, '');
+        }
+        if( (s == 'checkout_open_orders' || s == 'checkout_closed_orders') && j == 0 ) { 
             return (d.num_notes != null && d.num_notes > 0 ? '*' : '')
                 + d.billing_name 
                 + (d.payment_status != null && d.payment_status != '' ? ' <span class="subdue">[' + d.payment_status + ']</span>' : '');
@@ -1323,6 +1329,9 @@ function ciniki_foodmarket_main() {
         return '';
     }
     this.menu.cellFn = function(s, i, j, d) {
+        if( s == 'checkout_open_orders' && j == 1 ) {   
+            return 'event.stopPropagation(); return M.ciniki_foodmarket_main.menu.updatePickupTime(event,"' + d.id + '");';
+        }
         if( s == 'procurement_supplier_inputs' && j == 2 ) {
             return 'return M.ciniki_foodmarket_main.menu.procurementUpdateCost(event,\'' + d.id + '\',\'' + d.itype + '\',"' + encodeURIComponent(d.name) + '",\'' + d.cost_suffix + '\');';
         }
@@ -1466,6 +1475,15 @@ function ciniki_foodmarket_main() {
         M.api.getJSONCb('ciniki.poma.dateCheckout', 
             {'tnid':M.curTenantID, 'date_id':this.date_id, 'order_id':this.order_id, 'item_id':i, 'new_unit_quantity':q, 'customer_id':this.customer_id}, 
             M.ciniki_foodmarket_main.menu.processCheckout);
+    }
+    this.menu.updatePickupTime = function(e, i) {
+        var t = prompt("Pickup Time: ", '');
+        if( t != null ) {
+            M.api.getJSONCb('ciniki.poma.dateCheckout', 
+                {'tnid':M.curTenantID, 'date_id':this.date_id, 'action':'newpickuptime', 'order_id':i, 'pickup_time':t, 'customer_id':this.customer_id}, 
+                M.ciniki_foodmarket_main.menu.processCheckout);
+        }
+        return false;
     }
     this.menu.checkoutWeightQuantityGet = function(e, i) {
         var q = prompt("Weight: ", '');
@@ -3838,6 +3856,12 @@ function ciniki_foodmarket_main() {
             'pickupreminder_date':{'label':'Pickup Reminder Date', 'visible':'no', 'type':'date'},
             'pickupreminder_time':{'label':'Pickup Reminder Time', 'visible':'no', 'type':'text', 'size':'small'},
             }},
+        '_pickuptimes':{'label':'Pickup Times', 
+            'active':function() { return M.modFlagSet('ciniki.poma', 0x08); },
+            'fields':{
+                'pickupstart_time':{'label':'Start Time', 'type':'text', 'size':'small'},
+                'pickupend_time':{'label':'End Time', 'type':'text', 'size':'small'},
+            }},
         '_repeats':{'label':'Apply repeats on', 'fields':{
             'repeats_date':{'label':'Date', 'type':'date'},
             'repeats_time':{'label':'Time', 'type':'text', 'size':'small'},
@@ -5213,6 +5237,13 @@ function ciniki_foodmarket_main() {
             return false;
         } 
 
+        //
+        // Setup pickup times if enabled
+        if( M.modFlagOn('ciniki.poma', 0x08) ) {
+            M.ciniki_foodmarket_main.menu.sections.checkout_open_orders.num_cols = 2;
+        } else {
+            M.ciniki_foodmarket_main.menu.sections.checkout_open_orders.num_cols = 1;
+        }
         //
         // Setup the taxtypes available for the tenant
         //
