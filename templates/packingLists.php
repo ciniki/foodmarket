@@ -65,6 +65,7 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $tnid, $args) {
     $strsql = "SELECT ciniki_poma_orders.id, "
         . "ciniki_poma_orders.billing_name, "
         . "ciniki_poma_orders.customer_id, "
+        . "ciniki_poma_orders.pickup_time, "
         . "ciniki_customers.first, "
         . "ciniki_customers.last, "
         . "ciniki_customers.sort_name, "
@@ -119,7 +120,7 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $tnid, $args) {
         . "";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
     $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.poma', array(
-        array('container'=>'orders', 'fname'=>'id', 'fields'=>array('id', 'billing_name', 'customer_id', 'sort_name', 'first', 'last', 'order_date_text')),
+        array('container'=>'orders', 'fname'=>'id', 'fields'=>array('id', 'billing_name', 'customer_id', 'pickup_time', 'sort_name', 'first', 'last', 'order_date_text')),
         array('container'=>'items', 'fname'=>'item_id', 
             'fields'=>array('id'=>'item_id', 'parent_id', 'line_number', 'code', 'description', 'object', 'object_id', 
                 'flags', 'itype', 'weight_units', 'weight_quantity', 'unit_quantity', 'unit_suffix', 'sequence', 'packing_order')), 
@@ -265,7 +266,7 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $tnid, $args) {
     //
     if( isset($args['size']) && $args['size'] == 'halfpage' ) {
         $pdf = new MYPDF('L', PDF_UNIT, 'LETTER', true, 'UTF-8', false);
-        $w = array(60, 20, 39);
+        $w = array(50, 10, 20, 39);
         $pdf->usable_width = 119;
         $pdf->header_height = 15;
         $pdf->left_margin = 10;
@@ -278,7 +279,7 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $tnid, $args) {
         $pdf->SetCellPadding(1.2);
     } else {
         $pdf = new MYPDF('P', PDF_UNIT, 'LETTER', true, 'UTF-8', false);
-        $w = array(80, 40, 60);
+        $w = array(70, 10, 40, 60);
         // set margins
         $pdf->header_height = 15;
         $pdf->SetMargins($pdf->left_margin, $pdf->header_height, $pdf->right_margin);
@@ -349,8 +350,9 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $tnid, $args) {
                     }
                     $basket = 'yes';
                     $pdf->Cell($w[0], $lh, $order['sort_name'], $border, 0, 'L', 0);
-                    $pdf->Cell($w[1], $lh, (isset($item['modified']) && $item['modified'] == 'yes' ? 'Modified' : ''), $border, 0, 'R', 0);
-                    $pdf->Cell($w[2], $lh, $item['description'], $border, 0, 'R', 0);
+                    $pdf->Cell($w[1], $lh, $order['pickup_time'], $border, 0, 'L', 0);
+                    $pdf->Cell($w[2], $lh, (isset($item['modified']) && $item['modified'] == 'yes' ? 'Modified' : ''), $border, 0, 'R', 0);
+                    $pdf->Cell($w[3], $lh, $item['description'], $border, 0, 'R', 0);
                     $pdf->Ln($lh);
                 }
             }
@@ -383,6 +385,7 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $tnid, $args) {
         $pdf->SetFont('helvetica', '', 12);
         foreach($nobasket_orders as $order) {
             $pdf->Cell($w[0]+$w[1]+$w[2], $lh, $order['sort_name'], $border, 0, 'L', 0);
+            $pdf->Cell($w[3], $lh, $order['pickup_time'], $border, 0, 'L', 0);
             $pdf->Ln($lh);
         }
     }
