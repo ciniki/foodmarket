@@ -266,7 +266,7 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $tnid, $args) {
     //
     if( isset($args['size']) && $args['size'] == 'halfpage' ) {
         $pdf = new MYPDF('L', PDF_UNIT, 'LETTER', true, 'UTF-8', false);
-        $w = array(50, 10, 20, 39);
+        $w = array(60, 20, 2, 37);
         $pdf->usable_width = 119;
         $pdf->header_height = 15;
         $pdf->left_margin = 10;
@@ -279,7 +279,7 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $tnid, $args) {
         $pdf->SetCellPadding(1.2);
     } else {
         $pdf = new MYPDF('P', PDF_UNIT, 'LETTER', true, 'UTF-8', false);
-        $w = array(70, 10, 40, 60);
+        $w = array(75, 15, 35, 55);
         // set margins
         $pdf->header_height = 15;
         $pdf->SetMargins($pdf->left_margin, $pdf->header_height, $pdf->right_margin);
@@ -351,7 +351,11 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $tnid, $args) {
                     $basket = 'yes';
                     $pdf->Cell($w[0], $lh, $order['sort_name'], $border, 0, 'L', 0);
                     $pdf->Cell($w[1], $lh, $order['pickup_time'], $border, 0, 'L', 0);
-                    $pdf->Cell($w[2], $lh, (isset($item['modified']) && $item['modified'] == 'yes' ? 'Modified' : ''), $border, 0, 'R', 0);
+                    if( $pdf->size == 'halfpage' ) {
+                        $pdf->Cell($w[2], $lh, (isset($item['modified']) && $item['modified'] == 'yes' ? 'M' : ''), $border, 0, 'R', 0);
+                    } else {
+                        $pdf->Cell($w[2], $lh, (isset($item['modified']) && $item['modified'] == 'yes' ? 'Modified' : ''), $border, 0, 'R', 0);
+                    }
                     $pdf->Cell($w[3], $lh, $item['description'], $border, 0, 'R', 0);
                     $pdf->Ln($lh);
                 }
@@ -451,11 +455,12 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $tnid, $args) {
         }
         $pdf->SetFont('helvetica', 'B', 18);
         $num_pages = 1;
+        $display_name = $order['sort_name'] . ($order['pickup_time'] != '' ? ' - ' . $order['pickup_time'] : '');
         if( $pdf->size == 'halfpage' ) {
-            $pdf->Cell($pdf->usable_width-20, 14, $order['sort_name'], 0, false, 'L', 0, '', 0, false, 'M', 'T');
+            $pdf->Cell($pdf->usable_width-20, 14, $display_name, 0, false, 'L', 0, '', 0, false, 'M', 'T');
             $pdf->Cell(20, 14, $order['modified'], 0, 1, 'R', 0, '', 0, 1, 'M', 'T');
         } else {
-            $pdf->Cell($pdf->usable_width-20, 14, $order['sort_name'], 0, false, 'L', 0, '', 0, false, 'M', 'T');
+            $pdf->Cell($pdf->usable_width-20, 14, $display_name, 0, false, 'L', 0, '', 0, false, 'M', 'T');
             $pdf->Cell(20, 14, $order['modified'], 0, 1, 'R', 0, '', 0, 1, 'M', 'T');
         }
 
