@@ -902,7 +902,7 @@ function ciniki_foodmarket_main() {
             return d.detail.value;
         }
         /* Checkout */
-        if( s == 'checkout_open_orders' && j == 1 ) { 
+        if( (s == 'checkout_open_orders' || s == 'checkout_closed_orders') && j == 1 ) { 
             if( d.pickup_time == '' ) {
                 return '??';
             }
@@ -1329,7 +1329,7 @@ function ciniki_foodmarket_main() {
         return '';
     }
     this.menu.cellFn = function(s, i, j, d) {
-        if( s == 'checkout_open_orders' && j == 1 ) {   
+        if( (s == 'checkout_open_orders' || s == 'checkout_closed_orders') && j == 1 ) {   
             return 'event.stopPropagation(); return M.ciniki_foodmarket_main.menu.updatePickupTime(event,"' + d.id + '");';
         }
         if( s == 'procurement_supplier_inputs' && j == 2 ) {
@@ -5241,8 +5241,10 @@ function ciniki_foodmarket_main() {
         // Setup pickup times if enabled
         if( M.modFlagOn('ciniki.poma', 0x08) ) {
             M.ciniki_foodmarket_main.menu.sections.checkout_open_orders.num_cols = 2;
+            M.ciniki_foodmarket_main.menu.sections.checkout_closed_orders.num_cols = 2;
         } else {
             M.ciniki_foodmarket_main.menu.sections.checkout_open_orders.num_cols = 1;
+            M.ciniki_foodmarket_main.menu.sections.checkout_closed_orders.num_cols = 1;
         }
         //
         // Setup the taxtypes available for the tenant
