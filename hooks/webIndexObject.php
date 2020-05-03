@@ -64,8 +64,10 @@ function ciniki_foodmarket_hooks_webIndexObject($ciniki, $tnid, $args) {
             return $rc;
         }
         $inputs = '';
-        if( isset($rc['inputs']) ) {
+        if( isset($rc['inputs']) && count($rc['inputs']) > 0 ) {
             $inputs = ' ' . implode(' ', $rc['inputs']);
+        } else {
+            return array('stat'=>'ok');
         }
 
         //

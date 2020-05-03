@@ -23,6 +23,7 @@ function ciniki_foodmarket_queueInputGet($ciniki) {
         'input_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Product Input'),
         'order_item_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Order Item'),
         'invoice_item_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Invoice Item'),
+        'delete_item_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Remove Item'),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
@@ -109,6 +110,16 @@ function ciniki_foodmarket_queueInputGet($ciniki) {
         }
     }
 
+    //
+    // Check if the item should be deleted
+    //
+    if( isset($args['delete_item_id']) && $args['delete_item_id'] > 0 ) {
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'poma', 'private', 'queueDeleteItem');
+        $rc = ciniki_poma_queueDeleteItem($ciniki, $args['tnid'], $args['delete_item_id']);
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
+        }
+    }
 
     //
     // Looked the queued items 

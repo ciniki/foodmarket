@@ -110,6 +110,7 @@ function ciniki_foodmarket_productList($ciniki) {
                 . ") "
             . "WHERE ciniki_foodmarket_products.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND ciniki_foodmarket_product_outputs.retail_sdiscount_percent > 0 "
+            . "AND ciniki_foodmarket_products.status < 90 "
             . "ORDER BY ciniki_foodmarket_products.name, ciniki_foodmarket_product_inputs.name "
             . "";
 
@@ -156,7 +157,6 @@ function ciniki_foodmarket_productList($ciniki) {
             . "AND (ciniki_foodmarket_products.flags&0x01) = 0x01 "
             . "ORDER BY ciniki_foodmarket_products.name, ciniki_foodmarket_product_inputs.name "
             . "";
-
     } elseif( isset($args['category_id']) && $args['category_id'] != '' && $args['category_id'] > 0 ) {
         $strsql = "SELECT ciniki_foodmarket_products.id, "
             . "ciniki_foodmarket_products.name, "
@@ -185,6 +185,7 @@ function ciniki_foodmarket_productList($ciniki) {
             . "FROM ciniki_foodmarket_category_items "
             . "LEFT JOIN ciniki_foodmarket_products ON ("
                 . "ciniki_foodmarket_category_items.product_id = ciniki_foodmarket_products.id "
+                . "AND ciniki_foodmarket_products.status < 90 "
                 . "AND ciniki_foodmarket_products.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
                 . ") "
             . "LEFT JOIN ciniki_foodmarket_product_inputs ON ("
@@ -247,6 +248,7 @@ function ciniki_foodmarket_productList($ciniki) {
                 . ") "
             . "WHERE ciniki_foodmarket_products.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND ciniki_foodmarket_category_items.id IS NULL "
+            . "AND ciniki_foodmarket_products.status < 90 "
             . "ORDER BY ciniki_foodmarket_products.name, ciniki_foodmarket_products.id, ciniki_foodmarket_product_inputs.name "
             . "";
     } elseif( isset($args['category_id']) && $args['category_id'] == -1 ) {

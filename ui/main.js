@@ -4364,14 +4364,14 @@ function ciniki_foodmarket_main() {
         'ordered_items':{'label':'Ordered', 'type':'simplegrid', 'num_cols':5,
             'visible':function() { return (M.ciniki_foodmarket_main.queueinput.data.ordered_items != null && M.ciniki_foodmarket_main.queueinput.data.ordered_items.length > 0 ? 'yes' : 'no');},
             'headerValues':['Customer', 'Queued Date', 'Size', 'Quantity', 'Status'],
-            'headerClasses':['', '', '', '', 'multiline aligncenter'],
-            'cellClasses':['', '', '', '', 'multiline aligncenter'],
+            'headerClasses':['', '', '', 'aligncenter', 'multiline aligncenter'],
+            'cellClasses':['', '', '', 'aligncenter', 'multiline aligncenter'],
             'noData':'No orders',
             },
         'queued_items':{'label':'Queued', 'type':'simplegrid', 'num_cols':5,
             'headerValues':['Customer', 'Queued Date', 'Size', 'Quantity', 'Status'],
-            'headerClasses':['', '', '', '', 'multiline aligncenter'],
-            'cellClasses':['', '', '', '', 'multiline aligncenter'],
+            'headerClasses':['', '', '', 'aligncenter', 'multiline aligncenter'],
+            'cellClasses':['', '', '', 'aligncenter', 'multiline aligncenter'],
             },
     }
     this.queueinput.cellValue = function(s, i, j, d) {
@@ -4390,11 +4390,14 @@ function ciniki_foodmarket_main() {
                 case 3: return d.quantity;
             }
             if( j == 4 ) {
+                var btns = '';
                 if( d.status == 10 ) {
-                    return '<button onclick=\'M.ciniki_foodmarket_main.queueinput.orderItem(' + d.id + ');\'>Add to Procurement</button>';
+                    btns += '<button onclick=\'M.ciniki_foodmarket_main.queueinput.orderItem(' + d.id + ');\'>Add to Procurement</button>'
+                        + '<button onclick=\'M.ciniki_foodmarket_main.queueinput.removeItem(' + d.id + ')\'>Delete</button>';
                 } else {
-                    return '<button onclick=\'M.ciniki_foodmarket_main.queueinput.invoiceItem(' + d.id + ');\'>Arrived - Add to Invoice</button>';
+                    btns += '<button onclick=\'M.ciniki_foodmarket_main.queueinput.invoiceItem(' + d.id + ');\'>Arrived - Add to Invoice</button>';
                 }
+                return btns;
             }
         }
     }
@@ -4403,6 +4406,11 @@ function ciniki_foodmarket_main() {
     }
     this.queueinput.invoiceItem = function(i) {
         M.api.getJSONCb('ciniki.foodmarket.queueInputGet', {'tnid':M.curTenantID, 'input_id':this.input_id, 'invoice_item_id':i}, this.openFinish);
+    }
+    this.queueinput.removeItem = function(i) {
+        if( confirm("Are you sure you want to remove this item from the customers queue?") ) {
+            M.api.getJSONCb('ciniki.foodmarket.queueInputGet', {'tnid':M.curTenantID, 'input_id':this.input_id, 'delete_item_id':i}, this.openFinish);
+        }
     }
     this.queueinput.open = function(cb, iid, list) {
         if( cb != null ) { this.cb = cb; }

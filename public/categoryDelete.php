@@ -75,20 +75,17 @@ function ciniki_foodmarket_categoryDelete(&$ciniki) {
     //
     // Check for items already in the category
     //
-    $strsql = "SELECT COUNT(id) AS items "
+    $strsql = "SELECT id, uuid "
         . "FROM ciniki_foodmarket_category_items "
-        . "WHERE ciniki_foodmarket_category_items.category_id = '" . ciniki_core_dbQuote($ciniki, $args['category_id']) . "' "
+        . "WHERE category_id = '" . ciniki_core_dbQuote($ciniki, $args['category_id']) . "' "
         . "AND tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
         . "";
-    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbSingleCount');
-    $rc = ciniki_core_dbSingleCount($ciniki, $strsql, 'ciniki.foodmarket', 'num');
+    $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.foodmarket', 'item');
     if( $rc['stat'] != 'ok' ) {
-        return $rc;
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.149', 'msg'=>'Unable to load item', 'err'=>$rc['err']));
     }
-    if( $rc['num'] > 0 ) {
-        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.138', 'msg'=>'You still have ' . $rc['num'] . ' item' . ($rc['num']>1?'s':'') . ' in this category.'));
-    }
-
+    $items = isset($rc['rows']) ? $rc['rows'] : array();
+    
     //
     // Start transaction
     //
@@ -101,6 +98,17 @@ function ciniki_foodmarket_categoryDelete(&$ciniki) {
     $rc = ciniki_core_dbTransactionStart($ciniki, 'ciniki.foodmarket');
     if( $rc['stat'] != 'ok' ) {
         return $rc;
+    }
+
+    //
+    // Remove any items from the category first
+    //
+    foreach($items as $item) {
+        $rc = ciniki_core_objectDelete($ciniki, $args['tnid'], 'ciniki.foodmarket.categoryitem', $item['id'], $item['uuid'], 0x04);
+        if( $rc['stat'] != 'ok' ) {
+            ciniki_core_dbTransactionRollback($ciniki, 'ciniki.foodmarket');
+            return $rc;
+        }
     }
 
     //
