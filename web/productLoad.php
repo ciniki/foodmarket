@@ -89,44 +89,54 @@ function ciniki_foodmarket_web_productLoad($ciniki, $settings, $tnid, $args) {
     //
     // Get the outputs for the product
     //
-    $strsql = "SELECT ciniki_foodmarket_product_outputs.id, "
-        . "ciniki_foodmarket_product_outputs.product_id, "
-        . "ciniki_foodmarket_product_outputs.input_id, "
-        . "ciniki_foodmarket_product_outputs.io_name AS name, "
-        . "ciniki_foodmarket_product_outputs.permalink, "
-        . "ciniki_foodmarket_product_outputs.status, "
-        . "ciniki_foodmarket_product_outputs.otype, "
-        . "ciniki_foodmarket_product_outputs.units, "
-        . "ciniki_foodmarket_product_outputs.flags, "
-        . "ciniki_foodmarket_product_outputs.sequence AS osequence, "
-        . "ciniki_foodmarket_product_outputs.io_sequence, "
-        . "ciniki_foodmarket_product_outputs.start_date, "
-        . "ciniki_foodmarket_product_outputs.end_date, "
-        . "ciniki_foodmarket_product_outputs.retail_price AS price, "
-        . "ciniki_foodmarket_product_outputs.retail_price_text AS price_text, "
-        . "ciniki_foodmarket_product_outputs.retail_sprice AS sale_price, "
-        . "ciniki_foodmarket_product_outputs.retail_sprice_text AS sale_price_text, "
-        . "ciniki_foodmarket_product_outputs.retail_mdiscount_percent, "
-        . "ciniki_foodmarket_product_outputs.retail_mprice AS member_price, "
-        . "ciniki_foodmarket_product_outputs.retail_mprice_text AS member_price_text, "
-        . "ciniki_foodmarket_product_outputs.retail_taxtype_id AS taxtype_id, "
-        . "IFNULL(ciniki_foodmarket_product_inputs.sequence, 1) AS isequence, "
-        . "IFNULL(ciniki_foodmarket_product_inputs.inventory, 0) AS inventory "
-        . "FROM ciniki_foodmarket_product_outputs "
-        . "LEFT JOIN ciniki_foodmarket_product_inputs ON ("
-            . "ciniki_foodmarket_product_outputs.input_id = ciniki_foodmarket_product_inputs.id "
-            . "AND ciniki_foodmarket_product_outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+    $strsql = "SELECT outputs.id, "
+        . "outputs.product_id, "
+        . "outputs.input_id, "
+        . "outputs.io_name AS name, "
+        . "outputs.permalink, "
+        . "outputs.status, "
+        . "outputs.otype, "
+        . "outputs.units, "
+        . "outputs.flags, "
+        . "outputs.sequence AS osequence, "
+        . "outputs.io_sequence, "
+        . "outputs.start_date, "
+        . "outputs.end_date, "
+        . "outputs.retail_price AS price, "
+        . "outputs.retail_price_text AS price_text, "
+        . "outputs.retail_sprice AS sale_price, "
+        . "outputs.retail_sprice_text AS sale_price_text, "
+        . "outputs.retail_mdiscount_percent, "
+        . "outputs.retail_mprice AS member_price, "
+        . "outputs.retail_mprice_text AS member_price_text, "
+        . "outputs.retail_taxtype_id AS taxtype_id, "
+        . "IFNULL(inputs.id, 0) AS input_id, "
+        . "IFNULL(inputs.case_units, 0) AS case_units, "
+        . "IFNULL(inputs.sequence, 1) AS isequence, "
+        . "IFNULL(inputs.inventory, 0) AS inventory "
+        . "FROM ciniki_foodmarket_product_outputs AS outputs "
+        . "LEFT JOIN ciniki_foodmarket_product_inputs AS inputs ON ("
+            . "outputs.input_id = inputs.id "
+            . "AND outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") "
-        . "WHERE ciniki_foodmarket_product_outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
-        . "AND ciniki_foodmarket_product_outputs.product_id = '" . ciniki_core_dbQuote($ciniki, $product['id']) . "' "
-        . "AND ciniki_foodmarket_product_outputs.status = 40 "
-        . "ORDER BY isequence, osequence, name "
+/*        . "LEFT JOIN ciniki_poma_queued_items AS qitems ON ("
+            . "qitems.object = 'ciniki.foodmarket.output' "
+            . "AND outputs.id = qitems.object_id "
+            . "AND qitems.status < 40 "
+            . "AND qitems.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+            . ") " */
+        . "WHERE outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+        . "AND outputs.product_id = '" . ciniki_core_dbQuote($ciniki, $product['id']) . "' "
+        . "AND outputs.status = 40 "
+        . "ORDER BY isequence, input_id, osequence, name "
         . "";
     $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.foodmarket', array(
         array('container'=>'outputs', 'fname'=>'id', 
-            'fields'=>array('id', 'product_id', 'input_id', 'name', 'permalink', 'status', 'status_text'=>'status', 'otype', 'otype_text'=>'otype', 
+            'fields'=>array('id', 'product_id', 'input_id', 'name', 'permalink', 
+                'status', 'status_text'=>'status', 'otype', 'otype_text'=>'otype', 
                 'units', 'units_text'=>'units', 'flags', 'flags_text'=>'flags', 'sequence'=>'io_sequence', 'start_date', 'end_date', 
-                'price', 'price_text', 'sale_price', 'sale_price_text', 'retail_mdiscount_percent', 'member_price', 'member_price_text', 'taxtype_id', 'inventory',
+                'price', 'price_text', 'sale_price', 'sale_price_text', 'retail_mdiscount_percent', 
+                'member_price', 'member_price_text', 'case_units', 'taxtype_id', 'inventory',
                 ),
             'maps'=>array(
                 'status_text'=>$maps['output']['status'],

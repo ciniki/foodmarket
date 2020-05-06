@@ -22,6 +22,7 @@
 #                           10 - Favourites (Find all the customers favourites, they must be logged in)
 #                           30 - All Specials (Find everything on special right now)
 #                           50 - New Products
+#                           60 - Queued Products
 #                           90 - Available Products
 #
 # sequence:             The order to display the category/sub-category in. This is useful if 

@@ -118,6 +118,9 @@ function ciniki_foodmarket_categoriesUpdate(&$ciniki, $tnid) {
             }
         }
 
+        if( $cat['ctype'] == 60 ) {
+            $cat['visible'] = 'yes';
+        }
         //
         // If category should be visible and isn't then set visible flag
         //

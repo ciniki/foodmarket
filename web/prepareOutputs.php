@@ -35,6 +35,24 @@ function ciniki_foodmarket_web_prepareOutputs($ciniki, $settings, $tnid, $args) 
         } 
     }
 
+    //
+    // Load the list of items in the queue
+    //
+    $strsql = "SELECT object_id, SUM(quantity) "
+        . "FROM ciniki_poma_queued_items AS items "
+        . "WHERE items.object = 'ciniki.foodmarket.output' "
+        . "AND items.status = 10 "
+        . "AND items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+        . "GROUP BY object_id "
+        . "ORDER BY object_id "
+        . "";
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQueryList2');
+    $rc = ciniki_core_dbQueryList2($ciniki, $strsql, 'ciniki.foodmarket', 'items');
+    if( $rc['stat'] != 'ok' ) {
+        return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.138', 'msg'=>'Unable to load item', 'err'=>$rc['err']));
+    }
+    $queued = isset($rc['items']) ? $rc['items'] : array();
+
     if( !isset($ciniki['session']['customer']['id']) || $ciniki['session']['customer']['id'] < 1 ) {
         foreach($args['outputs'] as $oid => $o) {
             //
@@ -179,6 +197,7 @@ function ciniki_foodmarket_web_prepareOutputs($ciniki, $settings, $tnid, $args) 
         //
         // Check if queue is available for this output
         //
+        $output['queue_size'] = 0;
         if( ($output['flags']&0x0400) == 0x0400 ) {
             $output['queue'] = 'yes';
             if( isset($item_types['queueactive']['items'][$output['id']]) ) {
@@ -190,6 +209,39 @@ function ciniki_foodmarket_web_prepareOutputs($ciniki, $settings, $tnid, $args) 
                 $output['queue_ordered_quantity'] = $item_types['queueordered']['items'][$output['id']]['quantity'];
             } else {
                 $output['queue_ordered_quantity'] = 0;
+            }
+            if( $output['otype'] > 50 && $output['otype'] <= 60 ) {
+                $output['queue_slots_total'] = 1;
+                if( isset($queued[$output['id']]) ) {
+                    $output['queue_size'] = $queued[$output['id']];
+                } else {
+                    $output['queue_size'] = 0;
+                }
+                switch($output['otype']) {
+                    case 52: $output['queue_slots_total'] = 2; break;
+                    case 53: $output['queue_slots_total'] = 3; break;
+                    case 54: $output['queue_slots_total'] = 4; break;
+                    case 55: $output['queue_slots_total'] = 5; break;
+                    case 56: $output['queue_slots_total'] = 6; break;
+                }
+                if( isset($output['queue_size']) && $output['queue_size'] > 0 ) {
+                    $output['queue_slots_filled'] = ($output['queue_size'] % $output['queue_slots_total']);
+                    // All slots filled, display all filled not empty
+                    if( $output['queue_slots_filled'] == 0 ) {
+                        $output['queue_slots_filled'] = $output['queue_slots_total'];
+                    }
+                } else {
+                    $output['queue_slots_filled'] = 0;
+                }
+/*                $output['name'] .= '<span class="queue-slots">';
+                for($i = 1; $i <= $total_slots; $i++) {
+                    if( $i <= $filled_slots ) {
+                        $output['name'] .= '<span class="fa-icon order-icon order-options-queue-slot-filled">&#xf14a;</span>';
+                    } else {
+                        $output['name'] .= '<span class="fa-icon order-icon order-options-queue-slot-open">&#xf096;</span>';
+                    }
+                }
+                $output['name'] .= '</span>'; */
             }
         } else {
             $output['queue'] = 'no';
@@ -240,6 +292,13 @@ function ciniki_foodmarket_web_prepareOutputs($ciniki, $settings, $tnid, $args) 
             $output['favourite_value'] = 'on';
         } else {
             $output['favourite_value'] = 'off';
+        }
+
+        //
+        // Group items
+        //
+        if( isset($output['input_id']) ) {
+            $output['group_name'] = $output['input_id'];
         }
 
         $outputs[] = $output;

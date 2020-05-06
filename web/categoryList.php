@@ -54,7 +54,7 @@ function ciniki_foodmarket_web_categoryList($ciniki, $settings, $tnid, $args) {
     }
     $categories = $rc['categories'];
     foreach($categories as $cid => $category) {
-        if( $category['ctype'] == 10 ) {
+        if( $category['ctype'] == 10 || $category['ctype'] == 60 ) {
             if( !isset($ciniki['session']['customer']['id']) || $ciniki['session']['customer']['id'] < 1 ) {
                 unset($categories[$cid]);
             }

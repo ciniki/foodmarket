@@ -23,6 +23,7 @@ function ciniki_foodmarket_categoryUpdate(&$ciniki) {
         'parent_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Parent Category'),
         'ctype'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Category Type'),
         'sequence'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Order'),
+        'flags'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Options'),
         'image_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Image'),
         'synopsis'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Synopsis'),
         'description'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Description'),

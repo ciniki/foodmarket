@@ -129,6 +129,10 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $tnid
         $display = 'catalog';
         $page['submenu']['catalog']['selected'] = 'yes';
         $page['breadcrumbs'][] = array('name'=>'Catalog', 'url'=>$base_url . '/catalog');
+        if( isset($args['uri_split'][1]) && $args['uri_split'][1] != '' ) {
+            $display = 'product';
+            $product_permalink = $args['uri_split'][1];
+        }
     } elseif( ciniki_core_checkModuleFlags($ciniki, 'ciniki.foodmarket', 0x20) ) {
         $page['submenu']['categories']['selected'] = 'yes';
         while( ($permalink = array_shift($args['uri_split'])) !== null ) {
@@ -234,6 +238,7 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $tnid
         if( isset($product['outputs']) && count($product['outputs']) > 0 ) {
             $page['blocks'][] = array('type'=>'orderoptions', 'section'=>'prices', 'size'=>$size,
                 'title'=>(count($product['outputs']) > 1 ? 'Options' : ''),
+                'groupings'=>'tables',
                 'api_fav_on'=>$api_fav_on,
                 'api_fav_off'=>$api_fav_off,
                 'api_order_update'=>$api_order_update,
@@ -340,6 +345,57 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $tnid
         }
     }
 
+    //
+    // Display the list of new products
+    //
+    elseif( $display == 'category' && isset($category['ctype']) && $category['ctype'] == 60 ) {
+        //
+        // FIXME: Check for items that are in the queue
+        //
+        //ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'web', 'productList');
+        //$rc = ciniki_foodmarket_web_productList($ciniki, $settings, $tnid, array('type'=>'queued'));
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'web', 'queued');
+        $rc = ciniki_foodmarket_web_queued($ciniki, $settings, $tnid, array());
+        if( $rc['stat'] != 'ok' ) {
+            return $rc;
+        }
+        if( isset($rc['products']) && count($rc['products']) > 0 ) {
+            //
+            // Add the category description or synopsis
+            //
+            if( isset($category['description']) && $category['description'] != '' ) {   
+                $page['blocks'][] = array('type'=>'content', 'content'=>$category['description'], 'wide'=>'yes');
+            } elseif( isset($category['synopsis']) && $category['synopsis'] != '' ) {   
+                $page['blocks'][] = array('type'=>'content', 'content'=>$category['synopsis'], 'wide'=>'yes');
+            }
+
+            ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'web', 'prepareOutputs');
+            $rc = ciniki_foodmarket_web_prepareOutputs($ciniki, $settings, $tnid, array('outputs'=>$rc['products']));
+            if( $rc['stat'] != 'ok' ) {
+                return $rc;
+            }
+            $outputs = isset($rc['outputs']) ? $rc['outputs'] : array();
+            $page['blocks'][] = array('type'=>'orderoptions', 
+                'clickable'=>'yes',
+                'base_url'=>$base_url, 
+                'size'=>'wide',
+                'title'=>'',
+                'api_fav_on'=>$api_fav_on,
+                'api_fav_off'=>$api_fav_off,
+                'api_order_update'=>$api_order_update,
+                'api_repeat_update'=>$api_repeat_update,
+                'api_queue_update'=>$api_queue_update,
+                'options'=>$outputs,
+                );
+/*            $page['blocks'][] = array('type'=>'productcards', 'base_url'=>$base_url, 'cards'=>$rc['products'],
+                'hide_prices'=>$hide_prices,
+                'hide_details'=>$hide_prices,
+                'thumbnail_format'=>$product_thumbnail_format, 'thumbnail_padding_color'=>$product_thumbnail_padding_color,
+                ); */
+        } else {
+            $page['blocks'][] = array('type'=>'content', 'content'=>"I'm sorry, we don't currently have any products queued.");
+        }
+    }
     //
     // Display the list of new products
     //
@@ -521,6 +577,7 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $tnid
             return $rc;
         }
         if( isset($rc['categories']) && count($rc['categories']) > 0 ) {
+
             if( isset($settings['page-foodmarket-categories-layout']) && $settings['page-foodmarket-categories-layout'] == 'expandsubcategories' ) {
                 $categories = array();
                 $subs = array();
@@ -587,6 +644,7 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $tnid
             . "IFNULL(subcategories.id, 0) AS sid, "
             . "IFNULL(subcategories.name, '') AS subcategory_name, "
             . "products.name AS product_name, "
+            . "products.permalink, "
             . "outputs.id AS oid, "
             . "outputs.pio_name, "
             . "outputs.otype, "
@@ -633,7 +691,7 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $tnid
         $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(
             array('container'=>'categories', 'fname'=>'id', 'fields'=>array('name'=>'category_name', 'ctype')),
             array('container'=>'subcategories', 'fname'=>'sid', 'fields'=>array('name'=>'subcategory_name')),
-            array('container'=>'outputs', 'fname'=>'oid', 'fields'=>array('id'=>'oid', 'name'=>'pio_name', 'otype', 'flags', 'ctype',
+            array('container'=>'outputs', 'fname'=>'oid', 'fields'=>array('id'=>'oid', 'name'=>'pio_name', 'permalink', 'otype', 'flags', 'ctype',
                 'price_text'=>'retail_price_text', 'sale_price_text'=>'retail_sprice_text', 'member_price_text'=>'retail_mprice_text', 'inventory')),
             ));
         if( $rc['stat'] != 'ok' ) {
@@ -649,6 +707,7 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $tnid
         //
         $strsql = "SELECT "
             . "products.name AS product_name, "
+            . "products.permalink, "
             . "outputs.id AS oid, "
             . "outputs.pio_name, "
             . "outputs.otype, "
@@ -671,7 +730,8 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $tnid
             . "";
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
         $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(
-            array('container'=>'outputs', 'fname'=>'oid', 'fields'=>array('id'=>'oid', 'name'=>'pio_name', 'otype', 'flags', 
+            array('container'=>'outputs', 'fname'=>'oid', 'fields'=>array('id'=>'oid', 'name'=>'pio_name', 'permalink', 
+                'otype', 'flags', 
                 'price_text'=>'retail_price_text', 'sale_price_text'=>'retail_sprice_text', 'member_price_text'=>'retail_mprice_text')),
             ));
         if( $rc['stat'] != 'ok' ) {
@@ -686,6 +746,7 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $tnid
         //
         $strsql = "SELECT "
             . "products.name AS product_name, "
+            . "products.permalink, "
             . "outputs.id AS oid, "
             . "outputs.pio_name, "
             . "outputs.otype, "
@@ -709,7 +770,8 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $tnid
             . "";
         ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
         $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(
-            array('container'=>'outputs', 'fname'=>'oid', 'fields'=>array('id'=>'oid', 'name'=>'pio_name', 'otype', 'flags', 
+            array('container'=>'outputs', 'fname'=>'oid', 'fields'=>array('id'=>'oid', 'name'=>'pio_name', 'permalink', 
+                'otype', 'flags', 
                 'price_text'=>'retail_price_text', 'sale_price_text'=>'retail_sprice_text', 'member_price_text'=>'retail_mprice_text')),
             ));
         if( $rc['stat'] != 'ok' ) {
@@ -729,7 +791,10 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $tnid
                 if( $rc['stat'] != 'ok' ) {
                     return $rc;
                 }
-                $page['blocks'][] = array('type'=>'orderoptions', 'base_url'=>$base_url, 'size'=>'wide',
+                $page['blocks'][] = array('type'=>'orderoptions', 
+                    'clickable'=>'yes',
+                    'base_url'=>$base_url, 
+                    'size'=>'wide',
                     'title'=>$category['name'],
                     'api_fav_on'=>$api_fav_on,
                     'api_fav_off'=>$api_fav_off,
@@ -744,7 +809,10 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $tnid
                 if( $rc['stat'] != 'ok' ) {
                     return $rc;
                 }
-                $page['blocks'][] = array('type'=>'orderoptions', 'base_url'=>$base_url, 'size'=>'wide',
+                $page['blocks'][] = array('type'=>'orderoptions', 
+                    'clickable'=>'yes',
+                    'base_url'=>$base_url, 
+                    'size'=>'wide',
                     'title'=>$category['name'],
                     'api_fav_on'=>$api_fav_on,
                     'api_fav_off'=>$api_fav_off,
@@ -761,7 +829,10 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $tnid
                         return $rc;
                     }
                     $outputs = $rc['outputs'];
-                    $page['blocks'][] = array('type'=>'orderoptions', 'base_url'=>$base_url, 'size'=>'wide',
+                    $page['blocks'][] = array('type'=>'orderoptions', 
+                        'clickable'=>'yes',
+                        'base_url'=>$base_url, 
+                        'size'=>'wide',
                         'title'=>$category['name'] . ($subcategory['name'] != '' ? ' > ' . $subcategory['name'] : ''),
                         'api_fav_on'=>$api_fav_on,
                         'api_fav_off'=>$api_fav_off,

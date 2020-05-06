@@ -18,9 +18,78 @@ function ciniki_foodmarket_web_productList($ciniki, $settings, $tnid, $args) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
 
     //
+    // Select the queued products
+    //
+    if( isset($args['type']) && $args['type'] == 'queued' ) {
+        // Fixed to only show partial case items
+        $strsql = "SELECT products.id, "
+            . "products.name, "
+            . "products.permalink, "
+            . "products.primary_image_id AS image_id, "
+            . "products.legend_codes, "
+            . "products.legend_names, "
+            . "products.synopsis, "
+            . "outputs.id AS price_id, "
+            . "outputs.flags, "
+            . "outputs.io_name, "
+            . "outputs.retail_price, "
+            . "outputs.retail_price_text, "
+            . "outputs.retail_sprice_text, "
+            . "outputs.retail_mdiscount_percent, "
+            . "outputs.retail_mprice, "
+            . "outputs.retail_mprice_text, "
+            . "inputs.inventory "
+            . "FROM ciniki_poma_queued_items AS items "
+            . "INNER JOIN ciniki_foodmarket_product_outputs AS outputs ON ("
+                . "items.object_id = outputs.id "
+                . "AND outputs.otype > 50 AND outputs.otype <= 60 " // Only partial case items
+                . "AND outputs.status = 40 "  // Output visible on website
+                . "AND outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+                . ") "
+            . "INNER JOIN ciniki_foodmarket_product_inputs AS inputs ON ("
+                . "outputs.input_id = inputs.id "
+                . "AND inputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+                . ") "
+            . "INNER JOIN ciniki_foodmarket_products AS products ON ("
+                . "inputs.product_id = products.id "
+                . "AND products.status = 40 " // Product visible on website
+                . "AND products.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+                . ") "
+
+/*            
+            IF there is a need to list all product options in the queued product list
+            this SQl will work. Otherwise it only lists the outputs that are in the queue
+            so the full case purchase option won't be shown
+
+            . "INNER JOIN ciniki_foodmarket_product_outputs AS qitems ON ("
+                . "items.object_id = qitems.id "
+                . "AND qitems.status = 40 "  // Output visible on website
+                . "AND qitems.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+                . ") "
+            . "INNER JOIN ciniki_foodmarket_products AS products ON ("
+                . "qitems.product_id = products.id "
+                . "AND products.status = 40 " // Product visible on website
+                . "AND products.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+                . ") "
+            . "INNER JOIN ciniki_foodmarket_product_inputs AS inputs ON ("
+                . "products.id = inputs.product_id "
+                . "AND inputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+                . ") "
+            . "INNER JOIN ciniki_foodmarket_product_outputs AS outputs ON ("
+                . "outputs.input_id = inputs.id "
+                . "AND outputs.status = 40 "  // Output visible on website
+                . "AND outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+                . ") " */
+            . "WHERE items.object = 'ciniki.foodmarket.output' "
+            . "AND items.status < 40 " // Active item in queue but not yet ordered
+            . "AND items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+            . "";
+            
+    }
+    //
     // Select the products for a category
     //
-    if( isset($args['category_id']) ) {
+    elseif( isset($args['category_id']) ) {
         $strsql = "SELECT products.id, "
             . "products.name, "
             . "products.permalink, "
