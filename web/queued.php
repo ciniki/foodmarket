@@ -35,16 +35,19 @@ function ciniki_foodmarket_web_queued($ciniki, $settings, $tnid, $args) {
         . "outputs.retail_mdiscount_percent, "
         . "outputs.retail_mprice, "
         . "outputs.retail_mprice_text, "
+        . "inputs.case_units, "
+        . "inputs.itype, "
         . "inputs.inventory "
         . "FROM ciniki_poma_queued_items AS items "
         . "INNER JOIN ciniki_foodmarket_product_outputs AS outputs ON ("
             . "items.object_id = outputs.id "
-            . "AND outputs.otype > 50 AND outputs.otype <= 60 " // Only partial case items
+            . "AND (outputs.otype = 30 OR (outputs.otype > 50 AND outputs.otype <= 60)) " // Only partial case items
             . "AND outputs.status = 40 "  // Output visible on website
             . "AND outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") "
         . "INNER JOIN ciniki_foodmarket_product_inputs AS inputs ON ("
             . "outputs.input_id = inputs.id "
+            . "AND inputs.itype = 50 "
             . "AND inputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
             . ") "
         . "INNER JOIN ciniki_foodmarket_products AS products ON ("
@@ -86,7 +89,7 @@ function ciniki_foodmarket_web_queued($ciniki, $settings, $tnid, $args) {
 //        array('container'=>'products', 'fname'=>'id', 
 //            'fields'=>array('id', 'name', 'permalink', 'image_id', 'legend_codes', 'legend_names', 'synopsis')),
         array('container'=>'options', 'fname'=>'price_id', 
-            'fields'=>array('id'=>'price_id', 'flags', 'name'=>'pio_name', 'otype', 'permalink',
+            'fields'=>array('id'=>'price_id', 'flags', 'name'=>'pio_name', 'case_units', 'itype', 'otype', 'permalink',
                 'price_text'=>'retail_price_text', 'price'=>'retail_price', 'sale_price_display'=>'retail_sprice_text', 
                 'retail_mdiscount_percent', 'member_price'=>'retail_mprice', 'member_price_display'=>'retail_mprice_text', 'inventory')),
         ));

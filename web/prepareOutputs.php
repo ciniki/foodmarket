@@ -210,7 +210,7 @@ function ciniki_foodmarket_web_prepareOutputs($ciniki, $settings, $tnid, $args) 
             } else {
                 $output['queue_ordered_quantity'] = 0;
             }
-            if( $output['otype'] > 50 && $output['otype'] <= 60 ) {
+            if( (isset($output['itype']) && $output['itype'] == 50 && $output['otype'] == 30) || ($output['otype'] > 50 && $output['otype'] <= 60) ) {
                 $output['queue_slots_total'] = 1;
                 if( isset($queued[$output['id']]) ) {
                     $output['queue_size'] = $queued[$output['id']];
@@ -218,6 +218,7 @@ function ciniki_foodmarket_web_prepareOutputs($ciniki, $settings, $tnid, $args) 
                     $output['queue_size'] = 0;
                 }
                 switch($output['otype']) {
+                    case 30: $output['queue_slots_total'] = $output['case_units']; break;
                     case 52: $output['queue_slots_total'] = 2; break;
                     case 53: $output['queue_slots_total'] = 3; break;
                     case 54: $output['queue_slots_total'] = 4; break;

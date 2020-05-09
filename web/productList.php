@@ -42,12 +42,13 @@ function ciniki_foodmarket_web_productList($ciniki, $settings, $tnid, $args) {
             . "FROM ciniki_poma_queued_items AS items "
             . "INNER JOIN ciniki_foodmarket_product_outputs AS outputs ON ("
                 . "items.object_id = outputs.id "
-                . "AND outputs.otype > 50 AND outputs.otype <= 60 " // Only partial case items
+                . "AND (output.otype = 30 || (outputs.otype > 50 AND outputs.otype <= 60)) " // Only partial case items
                 . "AND outputs.status = 40 "  // Output visible on website
                 . "AND outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                 . ") "
             . "INNER JOIN ciniki_foodmarket_product_inputs AS inputs ON ("
                 . "outputs.input_id = inputs.id "
+                . "AND inputs.itype = 50 "
                 . "AND inputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                 . ") "
             . "INNER JOIN ciniki_foodmarket_products AS products ON ("

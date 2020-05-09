@@ -653,6 +653,8 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $tnid
             . "outputs.retail_price_text, "
             . "outputs.retail_sprice_text, "
             . "outputs.retail_mprice_text, "
+            . "inputs.case_units,  "
+            . "inputs.itype,  "
             . "inputs.inventory "
             . "FROM ciniki_foodmarket_categories AS categories "
             . "LEFT JOIN ciniki_foodmarket_categories AS subcategories ON ("
@@ -691,7 +693,8 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $tnid
         $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(
             array('container'=>'categories', 'fname'=>'id', 'fields'=>array('name'=>'category_name', 'ctype')),
             array('container'=>'subcategories', 'fname'=>'sid', 'fields'=>array('name'=>'subcategory_name')),
-            array('container'=>'outputs', 'fname'=>'oid', 'fields'=>array('id'=>'oid', 'name'=>'pio_name', 'permalink', 'otype', 'flags', 'ctype',
+            array('container'=>'outputs', 'fname'=>'oid', 'fields'=>array('id'=>'oid', 'name'=>'pio_name', 'permalink', 
+                'case_units', 'itype', 'otype', 'flags', 'ctype',
                 'price_text'=>'retail_price_text', 'sale_price_text'=>'retail_sprice_text', 'member_price_text'=>'retail_mprice_text', 'inventory')),
             ));
         if( $rc['stat'] != 'ok' ) {
