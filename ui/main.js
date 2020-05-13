@@ -1341,6 +1341,7 @@ function ciniki_foodmarket_main() {
         return null;
     }
     this.menu.rowFn = function(s, i, d) {
+        if( d == null ) { return ''; }
         /* Checkout */
         if( s == 'checkout_open_orders' || s == 'checkout_closed_orders' ) {
             return 'M.ciniki_foodmarket_main.menu.openOrder(\'' + d.id + '\');';
@@ -2841,6 +2842,7 @@ function ciniki_foodmarket_main() {
         return true;
     };
     this.product.rowFn = function(s, i, d) {
+        if( d == null ) { return ''; }
         if( s == 'inputs' ) {
             return 'M.ciniki_foodmarket_main.product.switchInput(\'' + d.idx + '\');';
         }
@@ -4168,6 +4170,7 @@ function ciniki_foodmarket_main() {
         return d.name_status;
     }
     this.orderitem.rowFn = function(s, i, d) {
+        if( d == null ) { return ''; }
         return 'M.ciniki_foodmarket_main.orderitem.save(null,\'' + d.id + '\');';
     }
     this.orderitem.move = function() {
@@ -4978,6 +4981,7 @@ function ciniki_foodmarket_main() {
         }
     }
     this.slideshows.rowFn = function(s, i, d) {
+        if( d == null ) { return ''; }
         if( s == 'slideshows' ) {
             return 'M.ciniki_foodmarket_main.slideshow.open(\'M.ciniki_foodmarket_main.slideshows.open();\',\'' + d.id + '\',M.ciniki_foodmarket_main.slideshow.nplist);';
         }
@@ -5148,6 +5152,7 @@ function ciniki_foodmarket_main() {
         return '';
     }
     this.inventory.rowFn = function(s, i, d) {
+        if( d == null ) { return ''; }
         return 'M.ciniki_foodmarket_main.product.open(\'M.ciniki_foodmarket_main.inventory.open();\',\'' + d.id + '\',null,M.ciniki_foodmarket_main.inventory.nplist);';
     }
     this.inventory.addQuantity = function(iid,i,o,a) {
