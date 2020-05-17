@@ -17,8 +17,10 @@ function ciniki_foodmarket_web_queued($ciniki, $settings, $tnid, $args) {
 
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
 
-    // Fixed to only show partial case items
-    $strsql = "SELECT products.id, "
+    //
+    // Only items that are already in the queue
+    //
+/*    $strsql = "SELECT products.id, "
         . "products.name, "
         . "products.permalink, "
         . "products.primary_image_id AS image_id, "
@@ -54,7 +56,7 @@ function ciniki_foodmarket_web_queued($ciniki, $settings, $tnid, $args) {
             . "inputs.product_id = products.id "
             . "AND products.status = 40 " // Product visible on website
             . "AND products.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
-            . ") "
+            . ") " */
 
 /*            
             IF there is a need to list all product options in the queued product list
@@ -80,11 +82,52 @@ function ciniki_foodmarket_web_queued($ciniki, $settings, $tnid, $args) {
                 . "AND outputs.status = 40 "  // Output visible on website
                 . "AND outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
                 . ") " */
-        . "WHERE items.object = 'ciniki.foodmarket.output' "
+/*        . "WHERE items.object = 'ciniki.foodmarket.output' "
         . "AND items.status < 40 " // Active item in queue but not yet ordered
         . "AND items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "";
-    $strsql .= "ORDER BY pio_name, io_sequence ";
+    $strsql .= "ORDER BY pio_name, io_sequence "; */
+
+    // 
+    // Get the products are available to queue
+    //
+    $strsql = "SELECT products.id, "
+        . "products.name, "
+        . "products.permalink, "
+        . "products.primary_image_id AS image_id, "
+        . "products.legend_codes, "
+        . "products.legend_names, "
+        . "products.synopsis, "
+        . "outputs.id AS price_id, "
+        . "outputs.flags, "
+        . "outputs.pio_name, "
+        . "outputs.otype, "
+        . "outputs.retail_price, "
+        . "outputs.retail_price_text, "
+        . "outputs.retail_sprice_text, "
+        . "outputs.retail_mdiscount_percent, "
+        . "outputs.retail_mprice, "
+        . "outputs.retail_mprice_text, "
+        . "inputs.case_units, "
+        . "inputs.itype, "
+        . "inputs.inventory "
+        . "FROM ciniki_foodmarket_product_outputs AS outputs "
+        . "INNER JOIN ciniki_foodmarket_product_inputs AS inputs ON ("
+            . "outputs.input_id = inputs.id "
+            . "AND inputs.itype = 50 "
+            . "AND inputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+            . ") "
+        . "INNER JOIN ciniki_foodmarket_products AS products ON ("
+            . "inputs.product_id = products.id "
+            . "AND products.status = 40 " // Product visible on website
+            . "AND products.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+            . ") "
+        . "WHERE (outputs.otype = 30 OR (outputs.otype > 50 AND outputs.otype <= 60)) " // Only partial case items
+        . "AND (outputs.flags&0x0400) = 0x0400 "
+        . "AND outputs.status = 40 "  // Output visible on website
+        . "AND outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+        . "ORDER BY pio_name, io_sequence "
+        . "";
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(
 //        array('container'=>'products', 'fname'=>'id', 
 //            'fields'=>array('id', 'name', 'permalink', 'image_id', 'legend_codes', 'legend_names', 'synopsis')),
