@@ -24,7 +24,7 @@ function ciniki_foodmarket_settings() {
                 M.api.err(rsp);
                 return false;
             }
-            alert("Keywords updated.");
+            M.alert("Keywords updated.");
         });
     }
     this.menu.addClose('Back');
@@ -206,15 +206,15 @@ function ciniki_foodmarket_settings() {
         }
     }
     this.season.remove = function() {
-        if( confirm('Are you sure you want to remove season?') ) {
-            M.api.getJSONCb('ciniki.foodmarket.seasonDelete', {'tnid':M.curTenantID, 'season_id':this.season_id}, function(rsp) {
+        M.confirm('Are you sure you want to remove season?',null,function() {
+            M.api.getJSONCb('ciniki.foodmarket.seasonDelete', {'tnid':M.curTenantID, 'season_id':M.ciniki_foodmarket_settings.season.season_id}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
                 }
                 M.ciniki_foodmarket_settings.season.close();
             });
-        }
+        });
     }
     this.season.addButton('save', 'Save', 'M.ciniki_foodmarket_settings.season.save();');
     this.season.addClose('Cancel');
@@ -289,15 +289,15 @@ function ciniki_foodmarket_settings() {
         }
     }
     this.sproduct.remove = function() {
-        if( confirm('Are you sure you want to remove seasons product?') ) {
-            M.api.getJSONCb('ciniki.foodmarket.seasonProductDelete', {'tnid':M.curTenantID, 'sp_id':this.sp_id}, function(rsp) {
+        M.confirm('Are you sure you want to remove seasons product?',null,function() {
+            M.api.getJSONCb('ciniki.foodmarket.seasonProductDelete', {'tnid':M.curTenantID, 'sp_id':M.ciniki_foodmarket_settings.sproduct.sp_id}, function(rsp) {
                 if( rsp.stat != 'ok' ) {
                     M.api.err(rsp);
                     return false;
                 }
                 M.ciniki_foodmarket_settings.sproduct.close();
             });
-        }
+        });
     }
     this.sproduct.addButton('save', 'Save', 'M.ciniki_foodmarket_settings.sproduct.save();');
     this.sproduct.addClose('Cancel');
@@ -316,7 +316,7 @@ function ciniki_foodmarket_settings() {
         //
         var appContainer = M.createContainer(appPrefix, 'ciniki_foodmarket_settings', 'yes');
         if( appContainer == null ) {
-            alert('App Error');
+            M.alert('App Error');
             return false;
         } 
     
