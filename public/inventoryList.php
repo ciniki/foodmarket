@@ -38,6 +38,16 @@ function ciniki_foodmarket_inventoryList($ciniki) {
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
+        
+    //
+    // Load maps
+    //
+    ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'private', 'maps');
+    $rc = ciniki_foodmarket_maps($ciniki);
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+    $maps = $rc['maps'];
 
     //
     // Load the tenant settings
@@ -105,6 +115,7 @@ function ciniki_foodmarket_inventoryList($ciniki) {
             . "products.flags, "
             . "products.supplier_id, "
             . "inputs.id AS input_id, "
+            . "inputs.itype, "
             . "inputs.name AS input_name, "
             . "inputs.inventory, "
             . "outputs.retail_sdiscount_percent, "
@@ -143,6 +154,7 @@ function ciniki_foodmarket_inventoryList($ciniki) {
             . "products.flags, "
             . "products.supplier_id, "
             . "inputs.id AS input_id, "
+            . "inputs.itype, "
             . "inputs.name AS input_name, "
             . "inputs.inventory, "
             . "outputs.retail_sdiscount_percent, "
@@ -181,6 +193,7 @@ function ciniki_foodmarket_inventoryList($ciniki) {
             . "products.flags, "
             . "products.supplier_id, "
             . "inputs.id AS input_id, "
+            . "inputs.itype, "
             . "inputs.name AS input_name, "
             . "inputs.inventory, "
             . "IFNULL(suppliers.code, '') AS supplier_code, "
@@ -221,6 +234,7 @@ function ciniki_foodmarket_inventoryList($ciniki) {
             . "products.flags, "
             . "products.supplier_id, "
             . "inputs.id AS input_id, "
+            . "inputs.itype, "
             . "inputs.name AS input_name, "
             . "inputs.inventory, "
             . "IFNULL(suppliers.code, '') AS supplier_code, "
@@ -296,6 +310,7 @@ function ciniki_foodmarket_inventoryList($ciniki) {
             . "products.flags, "
             . "products.supplier_id, "
             . "inputs.id AS input_id, "
+            . "inputs.itype, "
             . "inputs.name AS input_name, "
             . "inputs.inventory, "
             . "IFNULL(suppliers.code, '') AS supplier_code, "
@@ -328,11 +343,15 @@ function ciniki_foodmarket_inventoryList($ciniki) {
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
     $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(
         array('container'=>'products', 'fname'=>'input_id', 
-            'fields'=>array('id', 'name', 'input_id', 'input_name', 'permalink', 'status', 'flags', 'inventory',
+            'fields'=>array('id', 'name', 'itype', 'input_id', 'input_name', 'permalink', 'status', 'flags', 'inventory',
                 'supplier_id', 'supplier_code', 'supplier_name',), // ('output_ids'),
 //            'lists'=>array('output_ids'), 
             ),
-        array('container'=>'outputs', 'fname'=>'output_id', 'fields'=>array('id'=>'output_id', 'flags'=>'output_flags', 'status'=>'output_status', 'otype')),
+        array('container'=>'outputs', 'fname'=>'output_id', 
+            'fields'=>array('id'=>'output_id', 'otype', 
+                'flags'=>'output_flags', 'status'=>'output_status', 'status_text'=>'output_status', 'otype'),
+            'maps'=>array('output_status'=>$maps['output']['status']),
+            ),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
@@ -349,6 +368,9 @@ function ciniki_foodmarket_inventoryList($ciniki) {
                 $products[$pid]['output_ids'] .= ($products[$pid]['output_ids'] != '' ? ', ' : '') . $output['id'];
                 if( !in_array($output['id'], $output_ids) ) {
                     $output_ids[] = $output['id'];
+                }
+                if( ($product['itype'] == $output['otype'] && $output['otype'] <= 50) || ($product['itype'] == 50 && $output['otype'] == 30) || $output['otype'] == 70 ) {
+                    $products[$pid]['status_text'] = $output['status_text'];
                 }
                 if( $output['otype'] < 70 ) {
                     $status = $output['status'];
@@ -368,8 +390,8 @@ function ciniki_foodmarket_inventoryList($ciniki) {
         }
         if( $product['status'] == 10 || $status == 10 ) {
             $products[$pid]['status_text'] = 'Private';
-        } elseif( $product['status'] == 40 ) {
-            $products[$pid]['status_text'] = 'Public';
+//        } elseif( $product['status'] == 40 ) {
+//            $products[$pid]['status_text'] = 'Public';
         } elseif( $product['status'] == 90 ) {
             $products[$pid]['status_text'] = 'Archived';
         }
