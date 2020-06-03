@@ -346,7 +346,7 @@ function ciniki_foodmarket_inventoryList($ciniki) {
         $status = 0;
         if( isset($product['outputs']) ) {
             foreach($product['outputs'] as $oid => $output) {
-                $products[$pid]['output_ids'] = ($products[$pid]['output_ids'] != '' ? ', ' : '') . $output['id'];
+                $products[$pid]['output_ids'] .= ($products[$pid]['output_ids'] != '' ? ', ' : '') . $output['id'];
                 if( !in_array($output['id'], $output_ids) ) {
                     $output_ids[] = $output['id'];
                 }
