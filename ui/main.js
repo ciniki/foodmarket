@@ -137,7 +137,7 @@ function ciniki_foodmarket_main() {
             },
         /* Checkout */
         'checkout_open_orders':{'label':'Open Orders', 'type':'simplegrid', 'num_cols':1, 'aside':'yes',
-            'scrollHeight':'40vh',
+//            'scrollHeight':'40vh',
             'visible':function() { return M.ciniki_foodmarket_main.menu.isVisible(['checkout']); },
             'noData':'No open orders',
             'addTxt':'Add',
