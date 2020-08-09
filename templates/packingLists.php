@@ -66,6 +66,7 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $tnid, $args) {
         . "ciniki_poma_orders.billing_name, "
         . "ciniki_poma_orders.customer_id, "
         . "ciniki_poma_orders.pickup_time, "
+        . "ciniki_poma_orders.balance_amount, "
         . "ciniki_customers.first, "
         . "ciniki_customers.last, "
         . "ciniki_customers.sort_name, "
@@ -120,7 +121,8 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $tnid, $args) {
         . "";
     ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
     $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.poma', array(
-        array('container'=>'orders', 'fname'=>'id', 'fields'=>array('id', 'billing_name', 'customer_id', 'pickup_time', 'sort_name', 'first', 'last', 'order_date_text')),
+        array('container'=>'orders', 'fname'=>'id', 'fields'=>array('id', 'billing_name', 'customer_id', 
+            'pickup_time', 'sort_name', 'first', 'last', 'order_date_text', 'balance_amount')),
         array('container'=>'items', 'fname'=>'item_id', 
             'fields'=>array('id'=>'item_id', 'parent_id', 'line_number', 'code', 'description', 'object', 'object_id', 
                 'flags', 'itype', 'weight_units', 'weight_quantity', 'unit_quantity', 'unit_suffix', 'sequence', 'packing_order')), 
@@ -433,7 +435,7 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $tnid, $args) {
     }
 
     //
-    // Go through the sections, categories and classes
+    // Add each order as it's own page
     //
     foreach($orders as $order) {
         if( !isset($order['items']) || count($order['items']) == 0 ) {
@@ -588,6 +590,15 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $tnid, $args) {
             $pdf->Cell($w[3], $lh, $item['description'], $border, 0, 'L', $fill);
             $pdf->Ln();
             $border = 'B';
+        }
+
+        //
+        // Check for balance
+        //
+        if( $order['balance_amount'] > 0 ) {
+            $pdf->Ln(5);
+            $pdf->SetFont('helvetica', 'B', 14);
+            $pdf->MultiCell($pdf->usable_width, 16, 'Amount Owing: $' . number_format($order['balance_amount'], 2), 0, 'R', false, 1);
         }
     }
 
