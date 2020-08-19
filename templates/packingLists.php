@@ -595,7 +595,7 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $tnid, $args) {
         //
         // Check for balance
         //
-        if( $order['balance_amount'] > 0 ) {
+        if( $pdf->size == 'halfpage' && $order['balance_amount'] > 0 ) {
             $pdf->Ln(5);
             $pdf->SetFont('helvetica', 'B', 14);
             $pdf->MultiCell($pdf->usable_width, 16, 'Amount Owing: $' . number_format($order['balance_amount'], 2), 0, 'R', false, 1);
