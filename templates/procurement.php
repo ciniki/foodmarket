@@ -104,11 +104,14 @@ function ciniki_foodmarket_templates_procurement(&$ciniki, $tnid, $args) {
     } else {
         $pdf = new MYPDF('P', PDF_UNIT, 'LETTER', true, 'UTF-8', false);
         $w = array(30, 90, 30, 30);
+        $pdf = new MYPDF('L', PDF_UNIT, 'LETTER', true, 'UTF-8', false);
+        $w = array(31, 150, 31, 30);
         // set margins
         $pdf->header_height = 15;
         $pdf->SetMargins($pdf->left_margin, $pdf->header_height, $pdf->right_margin);
         $pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
         $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
+        $pdf->SetCellPaddings(2, 1.5, 2, 1.5);
         $pdf->SetCellPaddings(2, 1.5, 2, 1.5);
     }
 
@@ -144,7 +147,9 @@ function ciniki_foodmarket_templates_procurement(&$ciniki, $tnid, $args) {
     } else {
         $pdf->Cell($pdf->usable_width, 14, 'Procurement', 0, 1, 'L', 0, '', 0, false, 'M', 'T');
     }
-    $lh = 10;
+    $lh = 10.291667;
+    $pdf->SetFont('helvetica', '', 12);
+    $lh = $pdf->getStringHeight($w[1], "height");
     $border = 1;
     $pdf->SetFillColor(232);
     $pdf->SetFont('helvetica', 'B', 14);
@@ -152,15 +157,57 @@ function ciniki_foodmarket_templates_procurement(&$ciniki, $tnid, $args) {
     $pdf->Cell($w[1], $lh, 'Name', $border, 0, 'L', 1);
     $pdf->Cell($w[2], $lh, 'SKU', $border, 0, 'L', 1);
     $pdf->Cell($w[3], $lh, 'Cost', $border, 0, 'C', 1);
-    $pdf->Ln($lh);
+    $pdf->Ln($lh+1);
     $pdf->SetFont('helvetica', '', 12);
 
     foreach($args['items'] as $item) {
-        $pdf->Cell($w[0], $lh, $item['required_quantity_text'], $border, 0, 'C', 0);
-        $pdf->Cell($w[1], $lh, $item['name'], $border, 0, 'L', 0);
-        $pdf->Cell($w[2], $lh, $item['sku'], $border, 0, 'L', 0);
-        $pdf->Cell($w[3], $lh, $item['cost_text'], $border, 0, 'R', 0);
-        $pdf->Ln($lh);
+        //
+        // Check for who purchased and what quantities
+        //
+        $orders_text = '';
+        $orders_lh = 0;
+        $ciniki['request']['args']['input_id'] = $item['id'];
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'public', 'procurementItemOrders');
+        $rc = ciniki_foodmarket_procurementItemOrders($ciniki);
+        if( $rc['stat'] != 'ok' ) {
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.150', 'msg'=>'Unable to get orders', 'err'=>$rc['err']));
+        }
+        if( isset($rc['orderitems']) ) {
+//            foreach($rc['orderitems'] as $orderitem) {
+//                $orders_text .= ($orders_text != '' ? "\n" : '') 
+//                    . $orderitem['display_name'] . ' [' . (float)$orderitem['unit_quantity'] . ' * ' . $orderitem['io_name'] . '] ';
+//            }
+//            $orders_lh = $pdf->getStringHeight($w[1] + $w[2] + $w[3], $orders_text);
+            $orders_lh = count($rc['orderitems']) * $lh;
+        } 
+        $row_lh = $pdf->getStringHeight($w[1], $item['name']) + 1.5;
+        if( ($row_lh + $orders_lh) > ($pdf->getPageHeight() - $pdf->getY() - 20) ) {
+            $pdf->AddPage();
+        }
+        $pdf->SetFont('helvetica', '', 12);
+        $pdf->SetFillColor(245);
+        $pdf->Cell($w[0], $row_lh, $item['required_quantity_text'], $border, 0, 'C', 1);
+        $pdf->MultiCell($w[1], $row_lh, $item['name'], $border, 'L', true, 0, '', '', true, 0, false, true, $row_lh, 'M', false); //$border, 0, 'L', 0);
+        $pdf->Cell($w[2], $row_lh, $item['sku'], $border, 0, 'L', 1);
+        $pdf->Cell($w[3], $row_lh, $item['cost_text'], $border, 0, 'R', 1);
+        $pdf->Ln($row_lh);
+//        if( $orders_text != '' ) {
+        $pdf->SetFont('helvetica', '', 12);
+        if( isset($rc['orderitems']) ) {
+            foreach($rc['orderitems'] as $orderitem) {
+                error_log(print_r($orderitem, true));
+                $pdf->Cell($w[0], $lh, '', 0, 0, 'C', 0);
+                $pdf->Cell($w[1]/2, $lh, $orderitem['display_name'], 1, 0, 'R', 0);
+                $pdf->Cell($w[1]/8, $lh, (float)$orderitem['unit_quantity'], 1, 0, 'C', 0);
+                $pdf->Cell(((($w[1]/8)*3) + $w[2] + $w[3]), $lh, $orderitem['io_name'], 1, 0, 'L', 0);
+                $pdf->Ln($lh);
+            }
+            $pdf->Ln(5);
+/*            $row_lh = $pdf->getStringHeight($w[1] + $w[2] + $w[3], $orders_text);
+            $pdf->Cell($w[0], $row_lh, '', 0, 0, 'C', 0);
+            $pdf->MultiCell($w[1] + $w[2] + $w[3], $row_lh, $orders_text, $border, 'L', false, 0, '', '', true, 0, false, true, $row_lh, 'M', false); //$border, 0, 'L', 0);
+            $pdf->Ln($row_lh); */
+        }
     }
 
     return array('stat'=>'ok', 'pdf'=>$pdf);

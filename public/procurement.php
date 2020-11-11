@@ -506,6 +506,7 @@ function ciniki_foodmarket_procurement($ciniki) {
         if( isset($args['output']) && $args['output'] == 'download' ) {
             ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'templates', 'procurement');
             $rc = ciniki_foodmarket_templates_procurement($ciniki, $args['tnid'], array(
+                'date_id' => $args['date_id'],
                 'items' => $rsp['procurement_supplier_inputs'],
                 ));
             if( $rc['stat'] != 'ok' ) {
