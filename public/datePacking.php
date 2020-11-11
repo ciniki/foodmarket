@@ -572,11 +572,13 @@ function ciniki_foodmarket_datePacking($ciniki) {
         //
         $strsql = "SELECT ciniki_poma_orders.id AS order_id, "
             . "ciniki_poma_orders.billing_name, "
+            . "ciniki_poma_orders.billing_name, "
             . "baskets.id AS order_basket_id, "
             . "baskets.object_id AS basket_id, "
             . "baskets.unit_amount AS basket_amount, "
             . "items.id AS item_id, "
             . "items.itype, "
+            . "items.flags, "
             . "items.weight_quantity, "
             . "items.unit_quantity, "
             . "items.unit_amount "
@@ -597,7 +599,7 @@ function ciniki_foodmarket_datePacking($ciniki) {
             . "";
         $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.poma', array(
             array('container'=>'baskets', 'fname'=>'order_basket_id', 'fields'=>array('order_id', 'billing_name', 'order_basket_id', 'basket_amount', 'basket_id')),
-            array('container'=>'items', 'fname'=>'item_id', 'fields'=>array('id'=>'item_id', 'itype', 'weight_quantity', 'unit_quantity', 'unit_amount')),
+            array('container'=>'items', 'fname'=>'item_id', 'fields'=>array('id'=>'item_id', 'flags', 'itype', 'weight_quantity', 'unit_quantity', 'unit_amount')),
             ));
         if( $rc['stat'] != 'ok' ) {
             return $rc;
@@ -605,8 +607,12 @@ function ciniki_foodmarket_datePacking($ciniki) {
         if( isset($rc['baskets']) ) {   
             foreach($rc['baskets'] as $basket) {
                 $basket_total = 0;
+                $modified = 'no';
                 if( isset($basket['items']) ) {
-                    foreach($basket['items'] as $item) {
+                    foreach($basket['items'] as $iid => $item) {
+                        if( ($item['flags']&0x14) > 0 ) {
+                            $modified = 'yes';
+                        }
                         if( $item['itype'] == 10 ) {
                             $basket_total = bcadd($basket_total, bcmul($item['weight_quantity'], $item['unit_amount'], 6), 2);
                         } else {
@@ -623,6 +629,7 @@ function ciniki_foodmarket_datePacking($ciniki) {
                     'order_basket_id'=>$basket['order_basket_id'],
                     'total_amount'=>$basket_total,
                     'total_percent'=>bcmul(bcdiv($basket_total, $basket['basket_amount'], 6), 100, 0) . '%',
+                    'modified'=>$modified,
                     );
             }
         }

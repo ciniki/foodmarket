@@ -999,8 +999,9 @@ function ciniki_foodmarket_main() {
             }
         }
         if( s == 'packing_baskets' ) {
+            console.log(d);
             switch(j) {
-                case 0: return '<span class="maintext">' + d.billing_name + '</span><span class="subtext">' + d.basket_name + '</span>';
+                case 0: return '<span class="maintext">' + (d.modified != null && d.modified == 'yes' ? '(M) ' : '') + d.billing_name + '</span><span class="subtext">' + d.basket_name + '</span>';
                 case 1: return d.total_amount + ' (' + d.total_percent + ')';
             }
         }
