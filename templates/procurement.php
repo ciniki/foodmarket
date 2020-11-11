@@ -195,7 +195,9 @@ function ciniki_foodmarket_templates_procurement(&$ciniki, $tnid, $args) {
         $pdf->SetFont('helvetica', '', 12);
         if( isset($rc['orderitems']) ) {
             foreach($rc['orderitems'] as $orderitem) {
-                error_log(print_r($orderitem, true));
+                if( $orderitem['unit_quantity'] <= 0 ) {
+                    continue;
+                }
                 $pdf->Cell($w[0], $lh, '', 0, 0, 'C', 0);
                 $pdf->Cell($w[1]/2, $lh, $orderitem['display_name'], 1, 0, 'R', 0);
                 $pdf->Cell($w[1]/8, $lh, (float)$orderitem['unit_quantity'], 1, 0, 'C', 0);
