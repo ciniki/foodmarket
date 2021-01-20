@@ -436,6 +436,8 @@ function ciniki_foodmarket_main() {
         'queued_items':{'label':'Queued Items', 'type':'simplegrid', 'num_cols':5,
             'visible':function() { return (M.ciniki_foodmarket_main.menu.sections._tabs.selected == 'queue' && M.ciniki_foodmarket_main.menu.customer_id == 0 ) ? 'yes':'no'; },
             'noData':'Nothing queued',
+            'sortable':'yes',
+            'sortTypes':['text', 'text', 'number', 'number', 'number'],
             'headerValues':['SKU', 'Product', 'Cost', 'Required', 'Order'],
             'cellClasses':['', '', 'nobreak', 'nobreak', 'nobreak'],
             },

@@ -148,6 +148,8 @@ function ciniki_foodmarket_queueList($ciniki) {
                 }
                 if( $q['output_status'] == 0 ) {
                     $rsp['customer_queue'][$qid]['status_text'] = 'DISCONTINUED';
+                } elseif( $q['output_status'] == 90 ) {
+                    $rsp['customer_queue'][$qid]['status_text'] = 'ARCHIVED';
                 }
             }
         }
