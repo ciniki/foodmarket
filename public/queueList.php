@@ -103,6 +103,7 @@ function ciniki_foodmarket_queueList($ciniki) {
             . "ciniki_poma_queued_items.status, "
             . "ciniki_poma_queued_items.status AS status_text, "
             . "ciniki_poma_queued_items.quantity, "
+            . "IFNULL(outputs.status, 0) AS output_status, "
             . "SUM(ciniki_poma_order_items.total_amount) AS deposited_amount "
             . "FROM ciniki_poma_queued_items "
             . "LEFT JOIN ciniki_poma_orders ON ("
@@ -116,6 +117,10 @@ function ciniki_foodmarket_queueList($ciniki) {
                 . "AND (ciniki_poma_order_items.flags&0x40) = 0x40 "
                 . "AND ciniki_poma_order_items.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
                 . ") "
+            . "LEFT JOIN ciniki_foodmarket_product_outputs AS outputs ON ("
+                . "ciniki_poma_queued_items.object_id = outputs.id "
+                . "AND outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+                . ") "
             . "WHERE ciniki_poma_queued_items.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND ciniki_poma_queued_items.customer_id = '" . ciniki_core_dbQuote($ciniki, $args['customer_id']) . "' "
             . "AND ciniki_poma_queued_items.status < 90 "
@@ -123,7 +128,7 @@ function ciniki_foodmarket_queueList($ciniki) {
             . "ORDER BY ciniki_poma_queued_items.description "
             . "";
         $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.poma', array(
-            array('container'=>'items', 'fname'=>'id', 'fields'=>array('id', 'object', 'object_id', 'description', 'quantity', 'status', 'status_text', 'deposited_amount'),
+            array('container'=>'items', 'fname'=>'id', 'fields'=>array('id', 'object', 'object_id', 'description', 'quantity', 'status', 'status_text', 'output_status', 'deposited_amount'),
                 'maps'=>array('status_text'=>$maps['queueditem']['status']),
                 ),
             ));
@@ -140,6 +145,9 @@ function ciniki_foodmarket_queueList($ciniki) {
                     $rsp['customer_queue'][$qid]['deposited_amount_display'] = '$' . number_format($q['deposited_amount'], 2);
                 } else {
                     $rsp['customer_queue'][$qid]['deposited_amount_display'] = '';
+                }
+                if( $q['output_status'] == 0 ) {
+                    $rsp['customer_queue'][$qid]['status_text'] = 'DISCONTINUED';
                 }
             }
         }
