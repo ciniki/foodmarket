@@ -104,6 +104,7 @@ function ciniki_foodmarket_queueList($ciniki) {
             . "ciniki_poma_queued_items.status AS status_text, "
             . "ciniki_poma_queued_items.quantity, "
             . "IFNULL(outputs.status, 0) AS output_status, "
+            . "IFNULL(suppliers.code, 0) AS supplier_name, "
             . "SUM(ciniki_poma_order_items.total_amount) AS deposited_amount "
             . "FROM ciniki_poma_queued_items "
             . "LEFT JOIN ciniki_poma_orders ON ("
@@ -121,6 +122,14 @@ function ciniki_foodmarket_queueList($ciniki) {
                 . "ciniki_poma_queued_items.object_id = outputs.id "
                 . "AND outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
                 . ") "
+            . "LEFT JOIN ciniki_foodmarket_products AS products ON ("
+                . "outputs.product_id = products.id "
+                . "AND products.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+                . ") "
+            . "LEFT JOIN ciniki_foodmarket_suppliers AS suppliers ON ("
+                . "products.supplier_id = suppliers.id "
+                . "AND suppliers.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+                . ") "
             . "WHERE ciniki_poma_queued_items.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
             . "AND ciniki_poma_queued_items.customer_id = '" . ciniki_core_dbQuote($ciniki, $args['customer_id']) . "' "
             . "AND ciniki_poma_queued_items.status < 90 "
@@ -128,7 +137,7 @@ function ciniki_foodmarket_queueList($ciniki) {
             . "ORDER BY ciniki_poma_queued_items.description "
             . "";
         $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.poma', array(
-            array('container'=>'items', 'fname'=>'id', 'fields'=>array('id', 'object', 'object_id', 'description', 'quantity', 'status', 'status_text', 'output_status', 'deposited_amount'),
+            array('container'=>'items', 'fname'=>'id', 'fields'=>array('id', 'object', 'object_id', 'description', 'quantity', 'status', 'status_text', 'output_status', 'deposited_amount', 'supplier_name'),
                 'maps'=>array('status_text'=>$maps['queueditem']['status']),
                 ),
             ));
@@ -203,6 +212,7 @@ function ciniki_foodmarket_queueList($ciniki) {
             . "ciniki_foodmarket_product_outputs.otype, "
             . "ciniki_foodmarket_product_outputs.pio_name, "
             . "ciniki_poma_queued_items.status, "
+            . "IFNULL(IF(suppliers.code='',suppliers.name,suppliers.code), 0) AS supplier_name, "
             . "SUM(ciniki_poma_queued_items.quantity) AS quantity "
             . "FROM ciniki_poma_queued_items "
             . "INNER JOIN ciniki_foodmarket_product_outputs ON ("
@@ -218,6 +228,10 @@ function ciniki_foodmarket_queueList($ciniki) {
                 . "AND ciniki_foodmarket_products.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
 //                . "AND ciniki_foodmarket_products.supplier_id = '" . ciniki_core_dbQuote($ciniki, $args['supplier_id']) . "' "
                 . ") "
+            . "LEFT JOIN ciniki_foodmarket_suppliers AS suppliers ON ("
+                . "ciniki_foodmarket_products.supplier_id = suppliers.id "
+                . "AND suppliers.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+                . ") "
             . "WHERE ciniki_poma_queued_items.status < 90 "
             . "AND ciniki_poma_queued_items.object = 'ciniki.foodmarket.output' "
             . "AND ciniki_poma_queued_items.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
@@ -227,7 +241,7 @@ function ciniki_foodmarket_queueList($ciniki) {
         $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.foodmarket', array(
             array('container'=>'status', 'fname'=>'status', 'fields'=>array()),
             array('container'=>'inputs', 'fname'=>'id', 
-                'fields'=>array('id', 'product_id', 'sku', 'name', 'input_name', 'itype', 'units', 'flags', 
+                'fields'=>array('id', 'product_id', 'sku', 'name', 'input_name', 'itype', 'units', 'flags', 'supplier_name',
                     'min_quantity', 'inc_quantity', 'case_cost', 'half_cost', 'unit_cost', 'case_units')),
             array('container'=>'outputs', 'fname'=>'output_id', 
                 'fields'=>array('id'=>'output_id', 'pio_name', 'otype', 'quantity')),

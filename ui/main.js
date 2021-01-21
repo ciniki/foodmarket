@@ -438,8 +438,8 @@ function ciniki_foodmarket_main() {
             'noData':'Nothing queued',
             'sortable':'yes',
             'sortTypes':['text', 'text', 'number', 'number', 'number'],
-            'headerValues':['SKU', 'Product', 'Cost', 'Required', 'Order'],
-            'cellClasses':['', '', 'nobreak', 'nobreak', 'nobreak'],
+            'headerValues':['Supplier', 'Product', 'Cost', 'Required', 'Order'],
+            'cellClasses':['multiline', '', 'nobreak', 'nobreak', 'nobreak'],
             },
         'queue_search':{'label':'', 'type':'livesearchgrid', 'livesearchcols':3, 'hint':'Search',
             'visible':function() { return (M.ciniki_foodmarket_main.menu.sections._tabs.selected == 'queue' && M.ciniki_foodmarket_main.menu.customer_id > 0 ) ? 'yes':'no'; },
@@ -1150,7 +1150,7 @@ function ciniki_foodmarket_main() {
             }
         } else if( s == 'queued_items' ) {
             switch(j) {
-                case 0: return d.sku;
+                case 0: return (d.supplier_name != '' ? d.supplier_name + ': ' : '') + d.sku;
                 case 1: return d.name;
                 case 2: return d.cost_text;
                 case 3: return d.required_quantity_text;
