@@ -35,6 +35,8 @@ function ciniki_foodmarket_poma_queueItemLookup($ciniki, $tnid, $args) {
             . "outputs.retail_taxtype_id, "
             . "IFNULL(inputs.inventory, 0) AS inventory, "
             . "IFNULL(inputs.flags, 0) AS input_flags, "
+            . "IFNULL(inputs.cdeposit_name, '') AS cdeposit_name, "
+            . "IFNULL(inputs.cdeposit_amount, 0) AS cdeposit_amount, "
             . "IFNULL(products.flags, 0) AS product_flags "
             . "FROM ciniki_foodmarket_product_outputs AS outputs "
             . "LEFT JOIN ciniki_foodmarket_product_inputs AS inputs ON ("

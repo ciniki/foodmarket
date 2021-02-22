@@ -57,6 +57,17 @@ function ciniki_foodmarket_convertOutputItem($ciniki, $tnid, $output) {
         $item['flags'] |= 0x80;
         $item['cdeposit_description'] = $output['cdeposit_name'];
         $item['cdeposit_amount'] = $output['cdeposit_amount'];
+        if( $output['otype'] == 52 ) {
+            $item['cdeposit_amount'] = round($item['cdeposit_amount']/2, 2);
+        } elseif( $output['otype'] == 53 ) {
+            $item['cdeposit_amount'] = round($item['cdeposit_amount']/3, 2);
+        } elseif( $output['otype'] == 54 ) {
+            $item['cdeposit_amount'] = round($item['cdeposit_amount']/4, 2);
+        } elseif( $output['otype'] == 55 ) {
+            $item['cdeposit_amount'] = round($item['cdeposit_amount']/5, 2);
+        } elseif( $output['otype'] == 56 ) {
+            $item['cdeposit_amount'] = round($item['cdeposit_amount']/6, 2);
+        }
     }
 
     //
