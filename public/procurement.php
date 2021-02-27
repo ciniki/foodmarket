@@ -232,6 +232,54 @@ function ciniki_foodmarket_procurement($ciniki) {
     }
 
     //
+    // Get the list of suppliers with items from the queue on invoices
+    //
+    $strsql = "SELECT DISTINCT ciniki_foodmarket_suppliers.id, "
+        . "ciniki_foodmarket_suppliers.name "
+        . "FROM ciniki_poma_orders "
+        . "INNER JOIN ciniki_poma_order_items ON ("
+            . "ciniki_poma_orders.id = ciniki_poma_order_items.order_id "
+            . "AND ciniki_poma_order_items.object = 'ciniki.poma.queueditem' "
+            . "AND ciniki_poma_order_items.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+            . ") "
+        . "INNER JOIN ciniki_poma_queued_items ON ("
+            . "ciniki_poma_order_items.object_id = ciniki_poma_queued_items.id "
+            . "AND ciniki_poma_queued_items.status = 90 "
+            . "AND ciniki_poma_queued_items.object = 'ciniki.foodmarket.output' "
+            . "AND ciniki_poma_queued_items.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+            . ") "
+        . "INNER JOIN ciniki_foodmarket_product_outputs ON ("
+            . "ciniki_poma_queued_items.object_id = ciniki_foodmarket_product_outputs.id "
+            . "AND ciniki_foodmarket_product_outputs.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+            . ") "
+        . "INNER JOIN ciniki_foodmarket_products ON ("
+            . "ciniki_foodmarket_product_outputs.product_id = ciniki_foodmarket_products.id "
+            . "AND ciniki_foodmarket_products.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+            . ") "
+        . "INNER JOIN ciniki_foodmarket_suppliers ON ("
+            . "ciniki_foodmarket_products.supplier_id = ciniki_foodmarket_suppliers.id "
+            . "AND ciniki_foodmarket_suppliers.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+            . ") "
+        . "WHERE ciniki_poma_orders.date_id = '" . ciniki_core_dbQuote($ciniki, $args['date_id']) . "' "
+        . "AND ciniki_poma_orders.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+        . "ORDER BY ciniki_foodmarket_suppliers.name "
+        . "";
+    $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(
+        array('container'=>'suppliers', 'fname'=>'id', 'fields'=>array('id', 'name')),
+        ));
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+    $supplier_ids = array();
+    if( isset($rc['suppliers']) ) {
+        foreach($rc['suppliers'] as $supplier) {
+            if( !isset($suppliers[$supplier['id']]) ) {
+                $suppliers[$supplier['id']] = $supplier;
+            }
+        }
+    }
+
+    //
     // Get the list of supplier ids
     //
     foreach($suppliers as $supplier) {
