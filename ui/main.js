@@ -1268,6 +1268,8 @@ function ciniki_foodmarket_main() {
             if( j == 0 ) {
                 return d.pio_name;
             } else if( j == 1 ) {
+                return d.repeat_weeks;
+            } else if( j == 2 ) {
                 return d.repeat_days;
             } else {
                 var r = '';
@@ -2236,46 +2238,46 @@ function ciniki_foodmarket_main() {
         }
         // Setup the add products
         var num_days = 0;
-        p.sections.seasonproducts.headerValues = ['Product'];
+        p.sections.seasonproducts.headerValues = ['Product', 'Weeks', 'Frequency'];
         p.sections.seasonproducts.days = {};
         if( rsp.season != null ) {
             if( (rsp.season.csa_days&0x02) == 0x02 ) {
-                p.sections.seasonproducts.headerValues[(num_days+2)] = 'Mon';
+                p.sections.seasonproducts.headerValues[(num_days+3)] = 'Mon';
                 p.sections.seasonproducts.days[num_days] = 1;
                 num_days++;
             }
             if( (rsp.season.csa_days&0x04) == 0x04 ) {
-                p.sections.seasonproducts.headerValues[(num_days+2)] = 'Tue';
+                p.sections.seasonproducts.headerValues[(num_days+3)] = 'Tue';
                 p.sections.seasonproducts.days[num_days] = 2;
                 num_days++;
             }
             if( (rsp.season.csa_days&0x08) == 0x08 ) {
-                p.sections.seasonproducts.headerValues[(num_days+2)] = 'Wed';
+                p.sections.seasonproducts.headerValues[(num_days+3)] = 'Wed';
                 p.sections.seasonproducts.days[num_days] = 3;
                 num_days++;
             }
             if( (rsp.season.csa_days&0x10) == 0x10 ) {
-                p.sections.seasonproducts.headerValues[(num_days+2)] = 'Thu';
+                p.sections.seasonproducts.headerValues[(num_days+3)] = 'Thu';
                 p.sections.seasonproducts.days[num_days] = 4;
                 num_days++;
             }
             if( (rsp.season.csa_days&0x20) == 0x20 ) {
-                p.sections.seasonproducts.headerValues[(num_days+2)] = 'Fri';
+                p.sections.seasonproducts.headerValues[(num_days+3)] = 'Fri';
                 p.sections.seasonproducts.days[num_days] = 5;
                 num_days++;
             }
             if( (rsp.season.csa_days&0x40) == 0x40 ) {
-                p.sections.seasonproducts.headerValues[(num_days+2)] = 'Sat';
+                p.sections.seasonproducts.headerValues[(num_days+3)] = 'Sat';
                 p.sections.seasonproducts.days[num_days] = 6;
                 num_days++;
             }
             if( (rsp.season.csa_days&0x80) == 0x80 ) {
-                p.sections.seasonproducts.headerValues[(num_days+2)] = 'Sun';
+                p.sections.seasonproducts.headerValues[(num_days+3)] = 'Sun';
                 p.sections.seasonproducts.days[num_days] = 7;
                 num_days++;
             }
         }
-        p.sections.seasonproducts.num_cols = (num_days+2);
+        p.sections.seasonproducts.num_cols = (num_days+3);
         p.refresh();
         p.show();
     }
