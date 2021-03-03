@@ -1274,9 +1274,9 @@ function ciniki_foodmarket_main() {
             } else {
                 var r = '';
                 if( M.ciniki_foodmarket_main.menu.customer_id > 0 ) {   
-                    r = ' <button onclick=\'event.stopPropagation(); M.ciniki_foodmarket_main.menu.customerProductRemove("' + d.id + '","' + this.sections.seasonproducts.days[(j-2)] + '");\'>Remove</button>';
+                    r = ' <button onclick=\'event.stopPropagation(); M.ciniki_foodmarket_main.menu.customerProductRemove("' + d.id + '","' + this.sections.seasonproducts.days[(j-3)] + '");\'>Remove</button>';
                 }
-                return '<button onclick=\'event.stopPropagation(); M.ciniki_foodmarket_main.menu.customerProductAdd("' + d.id + '","' + this.sections.seasonproducts.days[(j-2)] + '");\'>Add</button>' + r;
+                return '<button onclick=\'event.stopPropagation(); M.ciniki_foodmarket_main.menu.customerProductAdd("' + d.id + '","' + this.sections.seasonproducts.days[(j-3)] + '");\'>Add</button>' + r;
             }
         }
 
