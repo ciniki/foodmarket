@@ -1558,8 +1558,10 @@ function ciniki_foodmarket_main() {
     this.menu.moveorder = function(date_id) {
         M.api.getJSONCb('ciniki.poma.dateCheckout', 
             {'tnid':M.curTenantID, 'date_id':this.date_id, 'action':'moveorder', 'order_id':this.order_id, 'newdate_id':date_id, 'customer_id':0}, function(rsp) {
-                M.ciniki_foodmarket_main.menu.customer_id = 0;
-                M.ciniki_foodmarket_main.menu.order_id = 0;
+                if( rsp.stat == 'ok' ) {
+                    M.ciniki_foodmarket_main.menu.customer_id = 0;
+                    M.ciniki_foodmarket_main.menu.order_id = 0;
+                }
                 M.ciniki_foodmarket_main.menu.processCheckout(rsp);
             });
     }
