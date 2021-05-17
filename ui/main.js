@@ -237,7 +237,8 @@ function ciniki_foodmarket_main() {
                         && M.ciniki_foodmarket_main.menu.data.order.default_payment_amount > 0 ?'yes':'no');},
                     'fn':'M.ciniki_foodmarket_main.ledgerentry.open(\'M.ciniki_foodmarket_main.menu.addCredit();\',0,10,M.ciniki_foodmarket_main.menu.data.order.default_payment_amount,M.ciniki_foodmarket_main.menu.customer_id);'},
                 'closeorder':{'label':'Close Order', 
-                    'visible':function() {return (M.ciniki_foodmarket_main.menu.data.order.payment_status > 0 && M.ciniki_foodmarket_main.menu.data.order.status <= 50 && M.ciniki_foodmarket_main.menu.data.order.items.length > 0 ?'yes':'no');},
+//                    'visible':function() {return (M.ciniki_foodmarket_main.menu.data.order.payment_status > 0 && M.ciniki_foodmarket_main.menu.data.order.status <= 50 && M.ciniki_foodmarket_main.menu.data.order.items.length > 0 ?'yes':'no');},
+                    'visible':function() {return (M.ciniki_foodmarket_main.menu.data.order.payment_status > 0 && M.ciniki_foodmarket_main.menu.data.order.status <= 50 ?'yes':'no');},
                     'fn':'M.ciniki_foodmarket_main.menu.closeOrder();'},
                 'delete':{'label':'Delete Order', 
                     'visible':function() {return (M.ciniki_foodmarket_main.menu.data.order.payment_status == 0 && M.ciniki_foodmarket_main.menu.data.order.items.length == 0 ?'yes':'no');},
@@ -5311,6 +5312,14 @@ function ciniki_foodmarket_main() {
         M.ciniki_foodmarket_main.menu.sections.pricing_products.num_cols = (M.modFlagOn('ciniki.foodmarket', 0x40) ? 8 : 7);
         if( args.inventory != null && args.inventory == 1 ) {
             this.inventory.open(cb);
+        } else if( args.order_id != null && args.order_id > 0 
+            && args.date_id != null && args.date_id > 0
+            && args.customer_id != null && args.customer_id > 0
+            ) {
+            this.menu.order_id = args.order_id;
+            this.menu.date_id = args.date_id;
+            this.menu.customer_id = args.customer_id;
+            this.menu.open(cb,'checkout','');
         } else {
             this.menu.open(cb,null,'');
         }
