@@ -57,7 +57,7 @@ function ciniki_foodmarket_productPricePush(&$ciniki, $tnid, $product_id) {
         . "AND orders.payment_status < 50 "
         . "AND orders.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
         . "";
-    $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.foodmarket', 'items');
+    $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.foodmarket', 'item');
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
@@ -65,6 +65,36 @@ function ciniki_foodmarket_productPricePush(&$ciniki, $tnid, $product_id) {
         return array('stat'=>'ok');
     }
     $items = $rc['rows'];
+
+    //
+    // Get the queued items
+    //
+    $strsql = "SELECT items.id, "
+        . "items.order_id, "
+        . "qitems.object_id, "
+        . "items.weight_quantity, "
+        . "items.unit_quantity, "
+        . "items.unit_discount_percentage, "
+        . "items.unit_amount "
+        . "FROM ciniki_poma_queued_items AS qitems, ciniki_poma_order_items AS items, ciniki_poma_orders AS orders "
+        . "WHERE qitems.object = 'ciniki.foodmarket.output' "
+        . "AND qitems.object_id IN (" . ciniki_core_dbQuoteIDs($ciniki, $output_ids) . ") "
+        . "AND items.object = 'ciniki.poma.queueditem' "
+        . "AND items.object_id = qitems.id "
+        . "AND items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+        . "AND items.order_id = orders.id "
+        . "AND orders.status < 50 "
+        . "AND orders.payment_status < 50 "
+        . "AND orders.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+        . "";
+    $rc = ciniki_core_dbHashQuery($ciniki, $strsql, 'ciniki.foodmarket', 'item');
+    if( $rc['stat'] != 'ok' ) {
+        return $rc;
+    }
+    if( !isset($rc['rows']) || count($rc['rows']) == 0 ) {
+        return array('stat'=>'ok');
+    }
+    $items = array_merge($items, $rc['rows']);
 
     //
     // Update any prices on open orders
