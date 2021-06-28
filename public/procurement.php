@@ -23,6 +23,7 @@ function ciniki_foodmarket_procurement($ciniki) {
         'tnid'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Tenant'),
         'date_id'=>array('required'=>'yes', 'blank'=>'no', 'name'=>'Date'),
         'supplier_id'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Supplier'),
+        'orders'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Orders on PDF'),
         'output'=>array('required'=>'no', 'blank'=>'no', 'name'=>'Output'),
         ));
     if( $rc['stat'] != 'ok' ) {
@@ -555,6 +556,7 @@ function ciniki_foodmarket_procurement($ciniki) {
             ciniki_core_loadMethod($ciniki, 'ciniki', 'foodmarket', 'templates', 'procurement');
             $rc = ciniki_foodmarket_templates_procurement($ciniki, $args['tnid'], array(
                 'date_id' => $args['date_id'],
+                'orders' => isset($args['orders']) ? $args['orders'] : 'no',
                 'items' => $rsp['procurement_supplier_inputs'],
                 ));
             if( $rc['stat'] != 'ok' ) {

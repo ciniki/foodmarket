@@ -172,7 +172,7 @@ function ciniki_foodmarket_templates_procurement(&$ciniki, $tnid, $args) {
         if( $rc['stat'] != 'ok' ) {
             return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.150', 'msg'=>'Unable to get orders', 'err'=>$rc['err']));
         }
-        if( isset($rc['orderitems']) ) {
+        if( isset($rc['orderitems']) && isset($args['orders']) && $args['orders'] == 'yes' ) {
 //            foreach($rc['orderitems'] as $orderitem) {
 //                $orders_text .= ($orders_text != '' ? "\n" : '') 
 //                    . $orderitem['display_name'] . ' [' . (float)$orderitem['unit_quantity'] . ' * ' . $orderitem['io_name'] . '] ';
@@ -193,7 +193,7 @@ function ciniki_foodmarket_templates_procurement(&$ciniki, $tnid, $args) {
         $pdf->Ln($row_lh);
 //        if( $orders_text != '' ) {
         $pdf->SetFont('helvetica', '', 12);
-        if( isset($rc['orderitems']) ) {
+        if( isset($rc['orderitems']) && isset($args['orders']) && $args['orders'] == 'yes' ) {
             foreach($rc['orderitems'] as $orderitem) {
                 if( $orderitem['unit_quantity'] <= 0 ) {
                     continue;
