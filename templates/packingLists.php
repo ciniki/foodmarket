@@ -319,8 +319,13 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $tnid, $args) {
     $pdf->AddPage();
     $pdf->selectColumn(0);
     $pdf->SetFont('helvetica', 'B', 18);
+    $date_text = '';
+    foreach($orders as $order) {    
+        $date_text = ' - ' . $order['order_date_text'];
+        break;
+    }
     if( $pdf->size == 'halfpage' ) {
-        $pdf->Cell($pdf->usable_width, 14, 'Summary', 0, 1, 'L', 0, '', 0, false, 'M', 'T');
+        $pdf->Cell($pdf->usable_width, 14, 'Summary' . $date_text, 0, 1, 'L', 0, '', 0, false, 'M', 'T');
     } else {
         $pdf->Cell($pdf->usable_width, 14, 'Summary', 0, 1, 'L', 0, '', 0, false, 'M', 'T');
     }
