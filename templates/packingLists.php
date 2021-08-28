@@ -251,13 +251,13 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $tnid, $args) {
         // Page footer
         public function Footer() {
             // Position at 15 mm from bottom
-            $this->SetY(-15);
-            $this->SetFont('helvetica', '', 10);
             if( $this->size == 'halfpage' ) {
-                $this->Cell(120, 12, $this->date_text, 0, false, 'C', 0, '', 0, false, 'M', 'M');
-                $this->Cell(20, 12, '', 0, false, 'C', 0, '', 0, false, 'M', 'M');
-                $this->Cell(120, 12, $this->date_text, 0, false, 'C', 0, '', 0, false, 'M', 'M');
+//                $this->Cell(120, 12, $this->date_text, 0, false, 'C', 0, '', 0, false, 'M', 'M');
+//                $this->Cell(20, 12, '', 0, false, 'C', 0, '', 0, false, 'M', 'M');
+//                $this->Cell(120, 12, $this->date_text, 0, false, 'C', 0, '', 0, false, 'M', 'M');
             } else {
+                $this->SetY(-15);
+                $this->SetFont('helvetica', '', 10);
                 $this->Cell(60, 12, $this->date_text, 0, false, 'L', 0, '', 0, false, 'M', 'M');
             }
         }
@@ -276,9 +276,11 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $tnid, $args) {
         $pdf->setEqualColumns(2, 140);
         $pdf->SetMargins($pdf->left_margin, $pdf->header_height, $pdf->right_margin);
         $pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
-        $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
+//        $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
+        $pdf->SetFooterMargin(0);
         $pdf->size = $args['size'];
         $pdf->SetCellPadding(1.2);
+        $pdf->SetAutoPageBreak(TRUE, 0);
     } else {
         $pdf = new MYPDF('P', PDF_UNIT, 'LETTER', true, 'UTF-8', false);
         $w = array(75, 15, 35, 55);
@@ -599,6 +601,13 @@ function ciniki_foodmarket_templates_packingLists(&$ciniki, $tnid, $args) {
             $pdf->Ln(5);
             $pdf->SetFont('helvetica', 'B', 14);
             $pdf->MultiCell($pdf->usable_width, 16, 'Amount Owing: $' . number_format($order['balance_amount'], 2), 0, 'R', false, 1);
+        }
+        if( $pdf->size == 'halfpage' ) {
+            $pdf->SetY($pdf->getPageHeight() - 15);
+            $pdf->SetFont('helvetica', 'B', 18);
+            $pdf->Cell($pdf->usable_width - 25, 12, $display_name, 0, false, 'L', 0, '', 0, false, 'M', 'M');
+            $pdf->SetFont('helvetica', '', 10);
+            $pdf->Cell(25, 12, $pdf->date_text, 0, false, 'R', 0, '', 0, false, 'M', 'M');
         }
     }
 
