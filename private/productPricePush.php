@@ -41,6 +41,7 @@ function ciniki_foodmarket_productPricePush(&$ciniki, $tnid, $product_id) {
     //
     // Check for those outputs on open orders in poma
     //
+    $items = array();
     $strsql = "SELECT items.id, "
         . "items.order_id, "
         . "items.object_id, "
@@ -61,10 +62,9 @@ function ciniki_foodmarket_productPricePush(&$ciniki, $tnid, $product_id) {
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
-    if( !isset($rc['rows']) || count($rc['rows']) == 0 ) {
-        return array('stat'=>'ok');
+    if( isset($rc['rows']) ) {
+        $items = array_merge($items, $rc['rows']);
     }
-    $items = $rc['rows'];
 
     //
     // Get the queued items
@@ -91,10 +91,9 @@ function ciniki_foodmarket_productPricePush(&$ciniki, $tnid, $product_id) {
     if( $rc['stat'] != 'ok' ) {
         return $rc;
     }
-    if( !isset($rc['rows']) || count($rc['rows']) == 0 ) {
-        return array('stat'=>'ok');
+    if( isset($rc['rows']) ) {
+        $items = array_merge($items, $rc['rows']);
     }
-    $items = array_merge($items, $rc['rows']);
 
     //
     // Update any prices on open orders
