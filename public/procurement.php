@@ -408,7 +408,7 @@ function ciniki_foodmarket_procurement($ciniki) {
             . "AND ciniki_poma_orders.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
 //            . "AND NOT ISNULL(ciniki_poma_order_items.id) "
             . "GROUP BY ciniki_foodmarket_product_outputs.id "
-            . "ORDER BY ciniki_foodmarket_product_outputs.pio_name "
+            . "ORDER BY ciniki_foodmarket_product_outputs.id, ciniki_foodmarket_product_outputs.pio_name "
             . "";
         $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.foodmarket', array(
             array('container'=>'inputs', 'fname'=>'id', 
