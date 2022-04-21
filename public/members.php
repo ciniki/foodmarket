@@ -25,6 +25,7 @@ function ciniki_foodmarket_members($ciniki) {
         'action'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Action'),
         'product_id'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Product'),   // Product id in season_products table
         'day'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Order Day'),   // Day of the week for product order/pickup
+        'ndays'=>array('required'=>'no', 'blank'=>'yes', 'name'=>'Shift X Days'),
         ));
     if( $rc['stat'] != 'ok' ) {
         return $rc;
@@ -116,6 +117,91 @@ function ciniki_foodmarket_members($ciniki) {
                 return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.114', 'msg'=>'Unable to add customer to season.', 'err'=>$rc['err']));
             }
         }
+    }
+
+    //
+    // Check if action is to shift all orders
+    //
+    if( isset($args['action']) && $args['action'] == 'shift' && isset($args['ndays']) && $args['ndays'] != '' ) {
+        //
+        // Load the order dates for the season
+        //
+        $strsql = "SELECT dates.id, "
+            . "dates.order_date "
+            . "FROM ciniki_poma_order_dates AS dates "
+            . "WHERE dates.order_date >= '" . ciniki_core_dbQuote($ciniki, $season['csa_start_date']) . "' " 
+            . "AND dates.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+            . "";
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryIDTree');
+        $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.foodmarket', array(
+            array('container'=>'dates', 'fname'=>'order_date', 'fields'=>array('id', 'order_date')),
+            ));
+        if( $rc['stat'] != 'ok' ) {
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.151', 'msg'=>'Unable to load dates', 'err'=>$rc['err']));
+        }
+        $dates = isset($rc['dates']) ? $rc['dates'] : array();
+
+        //
+        // Get the list of orders for the season for the customer
+        //
+        $strsql = "SELECT orders.id, "
+            . "orders.date_id, "
+            . "orders.order_date, "
+            . "orders.status, "
+            . "orders.status AS status_text, "
+            . "items.id AS item_id, "
+            . "items.code, "
+            . "items.description, "
+            . "items.itype, "
+            . "items.weight_quantity, "
+            . "items.unit_quantity "
+            . "FROM ciniki_poma_orders AS orders "
+            . "INNER JOIN ciniki_poma_order_items AS items ON ("
+                . "orders.id = items.order_id "
+                . "AND (items.flags&0x0200) = 0x0200 "
+                . "AND items.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+                . ") "
+            . "WHERE orders.customer_id = '" . ciniki_core_dbQuote($ciniki, $args['customer_id']) . "' "
+            . "AND orders.order_date >= '" . ciniki_core_dbQuote($ciniki, $season['csa_start_date']) . "' " 
+            . "AND orders.order_date >= DATE(NOW()) "
+            . "AND orders.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
+            . "ORDER BY orders.order_date ASC "
+            . "";
+        ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbHashQueryArrayTree');
+        $rc = ciniki_core_dbHashQueryArrayTree($ciniki, $strsql, 'ciniki.foodmarket', array(
+            array('container'=>'orders', 'fname'=>'id', 
+                'fields'=>array('id', 'date_id', 'order_date', 'status', 'status_text'),
+                'maps'=>array('status_text'=>$poma_maps['order']['status']),
+                ),
+            array('container'=>'items', 'fname'=>'item_id', 
+                'fields'=>array('id'=>'item_id', 'code', 'description', 'itype', 'weight_quantity', 'unit_quantity'),
+                ),
+            ));
+        if( $rc['stat'] != 'ok' ) {
+            return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.123', 'msg'=>'Unable to load orders', 'err'=>$rc['err']));
+        }
+        $orders = isset($rc['orders']) ? $rc['orders'] : array();
+
+        foreach($orders as $order) {
+            $dt = new DateTime($order['order_date']);
+            if( $args['ndays'] < 0 ) {
+                $dt->sub(new DateInterval('P' . abs($args['ndays']) . 'D'));
+            } else {
+                $dt->add(new DateInterval('P' . $args['ndays'] . 'D'));
+            }
+            if( isset($dates[$dt->format('Y-m-d')]) ) {
+                $new_date = $dates[$dt->format('Y-m-d')];
+                ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'objectUpdate');
+                $rc = ciniki_core_objectUpdate($ciniki, $args['tnid'], 'ciniki.poma.order', $order['id'], array(
+                    'date_id' => $new_date['id'],
+                    'order_date' => $new_date['order_date'],
+                    ), 0x04);
+                if( $rc['stat'] != 'ok' ) {
+                    return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.152', 'msg'=>'Unable to update the order', 'err'=>$rc['err']));
+                }
+            }
+        }
+
     }
 
     $rsp = array('stat'=>'ok', 'season'=>$season, 'customers'=>array(), 'memberorders'=>array());

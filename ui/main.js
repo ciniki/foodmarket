@@ -629,6 +629,12 @@ function ciniki_foodmarket_main() {
             'sortTypes':['number', 'text', 'text', 'text'],
             'noData':'No orders',
             },
+        'memberbuttons':{'label':'', 
+            'visible':function() {var p=M.ciniki_foodmarket_main.menu; return (p.sections._tabs.selected=='members' && M.ciniki_foodmarket_main.menu.customer_id > 0 )?'yes':'no';},
+            'buttons':{
+                'movefwd':{'label':'Shift forward 1 week', 'fn':'M.ciniki_foodmarket_main.menu.memberShift(7);'},
+                'movebck':{'label':'Shift backward 1 week', 'fn':'M.ciniki_foodmarket_main.menu.memberShift(-7);'},
+            }},
 
         /* Notes */
         'notes':{'label':'Notes', 'type':'simplegrid', 'num_cols':3,
@@ -1827,6 +1833,11 @@ function ciniki_foodmarket_main() {
     }
     this.menu.noteArchive = function(i) {
         M.api.getJSONCb('ciniki.poma.noteList', {'tnid':M.curTenantID, 'customer_id':this.customer_id, 'customers':'yes', 'ntype':30, 'archive_note_id':i}, M.ciniki_foodmarket_main.menu.processNotes);
+    }
+    this.menu.memberShift = function(ndays) {
+        M.api.getJSONCb('ciniki.foodmarket.members', 
+            {'tnid':M.curTenantID, 'season_id':this.season_id, 'action':'shift', 'customer_id':this.customer_id, 'ndays':ndays}, 
+            M.ciniki_foodmarket_main.menu.processMembers);
     }
     /* Notes */
     this.menu.switchNoteTab = function(t) {
