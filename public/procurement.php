@@ -339,8 +339,8 @@ function ciniki_foodmarket_procurement($ciniki) {
             . "WHERE ciniki_poma_orders.date_id = '" . ciniki_core_dbQuote($ciniki, $args['date_id']) . "' "
             . "AND ciniki_poma_orders.tnid = '" . ciniki_core_dbQuote($ciniki, $args['tnid']) . "' "
 //            . "AND NOT ISNULL(ciniki_poma_order_items.id) "
-            . "GROUP BY ciniki_foodmarket_product_outputs.id "
-            . "ORDER BY ciniki_foodmarket_product_outputs.pio_name "
+            . "GROUP BY output_id "
+            . "ORDER BY ciniki_foodmarket_product_inputs.sku, ciniki_foodmarket_product_outputs.id, ciniki_foodmarket_product_outputs.pio_name "
             . "";
         $rc = ciniki_core_dbHashQueryIDTree($ciniki, $strsql, 'ciniki.foodmarket', array(
             array('container'=>'inputs', 'fname'=>'id', 
