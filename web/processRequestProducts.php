@@ -296,6 +296,38 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $tnid
             if( isset($rc['outputs']) ) {
                 $date_items = $rc['outputs'];
             } 
+
+            //
+            // Get the items from the basket that are "date" specified
+            // This links the basket output item to the input item and finds the public non-basket output items
+            //
+            $strsql = "SELECT outputs.id AS output_id "
+                . "FROM ciniki_foodmarket_basket_items AS items "
+                . "INNER JOIN ciniki_foodmarket_product_outputs AS basketoutput ON ("
+                    . "items.item_output_id = basketoutput.id "
+                    . "AND basketoutput.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+                    . ") "
+                . "INNER JOIN ciniki_foodmarket_product_outputs AS outputs ON ("
+                    . "basketoutput.input_id = outputs.input_id "
+                    . "AND (outputs.flags&0x0200) = 0x0200 " // Date specific product outputs
+                    . "AND outputs.otype < 70 "     // Not a basket item
+                    . "AND outputs.status = 40 "    // Public
+                    . ") "
+                . "WHERE items.date_id = '" . ciniki_core_dbQuote($ciniki, $date_id) . "' "
+                . "AND items.tnid = '" . ciniki_core_dbQuote($ciniki, $tnid) . "' "
+                . "";
+            ciniki_core_loadMethod($ciniki, 'ciniki', 'core', 'private', 'dbQueryList');
+            $rc = ciniki_core_dbQueryList($ciniki, $strsql, 'ciniki.foodmarket', 'outputs', 'output_id');
+            if( $rc['stat'] != 'ok' ) {
+                return $rc;
+            }
+            if( isset($rc['outputs']) ) {
+                foreach($rc['outputs'] AS $o ) {
+                    if( !in_array($o, $date_items) ) {
+                        $date_items[] = $o;
+                    }
+                }
+            } 
         }
 
         //
