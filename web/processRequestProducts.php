@@ -155,7 +155,7 @@ function ciniki_foodmarket_web_processRequestProducts(&$ciniki, $settings, $tnid
                 $category_id = $rc['category']['id'];
                 $base_url .= '/' . $permalink;
                 $page['breadcrumbs'][] = array('name'=>$rc['category']['name'], 'url'=>$base_url);
-            } else {
+            } elseif( $permalink != '' ) {
                 $product_permalink = $permalink;
                 $display = 'product';
                 break;
