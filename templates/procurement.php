@@ -36,8 +36,6 @@ function ciniki_foodmarket_templates_procurement(&$ciniki, $tnid, $args) {
         return $rc;
     }
     $intl_timezone = $rc['settings']['intl-default-timezone'];
-    $intl_currency_fmt = numfmt_create($rc['settings']['intl-default-locale'], NumberFormatter::CURRENCY);
-    $intl_currency = $rc['settings']['intl-default-currency'];
 
     if( !isset($args['items']) ) {
         return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.130', 'msg'=>'No items in procurement', 'err'=>$rc['err']));

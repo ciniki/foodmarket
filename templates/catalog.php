@@ -37,8 +37,6 @@ function ciniki_foodmarket_templates_catalog(&$ciniki, $tnid, $args) {
         return $rc;
     }
     $intl_timezone = $rc['settings']['intl-default-timezone'];
-    $intl_currency_fmt = numfmt_create($rc['settings']['intl-default-locale'], NumberFormatter::CURRENCY);
-    $intl_currency = $rc['settings']['intl-default-currency'];
 
     //
     // Get the categories and their products that are available to the public
