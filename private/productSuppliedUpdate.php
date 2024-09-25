@@ -115,7 +115,7 @@ function ciniki_foodmarket_productSuppliedUpdate(&$ciniki, $tnid, $product_id, $
         //
         // If a new input, add the object
         //
-        if( $input_id == 0 ) {
+        if( $input_id == 0 || $input_id == '' ) {
             if( !isset($new_input['itype']) ) {
                 // No itype,then skip product
                 continue;
@@ -131,7 +131,7 @@ function ciniki_foodmarket_productSuppliedUpdate(&$ciniki, $tnid, $product_id, $
                 if( !isset($new_input['case_cost']) ) {
                     $args['case_cost'] = 0;
                 }
-                if( !isset($new_input['case_units']) || $new_input['case_units'] == 0 ) {
+                if( !isset($new_input['case_units']) || $new_input['case_units'] == 0 || $new_input['case_units'] == '' ) {
                     return array('stat'=>'fail', 'err'=>array('code'=>'ciniki.foodmarket.22', 'msg'=>'You must specified the number of units in a case.'));
                 }
                 if( $new_input['case_cost'] != 0 && $new_input['case_cost'] != '' && $new_input['case_units'] != 0 && $new_input['case_units'] != '' ) {
@@ -272,9 +272,12 @@ function ciniki_foodmarket_productSuppliedUpdate(&$ciniki, $tnid, $product_id, $
             // Check if an output ID was passed
             //
             $output_id = 0;
-            if( isset($rc['args']['input' . $idx . '_' . $type . '_id']) ) {
+            if( isset($rc['args']['input' . $idx . '_' . $type . '_id']) 
+                && $rc['args']['input' . $idx . '_' . $type . '_id'] != ''
+                ) {
                 $output_id = $rc['args']['input' . $idx . '_' . $type . '_id'];
             }
+
             //
             // Build the new output object
             //
